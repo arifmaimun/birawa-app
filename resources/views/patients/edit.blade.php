@@ -1,81 +1,106 @@
 <x-app-layout>
-    <div class="mb-6">
-        <h1 class="text-3xl font-bold text-gray-800">Edit Pasien</h1>
-    </div>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Edit Patient') }}
+        </h2>
+    </x-slot>
 
-    <div class="bg-white rounded-lg shadow p-6 max-w-2xl">
-        <form action="{{ route('patients.update', $patient) }}" method="POST">
-            @csrf
-            @method('PUT')
-            
-            <div class="mb-4">
-                <label for="owner_id" class="block text-gray-700 text-sm font-bold mb-2">Pemilik</label>
-                <select name="owner_id" id="owner_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('owner_id') border-red-500 @enderror" required>
-                    <option value="">Pilih Pemilik</option>
-                    @foreach($owners as $owner)
-                        <option value="{{ $owner->id }}" {{ (old('owner_id', $patient->owner_id) == $owner->id) ? 'selected' : '' }}>{{ $owner->name }}</option>
-                    @endforeach
-                </select>
-                @error('owner_id')
-                    <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
-                @enderror
-            </div>
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 bg-white border-b border-gray-200">
+                    <form action="{{ route('patients.update', $patient) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Owner Selection -->
+                            <div class="col-span-1 md:col-span-2">
+                                <label for="owner_id" class="block text-sm font-medium text-gray-700">Owner</label>
+                                <select name="owner_id" id="owner_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-birawa-500 focus:ring focus:ring-birawa-500 focus:ring-opacity-50" required>
+                                    <option value="">Select Owner</option>
+                                    @foreach($owners as $owner)
+                                        <option value="{{ $owner->id }}" {{ (old('owner_id', $patient->owner_id) == $owner->id) ? 'selected' : '' }}>
+                                            {{ $owner->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('owner_id')
+                                    <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
 
-            <div class="mb-4">
-                <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Nama Hewan</label>
-                <input type="text" name="name" id="name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('name') border-red-500 @enderror" value="{{ old('name', $patient->name) }}" required>
-                @error('name')
-                    <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
-                @enderror
-            </div>
+                            <!-- Name -->
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+                                <input type="text" name="name" id="name" value="{{ old('name', $patient->name) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-birawa-500 focus:ring focus:ring-birawa-500 focus:ring-opacity-50" required>
+                                @error('name')
+                                    <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="mb-4">
-                    <label for="species" class="block text-gray-700 text-sm font-bold mb-2">Jenis (Spesies)</label>
-                    <input type="text" name="species" id="species" placeholder="Kucing, Anjing, dll" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('species') border-red-500 @enderror" value="{{ old('species', $patient->species) }}" required>
-                    @error('species')
-                        <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
-                    @enderror
+                            <!-- Species -->
+                            <div>
+                                <label for="species" class="block text-sm font-medium text-gray-700">Species</label>
+                                <select name="species" id="species" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-birawa-500 focus:ring focus:ring-birawa-500 focus:ring-opacity-50" required>
+                                    <option value="">Select Species</option>
+                                    @foreach(['Kucing', 'Anjing', 'Kelinci', 'Burung', 'Lainnya'] as $spec)
+                                        <option value="{{ $spec }}" {{ (old('species', $patient->species) == $spec) ? 'selected' : '' }}>{{ $spec }}</option>
+                                    @endforeach
+                                </select>
+                                @error('species')
+                                    <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <!-- Breed -->
+                            <div>
+                                <label for="breed" class="block text-sm font-medium text-gray-700">Breed</label>
+                                <input type="text" name="breed" id="breed" value="{{ old('breed', $patient->breed) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-birawa-500 focus:ring focus:ring-birawa-500 focus:ring-opacity-50">
+                                @error('breed')
+                                    <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <!-- Date of Birth -->
+                            <div>
+                                <label for="dob" class="block text-sm font-medium text-gray-700">Date of Birth</label>
+                                <input type="date" name="dob" id="dob" value="{{ old('dob', $patient->dob ? date('Y-m-d', strtotime($patient->dob)) : '') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-birawa-500 focus:ring focus:ring-birawa-500 focus:ring-opacity-50">
+                                @error('dob')
+                                    <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <!-- Gender -->
+                            <div class="col-span-1 md:col-span-2">
+                                <span class="block text-sm font-medium text-gray-700 mb-2">Gender</span>
+                                <div class="flex items-center space-x-6">
+                                    <label class="inline-flex items-center">
+                                        <input type="radio" name="gender" value="jantan" class="form-radio text-birawa-600 focus:ring-birawa-500" {{ old('gender', $patient->gender) == 'jantan' ? 'checked' : '' }} required>
+                                        <span class="ml-2 text-gray-700">Male (Jantan)</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="radio" name="gender" value="betina" class="form-radio text-birawa-600 focus:ring-birawa-500" {{ old('gender', $patient->gender) == 'betina' ? 'checked' : '' }} required>
+                                        <span class="ml-2 text-gray-700">Female (Betina)</span>
+                                    </label>
+                                </div>
+                                @error('gender')
+                                    <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-end mt-6">
+                            <a href="{{ route('patients.index') }}" class="text-sm font-medium text-gray-600 hover:text-gray-900 mr-4">
+                                Cancel
+                            </a>
+                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-birawa-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-birawa-500 active:bg-birawa-700 focus:outline-none focus:border-birawa-700 focus:ring focus:ring-birawa-300 disabled:opacity-25 transition">
+                                Simpan Data
+                            </button>
+                        </div>
+                    </form>
                 </div>
-
-                <div class="mb-4">
-                    <label for="breed" class="block text-gray-700 text-sm font-bold mb-2">Ras</label>
-                    <input type="text" name="breed" id="breed" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('breed') border-red-500 @enderror" value="{{ old('breed', $patient->breed) }}">
-                    @error('breed')
-                        <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="mb-4">
-                    <label for="gender" class="block text-gray-700 text-sm font-bold mb-2">Jenis Kelamin</label>
-                    <select name="gender" id="gender" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('gender') border-red-500 @enderror" required>
-                        <option value="jantan" {{ old('gender', $patient->gender) == 'jantan' ? 'selected' : '' }}>Jantan</option>
-                        <option value="betina" {{ old('gender', $patient->gender) == 'betina' ? 'selected' : '' }}>Betina</option>
-                    </select>
-                    @error('gender')
-                        <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div class="mb-4">
-                    <label for="dob" class="block text-gray-700 text-sm font-bold mb-2">Tanggal Lahir (Opsional)</label>
-                    <input type="date" name="dob" id="dob" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('dob') border-red-500 @enderror" value="{{ old('dob', $patient->dob) }}">
-                    @error('dob')
-                        <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-            </div>
-
-            <div class="flex items-center justify-between mt-4">
-                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                    Update
-                </button>
-                <a href="{{ route('patients.index') }}" class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800">
-                    Batal
-                </a>
-            </div>
-        </form>
+        </div>
     </div>
 </x-app-layout>
