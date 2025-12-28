@@ -11,16 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('patients', function (Blueprint $table) {
+        Schema::create('vital_sign_settings', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Doctor
             $table->string('name');
-            $table->string('species');
-            $table->string('breed')->nullable();
-            $table->enum('gender', ['male', 'female']);
-            $table->date('dob')->nullable();
+            $table->string('unit')->nullable();
+            $table->string('type')->default('number'); // number, text
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -29,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('patients');
+        Schema::dropIfExists('vital_sign_settings');
     }
 };

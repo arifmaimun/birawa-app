@@ -36,12 +36,13 @@ class InvoiceTest extends TestCase
         ]);
 
         // 2. Create Visit with Transport Fee
+        $completedStatus = \App\Models\VisitStatus::where('slug', 'completed')->first();
         $visit = Visit::factory()->create([
             'user_id' => $doctor->id,
             'patient_id' => $patient->id,
             'transport_fee' => 50000,
             'distance_km' => 5.5,
-            'status' => 'completed'
+            'visit_status_id' => $completedStatus ? $completedStatus->id : \App\Models\VisitStatus::factory()->create(['slug' => 'completed'])->id
         ]);
 
         // 3. Create Inventory Item
@@ -102,25 +103,5 @@ class InvoiceTest extends TestCase
         ]);
     }
 
-    public function test_can_mark_invoice_as_paid()
-    {
-        $doctor = User::factory()->create();
-        $this->actingAs($doctor);
-        
-        $visit = Visit::factory()->create(['user_id' => $doctor->id]);
-        $invoice = Invoice::create([
-            'visit_id' => $visit->id,
-            'invoice_number' => 'INV-TEST',
-            'total_amount' => 100000,
-            'payment_status' => 'unpaid'
-        ]);
 
-        $response = $this->patch(route('invoices.markPaid', $invoice));
-        
-        $response->assertRedirect();
-        $this->assertDatabaseHas('invoices', [
-            'id' => $invoice->id,
-            'payment_status' => 'paid'
-        ]);
-    }
 }

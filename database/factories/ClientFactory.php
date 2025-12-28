@@ -2,13 +2,16 @@
 
 namespace Database\Factories;
 
+use App\Models\Client;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Model>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Client>
  */
-class OwnerFactory extends Factory
+class ClientFactory extends Factory
 {
+    protected $model = Client::class;
+
     /**
      * Define the model's default state.
      *
@@ -20,6 +23,8 @@ class OwnerFactory extends Factory
             'name' => fake()->name(),
             'address' => fake()->address(),
             'phone' => fake()->phoneNumber(),
+            'user_id' => \App\Models\User::factory(), // Client belongs to User (clinic/doctor creating it) or maybe null?
+            // Checking Client model, user_id is in fillable.
         ];
     }
 }

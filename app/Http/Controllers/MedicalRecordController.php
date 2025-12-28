@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\Diagnosis;
+use App\Models\VitalSign;
+use App\Models\VitalSignSetting;
 use App\Services\InventoryService;
 
 class MedicalRecordController extends Controller
@@ -39,12 +41,16 @@ class MedicalRecordController extends Controller
         // Fetch Medical History
         $medicalHistory = MedicalRecord::where('patient_id', $visit->patient_id)
             ->where('id', '!=', $visit->id) // Exclude current if somehow it existed, though we are creating new
-            ->with(['doctor', 'diagnoses'])
+            ->with(['doctor', 'diagnoses', 'vitalSign'])
             ->latest()
             ->take(5)
             ->get();
 
-        return view('medical_records.create', compact('visit', 'inventories', 'diagnoses', 'medicalHistory'));
+        $vitalSignSettings = VitalSignSetting::where('user_id', Auth::id())
+            ->where('is_active', true)
+            ->get();
+
+        return view('medical_records.create', compact('visit', 'inventories', 'diagnoses', 'medicalHistory', 'vitalSignSettings'));
     }
 
     public function store(Request $request, Visit $visit)
@@ -81,6 +87,27 @@ class MedicalRecordController extends Controller
                 'plan_recipe' => $request->plan_recipe,
                 'is_locked' => true,
             ]);
+
+            // Save Vital Signs
+            $vitalData = [
+                'medical_record_id' => $record->id,
+                'temperature' => $request->temperature,
+                'weight' => $request->weight,
+                'heart_rate' => $request->heart_rate,
+            ];
+
+            // Handle Custom Fields
+            $customData = [];
+            if ($request->has('custom_vital_signs')) {
+                foreach ($request->custom_vital_signs as $key => $value) {
+                    if ($value !== null && $value !== '') {
+                        $customData[$key] = $value;
+                    }
+                }
+            }
+            $vitalData['custom_data'] = $customData;
+
+            VitalSign::create($vitalData);
 
             // Attach Diagnoses
             if ($request->has('diagnoses')) {

@@ -77,6 +77,60 @@
                 <form action="{{ route('medical-records.store', $visit) }}" method="POST">
                     @csrf
                     
+                    <!-- Vital Signs Section -->
+                    <div class="mb-8 p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                                Vital Signs
+                            </h3>
+                            <a href="{{ route('vital-sign-settings.index') }}" target="_blank" class="text-xs font-bold text-birawa-600 hover:text-birawa-700 flex items-center gap-1 bg-white px-3 py-1.5 rounded-lg border border-birawa-100 shadow-sm hover:shadow transition-all">
+                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                Configure Fields
+                            </a>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <!-- Default Fields -->
+                            <div>
+                                <label for="temperature" class="block text-sm font-bold text-slate-700 mb-1">Temperature (°C)</label>
+                                <input type="number" step="0.1" name="temperature" id="temperature" 
+                                    class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 text-sm shadow-sm transition-colors"
+                                    placeholder="e.g. 38.5" value="{{ old('temperature') }}">
+                            </div>
+                            <div>
+                                <label for="weight" class="block text-sm font-bold text-slate-700 mb-1">Weight (kg)</label>
+                                <input type="number" step="0.001" name="weight" id="weight" 
+                                    class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 text-sm shadow-sm transition-colors"
+                                    placeholder="e.g. 5.2" value="{{ old('weight') }}">
+                            </div>
+                            <div>
+                                <label for="heart_rate" class="block text-sm font-bold text-slate-700 mb-1">Heart Rate (bpm)</label>
+                                <input type="number" name="heart_rate" id="heart_rate" 
+                                    class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 text-sm shadow-sm transition-colors"
+                                    placeholder="e.g. 120" value="{{ old('heart_rate') }}">
+                            </div>
+                            
+                            <!-- Custom Fields -->
+                            @if(isset($vitalSignSettings))
+                                @foreach($vitalSignSettings as $setting)
+                                <div>
+                                    <label for="custom_{{ $setting->id }}" class="block text-sm font-bold text-slate-700 mb-1">
+                                        {{ $setting->name }} 
+                                        @if($setting->unit) <span class="text-xs text-slate-500 font-normal">({{ $setting->unit }})</span> @endif
+                                    </label>
+                                    <input type="{{ $setting->type == 'number' ? 'number' : 'text' }}" 
+                                        @if($setting->type == 'number') step="any" @endif
+                                        name="custom_vital_signs[{{ $setting->name }}]" 
+                                        id="custom_{{ $setting->id }}" 
+                                        class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 text-sm shadow-sm transition-colors"
+                                        placeholder="{{ $setting->type == 'number' ? '0' : 'Value...' }}"
+                                        value="{{ old('custom_vital_signs')[$setting->name] ?? '' }}">
+                                </div>
+                                @endforeach
+                            @endif
+                        </div>
+                    </div>
+
                     <!-- SOAP Section -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                         <div>

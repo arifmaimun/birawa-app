@@ -27,7 +27,7 @@ class Visit extends Model
         'patient_id', 
         'user_id', 
         'scheduled_at', 
-        'status', 
+        'visit_status_id', 
         'complaint', 
         'transport_fee',
         'latitude',
@@ -47,6 +47,11 @@ class Visit extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function visitStatus(): BelongsTo
+    {
+        return $this->belongsTo(VisitStatus::class);
     }
     
     public function medicalRecords()

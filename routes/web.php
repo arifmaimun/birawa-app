@@ -43,10 +43,15 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('patients', PatientController::class);
     
     Route::get('visits/calendar-events', [VisitController::class, 'calendarEvents'])->name('visits.calendar-events');
+    Route::get('visits/calendar', [VisitController::class, 'calendar'])->name('visits.calendar');
     Route::resource('visits', VisitController::class);
     Route::patch('/visits/{visit}/status', [VisitController::class, 'updateStatus'])->name('visits.update-status');
 
-    Route::resource('products', ProductController::class)->middleware('role:admin,owner');
+    // Settings
+    Route::resource('visit-statuses', App\Http\Controllers\VisitStatusController::class);
+    Route::resource('vital-sign-settings', App\Http\Controllers\VitalSignSettingController::class);
+
+    Route::resource('products', ProductController::class);
 
     // Medical Records
     Route::post('/diagnoses', [App\Http\Controllers\DiagnosisController::class, 'store'])->name('diagnoses.store');
@@ -75,5 +80,6 @@ Route::middleware(['auth'])->group(function () {
     // Invoices
     Route::resource('invoices', \App\Http\Controllers\InvoiceController::class);
     Route::post('visits/{visit}/create-invoice', [\App\Http\Controllers\InvoiceController::class, 'createFromVisit'])->name('invoices.createFromVisit');
-    Route::patch('invoices/{invoice}/mark-paid', [\App\Http\Controllers\InvoiceController::class, 'markPaid'])->name('invoices.markPaid');
+    Route::post('invoices/{invoice}/payments', [\App\Http\Controllers\InvoiceController::class, 'storePayment'])->name('invoices.payments.store');
+    Route::delete('invoices/{invoice}/payments/{payment}', [\App\Http\Controllers\InvoiceController::class, 'destroyPayment'])->name('invoices.payments.destroy');
 });

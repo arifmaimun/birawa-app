@@ -169,9 +169,32 @@
                     </table>
                     
                     <!-- Footer Total (Shared) -->
-                    <div class="bg-slate-50 border-t border-slate-200 p-4 md:px-6 md:py-4 flex justify-between items-center">
-                        <span class="text-sm font-bold text-slate-600">Total Amount</span>
-                        <span class="text-xl font-bold text-birawa-700 font-mono">Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}</span>
+                    <div class="bg-slate-50 border-t border-slate-200 p-6">
+                        <div class="flex flex-col gap-2 max-w-xs ml-auto">
+                            <div class="flex justify-between items-center text-sm text-slate-600">
+                                <span>Subtotal</span>
+                                <span class="font-mono">Rp {{ number_format($invoice->total_amount, 0, ',', '.') }}</span>
+                            </div>
+                            @if($invoice->deposit_amount > 0)
+                                <div class="flex justify-between items-center text-sm text-emerald-600">
+                                    <span>Deposit</span>
+                                    <span class="font-mono">- Rp {{ number_format($invoice->deposit_amount, 0, ',', '.') }}</span>
+                                </div>
+                            @endif
+                            @php $paid = $invoice->payments->sum('amount'); @endphp
+                            @if($paid > 0)
+                                <div class="flex justify-between items-center text-sm text-emerald-600">
+                                    <span>Paid</span>
+                                    <span class="font-mono">- Rp {{ number_format($paid, 0, ',', '.') }}</span>
+                                </div>
+                            @endif
+                            <div class="flex justify-between items-center pt-3 border-t border-slate-200">
+                                <span class="text-base font-bold text-slate-800">Remaining</span>
+                                <span class="text-xl font-bold {{ $invoice->remaining_balance > 0 ? 'text-rose-600' : 'text-emerald-600' }} font-mono">
+                                    Rp {{ number_format($invoice->remaining_balance, 0, ',', '.') }}
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

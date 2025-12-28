@@ -23,11 +23,13 @@ class VisitFactory extends Factory
      */
     public function definition()
     {
+        $status = \App\Models\VisitStatus::inRandomOrder()->first();
+
         return [
             'patient_id' => Patient::factory(),
             'user_id' => User::factory(),
             'scheduled_at' => $this->faker->dateTimeBetween('now', '+1 month'),
-            'status' => $this->faker->randomElement(['scheduled', 'completed', 'cancelled', 'otw', 'arrived']),
+            'visit_status_id' => $status ? $status->id : \App\Models\VisitStatus::factory(),
             'complaint' => $this->faker->sentence,
             'transport_fee' => $this->faker->numberBetween(10000, 50000),
             'latitude' => $this->faker->latitude,

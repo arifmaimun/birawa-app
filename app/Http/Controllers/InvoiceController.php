@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
+use App\Models\InvoicePayment;
 use App\Models\Visit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -49,13 +50,15 @@ class InvoiceController extends Controller
                 'token_expires_at' => now()->addHours(48)
             ]);
         }
+        
+        $invoice->load('payments');
 
         return view('invoices.show', compact('invoice'));
     }
 
     public function showPublic($token)
     {
-        $invoice = Invoice::where('access_token', $token)->with(['visit.patient.owners', 'invoiceItems'])->firstOrFail();
+        $invoice = Invoice::where('access_token', $token)->with(['visit.patient.owners', 'invoiceItems', 'payments'])->firstOrFail();
 
         // LOGIC: If token_expires_at is past (or fallback to created_at if null) AND user is NOT logged in
         $expiresAt = $invoice->token_expires_at ?? $invoice->created_at->addHours(48);
@@ -132,7 +135,10 @@ class InvoiceController extends Controller
             }
 
             // Update Total
-            $invoice->update(['total_amount' => $total]);
+            $invoice->update([
+                'total_amount' => $total,
+                'remaining_balance' => $total,
+            ]);
         });
 
         // Redirect to show newly created invoice
@@ -140,14 +146,68 @@ class InvoiceController extends Controller
         return redirect()->route('invoices.show', $invoice)->with('success', 'Invoice generated successfully.');
     }
 
-    public function markPaid(Invoice $invoice)
+    public function update(Request $request, Invoice $invoice)
     {
         if ($invoice->visit->user_id !== Auth::id()) {
             abort(403);
         }
 
-        $invoice->update(['payment_status' => 'paid']);
+        $request->validate([
+            'deposit_amount' => 'nullable|numeric|min:0',
+            'notes' => 'nullable|string',
+            'due_date' => 'nullable|date',
+        ]);
 
-        return redirect()->back()->with('success', 'Invoice marked as paid.');
+        $invoice->update([
+            'deposit_amount' => $request->deposit_amount ?? 0,
+            'notes' => $request->notes,
+            'due_date' => $request->due_date,
+        ]);
+        
+        $invoice->recalculateStatus();
+
+        return back()->with('success', 'Invoice details updated.');
+    }
+
+    public function storePayment(Request $request, Invoice $invoice)
+    {
+        if ($invoice->visit->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'amount' => 'required|numeric|min:0.01',
+            'method' => 'required|string',
+            'notes' => 'nullable|string',
+            'paid_at' => 'nullable|date',
+        ]);
+
+        InvoicePayment::create([
+            'invoice_id' => $invoice->id,
+            'amount' => $request->amount,
+            'method' => $request->method,
+            'notes' => $request->notes,
+            'paid_at' => $request->paid_at ?? now(),
+        ]);
+
+        $invoice->recalculateStatus();
+
+        return back()->with('success', 'Payment recorded.');
+    }
+
+    public function destroyPayment(Invoice $invoice, InvoicePayment $payment)
+    {
+        if ($invoice->visit->user_id !== Auth::id()) {
+            abort(403);
+        }
+        
+        if ($payment->invoice_id !== $invoice->id) {
+            abort(404);
+        }
+
+        $payment->delete();
+        $invoice->recalculateStatus();
+
+        return back()->with('success', 'Payment removed.');
     }
 }

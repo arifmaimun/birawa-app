@@ -86,8 +86,8 @@ class ClientController extends Controller
             'species' => 'required|string|max:255',
             'breed' => 'nullable|string|max:255',
             'patient_dob' => 'nullable|date',
-            'patient_gender' => 'required|in:Jantan,Betina',
-            'is_sterile' => 'boolean',
+            'patient_gender' => 'required|in:Jantan,Betina,Tidak Diketahui',
+            'is_sterile' => 'nullable|in:0,1',
         ]);
 
         DB::transaction(function () use ($request) {

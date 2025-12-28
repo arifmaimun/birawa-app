@@ -46,7 +46,7 @@
                     <p class="text-2xl font-bold text-emerald-700 mt-1">Rp {{ number_format($income, 0, ',', '.') }}</p>
                 </div>
                 <div class="relative z-10 text-xs text-emerald-600 font-medium">
-                    Paid Invoices
+                    Revenue from Payments
                 </div>
             </div>
 
@@ -101,7 +101,36 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Recent Payments -->
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="p-6 border-b border-slate-50 flex justify-between items-center">
+                    <h3 class="font-bold text-slate-800">Recent Income</h3>
+                    <!-- TODO: Link to full payment history -->
+                </div>
+                
+                <div class="divide-y divide-slate-50">
+                    @forelse($recentPayments as $payment)
+                        <div class="p-4 hover:bg-slate-50 transition-colors">
+                            <div class="flex justify-between items-start mb-1">
+                                <div>
+                                    <h4 class="text-sm font-bold text-slate-800">{{ $payment->invoice->visit->patient->name ?? 'Unknown' }}</h4>
+                                    <p class="text-xs text-slate-400">{{ $payment->paid_at->format('d M Y') }} • {{ ucfirst($payment->method) }}</p>
+                                </div>
+                                <span class="text-sm font-bold text-emerald-600">+ Rp {{ number_format($payment->amount, 0, ',', '.') }}</span>
+                            </div>
+                            @if($payment->notes)
+                                <p class="text-xs text-slate-500 truncate mt-1">{{ $payment->notes }}</p>
+                            @endif
+                        </div>
+                    @empty
+                        <div class="p-8 text-center text-slate-400">
+                            <p class="text-sm">No recent payments.</p>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+
             <!-- Recent Expenses -->
             <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
                 <div class="p-6 border-b border-slate-50 flex justify-between items-center">

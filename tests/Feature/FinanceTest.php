@@ -28,14 +28,22 @@ class FinanceTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        // 1. Create Income (Paid Invoice)
+        // 1. Create Income (Paid Invoice via Payment)
         $visit = Visit::factory()->create(['user_id' => $user->id]);
-        Invoice::create([
+        $invoice = Invoice::create([
             'visit_id' => $visit->id,
             'invoice_number' => 'INV-001',
             'total_amount' => 100000,
+            'remaining_balance' => 0,
             'payment_status' => 'paid',
             'created_at' => Carbon::now(),
+        ]);
+        // Add payment record
+        \App\Models\InvoicePayment::create([
+            'invoice_id' => $invoice->id,
+            'amount' => 100000,
+            'method' => 'cash',
+            'paid_at' => Carbon::now(),
         ]);
 
         // 2. Create Unpaid Invoice (Should be ignored)
@@ -48,7 +56,19 @@ class FinanceTest extends TestCase
             'created_at' => Carbon::now(),
         ]);
 
-        // 3. Create Expenses
+        // 3. Create Partial Invoice with Deposit
+        $visit3 = Visit::factory()->create(['user_id' => $user->id]);
+        Invoice::create([
+            'visit_id' => $visit3->id,
+            'invoice_number' => 'INV-003',
+            'total_amount' => 200000,
+            'deposit_amount' => 50000,
+            'remaining_balance' => 150000,
+            'payment_status' => 'partial',
+            'created_at' => Carbon::now(),
+        ]);
+
+        // 4. Create Expenses
         Expense::create([
             'user_id' => $user->id,
             'type' => 'OPEX',
@@ -69,10 +89,14 @@ class FinanceTest extends TestCase
         $response = $this->get(route('finance.index'));
 
         // Assert View Data
-        $response->assertViewHas('income', 100000);
+        // Income = 100000 (Payment) + 50000 (Deposit) = 150000
+        $response->assertViewHas('income', 150000);
         $response->assertViewHas('opex', 20000);
         $response->assertViewHas('capex', 500000);
         $response->assertViewHas('totalExpenses', 520000);
-        $response->assertViewHas('netProfit', 100000 - 520000); // -420000
+        $response->assertViewHas('netProfit', 150000 - 520000); // -370000
+        
+        // Assert Recent Payments present
+        $response->assertViewHas('recentPayments');
     }
 }

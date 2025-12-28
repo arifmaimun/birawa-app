@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Visit;
 use App\Models\Patient;
 use App\Models\User;
+use App\Models\VisitStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,7 +18,7 @@ class VisitController extends Controller
     {
         $search = $request->input('search');
         
-        $visits = Visit::with(['patient.client', 'user', 'invoice', 'medicalRecords'])
+        $visits = Visit::with(['patient.client', 'user', 'invoice', 'medicalRecords', 'visitStatus'])
             ->where('user_id', Auth::id()) // SCOPED: Only show visits for the logged-in doctor
             ->when($search, function ($query) use ($search) {
                 $query->whereHas('patient', function ($q) use ($search) {
@@ -30,6 +31,11 @@ class VisitController extends Controller
             ->paginate(10);
             
         return view('visits.index', compact('visits', 'search'));
+    }
+
+    public function calendar()
+    {
+        return view('visits.calendar');
     }
 
     /**
@@ -71,7 +77,9 @@ class VisitController extends Controller
 
         $data = $request->all();
         $data['user_id'] = Auth::id();
-        $data['status'] = 'scheduled'; // Default status
+        // Default status: Scheduled
+        $defaultStatus = VisitStatus::where('slug', 'scheduled')->first();
+        $data['visit_status_id'] = $defaultStatus ? $defaultStatus->id : null;
 
         // Calculate distance if coordinates are provided
         $doctorProfile = Auth::user()->doctorProfile;
@@ -187,7 +195,7 @@ class VisitController extends Controller
             'scheduled_at' => 'required|date',
             'complaint' => 'nullable|string',
             'transport_fee' => 'nullable|numeric|min:0',
-            'status' => 'required|in:scheduled,otw,arrived,completed,cancelled',
+            'visit_status_id' => 'required|exists:visit_statuses,id',
         ]);
 
         $visit->update($request->all());
@@ -218,16 +226,11 @@ class VisitController extends Controller
 
         $visits = Visit::where('user_id', Auth::id())
             ->whereBetween('scheduled_at', [$start, $end])
-            ->with('patient.client')
+            ->with(['patient.client', 'visitStatus'])
             ->get();
 
         $events = $visits->map(function ($visit) {
-            $color = match($visit->status) {
-                'completed' => '#10B981', // green
-                'cancelled' => '#EF4444', // red
-                'in_progress' => '#3B82F6', // blue
-                default => '#6B7280', // gray
-            };
+            $color = $visit->visitStatus->color ?? '#6B7280';
             
             $patientName = $visit->patient->name ?? 'Unknown';
             $clientName = $visit->patient->client->name ?? 'No Client';

@@ -40,6 +40,11 @@ class MedicalRecord extends Model
         return $this->belongsToMany(Diagnosis::class, 'diagnosis_medical_record');
     }
 
+    public function vitalSign()
+    {
+        return $this->hasOne(VitalSign::class);
+    }
+
     public function hasAccessGranted($userId)
     {
         // Check if there is an approved access request for this user

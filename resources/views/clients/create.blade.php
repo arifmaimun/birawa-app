@@ -1,15 +1,4 @@
 <x-app-layout>
-    <!-- Top Navigation Bar (Sticky) -->
-    <div class="sticky top-0 z-30 flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200 shadow-sm">
-        <a href="{{ route('clients.index') }}" class="p-2 -ml-2 text-gray-600 rounded-full hover:bg-gray-100">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-        </a>
-        <h1 class="text-lg font-bold text-gray-800">Registrasi Klien & Pasien</h1>
-        <div class="w-8"></div> 
-    </div>
-
     <div class="max-w-3xl px-4 py-6 mx-auto pb-28" x-data="clientForm()">
         <form action="{{ route('clients.store') }}" method="POST">
             @csrf
@@ -438,51 +427,61 @@
                                 placeholder="Contoh: Domestik, Persia, Golden Retriever">
                         </div>
 
-                        <!-- Row: DOB & Steril -->
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label for="dob" class="block mb-1 text-xs font-bold text-gray-500 uppercase">Tgl Lahir (Est.)</label>
-                                <input type="date" name="patient_dob" id="patient_dob" 
-                                    class="block w-full px-3 py-2.5 text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-birawa-500 focus:border-birawa-500 sm:text-sm">
+                        <!-- DOB / Age -->
+                        <div class="md:col-span-2">
+                            <label class="block mb-1 text-xs font-bold text-gray-500 uppercase">Tanggal Lahir / Umur Pasien</label>
+                            <div class="flex gap-4 mb-2">
+                                <label class="inline-flex items-center">
+                                    <input type="radio" x-model="patientDobMode" value="date" class="text-birawa-600 focus:ring-birawa-500">
+                                    <span class="ml-2 text-sm text-gray-700">Input Tanggal</span>
+                                </label>
+                                <label class="inline-flex items-center">
+                                    <input type="radio" x-model="patientDobMode" value="age" class="text-birawa-600 focus:ring-birawa-500">
+                                    <span class="ml-2 text-sm text-gray-700">Input Umur</span>
+                                </label>
                             </div>
-
-                            <div>
-                                <label class="block mb-1 text-xs font-bold text-gray-500 uppercase">Status Steril</label>
-                                <div class="flex gap-0 rounded-lg border border-gray-300 overflow-hidden h-[42px]">
-                                    <label class="flex-1 cursor-pointer h-full border-r border-gray-300">
-                                        <input type="radio" name="is_sterile" value="0" class="peer sr-only" checked>
-                                        <div class="h-full flex items-center justify-center bg-gray-50 text-gray-600 text-sm peer-checked:bg-gray-200 peer-checked:text-gray-900 peer-checked:font-semibold transition-all hover:bg-gray-100">
-                                            Belum
-                                        </div>
-                                    </label>
-                                    <label class="flex-1 cursor-pointer h-full">
-                                        <input type="radio" name="is_sterile" value="1" class="peer sr-only">
-                                        <div class="h-full flex items-center justify-center bg-gray-50 text-gray-600 text-sm peer-checked:bg-purple-100 peer-checked:text-purple-700 peer-checked:font-semibold transition-all hover:bg-gray-100">
-                                            Sudah
-                                        </div>
-                                    </label>
+                            
+                            <div x-show="patientDobMode === 'date'">
+                                <input type="date" name="patient_dob" x-model="patientDobDate" class="block w-full px-3 py-2.5 text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-birawa-500 focus:border-birawa-500 sm:text-sm">
+                            </div>
+                            
+                            <div x-show="patientDobMode === 'age'" class="flex gap-4 items-center">
+                                <div class="w-1/2">
+                                    <div class="flex items-center">
+                                        <input type="number" x-model="patientAgeYears" @input="calculatePatientDobFromAge" min="0" class="block w-full px-3 py-2.5 text-gray-900 bg-white border border-gray-300 rounded-l-lg focus:ring-birawa-500 focus:border-birawa-500 sm:text-sm">
+                                        <span class="inline-flex items-center px-3 py-2.5 rounded-r-lg border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">Tahun</span>
+                                    </div>
+                                </div>
+                                <div class="w-1/2">
+                                    <div class="flex items-center">
+                                        <input type="number" x-model="patientAgeMonths" @input="calculatePatientDobFromAge" min="0" max="11" class="block w-full px-3 py-2.5 text-gray-900 bg-white border border-gray-300 rounded-l-lg focus:ring-birawa-500 focus:border-birawa-500 sm:text-sm">
+                                        <span class="inline-flex items-center px-3 py-2.5 rounded-r-lg border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">Bulan</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Gender -->
-                        <div>
-                            <label class="block mb-2 text-xs font-bold text-gray-500 uppercase">Jenis Kelamin</label>
-                            <div class="flex gap-3">
-                                <label class="flex-1 cursor-pointer group">
-                                    <input type="radio" name="patient_gender" value="Jantan" class="peer sr-only">
-                                    <div class="flex flex-col items-center justify-center p-3 bg-white border border-gray-200 rounded-xl peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all hover:border-blue-200">
-                                        <span class="text-2xl mb-1">♂</span>
-                                        <span class="text-sm font-medium text-gray-600 group-hover:text-gray-900">Jantan</span>
-                                    </div>
-                                </label>
-                                <label class="flex-1 cursor-pointer group">
-                                    <input type="radio" name="patient_gender" value="Betina" class="peer sr-only">
-                                    <div class="flex flex-col items-center justify-center p-3 bg-white border border-gray-200 rounded-xl peer-checked:border-pink-500 peer-checked:bg-pink-50 transition-all hover:border-pink-200">
-                                        <span class="text-2xl mb-1">♀</span>
-                                        <span class="text-sm font-medium text-gray-600 group-hover:text-gray-900">Betina</span>
-                                    </div>
-                                </label>
+                        <!-- Row: Gender & Steril -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Gender -->
+                            <div>
+                                <label class="block mb-1 text-xs font-bold text-gray-500 uppercase">Jenis Kelamin *</label>
+                                <select name="patient_gender" class="block w-full px-3 py-2.5 text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-birawa-500 focus:border-birawa-500 sm:text-sm" required>
+                                    <option value="">-- Pilih --</option>
+                                    <option value="Jantan">Jantan</option>
+                                    <option value="Betina">Betina</option>
+                                    <option value="Tidak Diketahui">Tidak Diketahui</option>
+                                </select>
+                            </div>
+
+                            <!-- Steril -->
+                            <div>
+                                <label class="block mb-1 text-xs font-bold text-gray-500 uppercase">Status Steril *</label>
+                                <select name="is_sterile" class="block w-full px-3 py-2.5 text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-birawa-500 focus:border-birawa-500 sm:text-sm" required>
+                                    <option value="">Tidak Diketahui</option>
+                                    <option value="0">Belum Steril</option>
+                                    <option value="1">Sudah Steril</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -493,7 +492,7 @@
             <div class="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200 z-20">
                 <div class="max-w-3xl mx-auto">
                     <button type="submit" class="w-full px-4 py-3 text-center font-bold text-white bg-birawa-600 rounded-xl shadow-lg shadow-birawa-500/30 hover:bg-birawa-700 transform active:scale-[0.98] transition-all">
-                        Simpan Data
+                        Selesai
                     </button>
                 </div>
             </div>
@@ -535,6 +534,19 @@
                     const dd = String(birthDate.getDate()).padStart(2, '0');
                     
                     this.dobDate = `${yyyy}-${mm}-${dd}`;
+                },
+
+                calculatePatientDobFromAge() {
+                    const today = new Date();
+                    let birthDate = new Date(today);
+                    birthDate.setFullYear(today.getFullYear() - (parseInt(this.patientAgeYears) || 0));
+                    birthDate.setMonth(today.getMonth() - (parseInt(this.patientAgeMonths) || 0));
+                    
+                    const yyyy = birthDate.getFullYear();
+                    const mm = String(birthDate.getMonth() + 1).padStart(2, '0');
+                    const dd = String(birthDate.getDate()).padStart(2, '0');
+                    
+                    this.patientDobDate = `${yyyy}-${mm}-${dd}`;
                 }
             }));
 

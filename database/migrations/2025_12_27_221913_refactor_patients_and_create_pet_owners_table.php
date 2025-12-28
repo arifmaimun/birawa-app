@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
+        /*
         Schema::table('patients', function (Blueprint $table) {
             // Drop foreign key and column owner_id
             $table->dropForeign(['owner_id']);
             $table->dropColumn('owner_id'); 
         });
+        */
 
         Schema::create('pet_owners', function (Blueprint $table) {
             $table->id();
@@ -33,9 +35,11 @@ return new class extends Migration
     {
         Schema::dropIfExists('pet_owners');
 
+        /*
         Schema::table('patients', function (Blueprint $table) {
              // We can't easily restore the data, but we can restore the column
              $table->foreignId('owner_id')->nullable()->constrained('owners')->onDelete('cascade');
         });
+        */
     }
 };
