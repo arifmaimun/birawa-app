@@ -14,7 +14,7 @@
 /* Global Medical Clean UI Overrides */
 @layer base {
     input, textarea, select {
-        @apply rounded-xl border-slate-300 focus:border-birawa-500 focus:ring-birawa-500 !important;
+        @apply !rounded-xl !border-slate-300 focus:!border-birawa-500 focus:!ring-birawa-500;
     }
     .btn {
         @apply px-4 py-2 rounded-xl font-semibold transition duration-200 ease-in-out;

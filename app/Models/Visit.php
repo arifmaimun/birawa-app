@@ -7,9 +7,21 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
+
 class Visit extends Model
 {
     use HasFactory;
+
+    protected static function booted()
+    {
+        static::addGlobalScope('doctor_access', function (Builder $builder) {
+            if (Auth::check() && Auth::user()->role === 'veterinarian') {
+                $builder->where('user_id', Auth::id());
+            }
+        });
+    }
 
     protected $fillable = [
         'patient_id', 

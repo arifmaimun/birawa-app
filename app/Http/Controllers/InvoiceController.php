@@ -44,7 +44,10 @@ class InvoiceController extends Controller
 
         // Auto-generate access token if missing (for backward compatibility)
         if (empty($invoice->access_token)) {
-            $invoice->update(['access_token' => (string) Str::uuid()]);
+            $invoice->update([
+                'access_token' => (string) Str::uuid(),
+                'token_expires_at' => now()->addHours(48)
+            ]);
         }
 
         return view('invoices.show', compact('invoice'));
@@ -54,9 +57,10 @@ class InvoiceController extends Controller
     {
         $invoice = Invoice::where('access_token', $token)->with(['visit.patient.owners', 'invoiceItems'])->firstOrFail();
 
-        // LOGIC: If created_at > 48 hours AND user is NOT logged in -> Redirect to login
-        // If user IS logged in, they can view it regardless of time.
-        if ($invoice->created_at->addHours(48)->isPast() && !Auth::check()) {
+        // LOGIC: If token_expires_at is past (or fallback to created_at if null) AND user is NOT logged in
+        $expiresAt = $invoice->token_expires_at ?? $invoice->created_at->addHours(48);
+        
+        if ($expiresAt->isPast() && !Auth::check()) {
              return redirect()->route('login')->with('error', 'This invoice link has expired. Please log in to view.');
         }
 

@@ -81,11 +81,11 @@
             </a>
         </div>
 
-        <!-- Today's Visits List -->
+        <!-- Today's Visits Timeline -->
         <div>
             <div class="flex items-center justify-between mb-4">
-                <h3 class="font-bold text-slate-800 text-lg">Today's Visits</h3>
-                <a href="{{ route('visits.index') }}" class="text-xs font-bold text-birawa-600 hover:text-birawa-700 bg-birawa-50 px-3 py-1.5 rounded-lg transition-colors">View All</a>
+                <h3 class="font-bold text-slate-800 text-lg">Timeline Hari Ini</h3>
+                <a href="{{ route('visits.index') }}" class="text-xs font-bold text-birawa-600 hover:text-birawa-700 bg-birawa-50 px-3 py-1.5 rounded-lg transition-colors">View Calendar</a>
             </div>
             
             @if($todayVisits->isEmpty())
@@ -97,37 +97,86 @@
                     <p class="text-sm text-slate-400">Enjoy your free time or check upcoming schedule.</p>
                 </div>
             @else
-                <div class="space-y-3">
+                <div class="relative pl-4 border-l-2 border-slate-200 ml-3 space-y-8 py-2">
                     @foreach($todayVisits as $visit)
-                        <a href="{{ route('visits.show', $visit) }}" class="block bg-white rounded-2xl p-4 shadow-sm border border-slate-100 active:scale-[0.99] transition-all hover:border-birawa-200 hover:shadow-md group">
-                            <div class="flex items-start justify-between">
-                                <div class="flex gap-4">
-                                    <div class="w-12 h-12 rounded-2xl bg-birawa-50 border border-birawa-100 flex items-center justify-center text-birawa-600 font-bold text-lg shrink-0 group-hover:bg-birawa-100 transition-colors">
-                                        {{ substr($visit->patient->name, 0, 1) }}
-                                    </div>
+                        <div class="relative">
+                            <!-- Timeline Dot -->
+                            <div class="absolute -left-[21px] top-1 w-4 h-4 rounded-full border-2 border-white {{ $visit->status === 'completed' ? 'bg-emerald-500' : ($visit->status === 'in_progress' ? 'bg-blue-500' : 'bg-slate-300') }} shadow-sm"></div>
+                            
+                            <a href="{{ route('visits.show', $visit) }}" class="block bg-white rounded-2xl p-4 shadow-sm border border-slate-100 active:scale-[0.99] transition-all hover:border-birawa-200 hover:shadow-md group">
+                                <div class="flex items-start justify-between mb-2">
                                     <div>
+                                        <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs font-bold mb-1 inline-block">
+                                            {{ \Carbon\Carbon::parse($visit->scheduled_at)->format('H:i') }}
+                                        </span>
                                         <h4 class="font-bold text-slate-800 group-hover:text-birawa-700 transition-colors">{{ $visit->patient->name }}</h4>
-                                        <p class="text-xs text-slate-500 font-medium">{{ $visit->patient->owners->first()->name ?? 'No Owner' }}</p>
-                                        
-                                        <div class="flex items-center gap-1 mt-1 text-slate-400">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                                            <p class="text-[10px] truncate max-w-[150px]">{{ $visit->patient->owners->first()->address ?? 'No address' }}</p>
-                                        </div>
                                     </div>
-                                </div>
-                                <div class="flex flex-col items-end gap-2">
-                                    <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200">
-                                        {{ \Carbon\Carbon::parse($visit->scheduled_at)->format('H:i') }}
-                                    </span>
                                     <span class="text-[10px] font-bold uppercase tracking-wide {{ $visit->status === 'completed' ? 'text-emerald-600' : ($visit->status === 'in_progress' ? 'text-blue-600' : 'text-slate-400') }}">
                                         {{ str_replace('_', ' ', $visit->status) }}
                                     </span>
                                 </div>
-                            </div>
-                        </a>
+                                
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-birawa-50 flex items-center justify-center text-birawa-600 font-bold text-xs shrink-0">
+                                        {{ substr($visit->patient->name, 0, 1) }}
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-xs text-slate-500 font-medium truncate">{{ $visit->patient->owners->first()->name ?? 'No Owner' }}</p>
+                                        <div class="flex items-center gap-1 text-slate-400">
+                                            <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                            <p class="text-[10px] truncate">{{ $visit->patient->owners->first()->address ?? 'No address' }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
                     @endforeach
                 </div>
             @endif
+        </div>
+
+        <!-- SOS Floating Button -->
+        <div x-data="{ 
+            sending: false,
+            sendSOS() {
+                if (this.sending) return;
+                this.sending = true;
+                
+                if (!navigator.geolocation) {
+                    alert('Geolocation is not supported by your browser');
+                    this.sending = false;
+                    return;
+                }
+
+                navigator.geolocation.getCurrentPosition((position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    const phone = '{{ Auth::user()->doctorProfile->emergency_contact_number ?? '' }}';
+                    
+                    if (!phone) {
+                        alert('Please set your Emergency Contact Number in Profile settings first!');
+                        window.location.href = '{{ route('profile.edit') }}';
+                        return;
+                    }
+
+                    const text = `SOS! Saya butuh bantuan segera. Lokasi saya: https://maps.google.com/?q=${lat},${lng}`;
+                    const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+                    
+                    window.open(url, '_blank');
+                    this.sending = false;
+                }, (error) => {
+                    alert('Unable to retrieve your location');
+                    this.sending = false;
+                });
+            }
+        }" class="fixed bottom-6 right-6 z-50">
+            <button @click="sendSOS()" class="w-14 h-14 bg-red-600 rounded-full shadow-lg shadow-red-600/30 flex items-center justify-center text-white hover:bg-red-700 active:scale-95 transition-all animate-pulse">
+                <span x-show="!sending" class="font-bold text-xs">SOS</span>
+                <svg x-show="sending" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </button>
         </div>
 
         <!-- Low Stock Alert -->

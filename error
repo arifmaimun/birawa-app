@@ -1,237 +1,119 @@
-Internal Server Error
+Laporan Audit Teknis & Kesiapan Produksi: Birawa Vet
 
-Copy as Markdown
-Illuminate\Database\Eloquent\RelationNotFoundException
-vendor/laravel/framework/src/Illuminate/Database/Eloquent/RelationNotFoundException.php:35
-Call to undefined relationship [owner] on model [App\Models\Patient].
+Tanggal Audit: 28 Desember 2025
+Auditor: Senior Full Stack Developer Assistant
+Status Kode: 🚧 BETA (60% Ready)
+Kesimpulan: Struktur database dan backend sudah sangat solid, namun Logika Bisnis (Business Logic) dan UI/UX Frontend masih membutuhkan refinement signifikan untuk mencapai standar keamanan, stabilitas kompilasi, dan kenyamanan penggunaan mobile.
 
-LARAVEL
-12.44.0
-PHP
-8.5.1
-UNHANDLED
-CODE 0
-500
-GET
-http://localhost:8000/dashboard
+🚨 1. Critical Severity (Wajib Perbaiki Sebelum Live)
 
-Exception trace
-7 vendor frames
+Isu yang dapat menyebabkan sistem crash, data korup, kegagalan kompilasi, atau kebocoran privasi fatal.
 
-resources/views/dashboard.blade.php
-resources/views/dashboard.blade.php:65
+A. Race Condition pada Database Migration
 
-60                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Registered</th>
-61                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-62                    </tr>
-63                </thead>
-64                <tbody class="bg-white divide-y divide-gray-200">
-65                    @foreach(\App\Models\Patient::with('owner')->latest()->take(5)->get() as $patient)
-66                    <tr class="hover:bg-gray-50 transition-colors duration-200">
-67                        <td class="px-6 py-4 whitespace-nowrap">
-68                            <div class="text-sm font-medium text-gray-900">{{ $patient->name }}</div>
-69                        </td>
-70                        <td class="px-6 py-4 whitespace-nowrap">
-71                            @if(strtolower($patient->species) == 'cat' || strtolower($patient->species) == 'kucing')
-72                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">
-73                                    Cat
-74                                </span>
-75                            @elseif(strtolower($patient->species) == 'dog' || strtolower($patient->species) == 'anjing')
-76                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-77
-57 vendor frames
+Temuan: Terdapat multipel file migrasi dengan Timestamp Identik (detik yang sama).
 
-public/index.php
-public/index.php:20
+2025_12_27_221913 (4 File: Inventory, Profile, Catalog, Patients).
 
-1 vendor frame
+2025_12_28_033121 (4 File: Audit, Consent, Shifts, Messages).
 
-Queries
-1-6 of 6
-sqlite
-select * from "sessions" where "id" = 'koWA8ns5EhLH1cmQOkm4CWX8HyZkQ4SDkxkIU5vB' limit 1
-0.92ms
-sqlite
-select * from "users" where "id" = 1 limit 1
-0.08ms
-sqlite
-select count(*) as aggregate from "patients"
-0.2ms
-sqlite
-select count(*) as aggregate from "products"
-0.03ms
-sqlite
-select count(*) as aggregate from "users"
-0.03ms
-sqlite
-select * from "patients" order by "created_at" desc limit 5
-0.06ms
-Headers
-host
-localhost:8000
-connection
-keep-alive
-cache-control
-max-age=0
-upgrade-insecure-requests
-1
-user-agent
-Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
-accept
-text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
-sec-fetch-site
-same-origin
-sec-fetch-mode
-navigate
-sec-fetch-user
-?1
-sec-fetch-dest
-document
-sec-ch-ua
-"Google Chrome";v="143", "Chromium";v="143", "Not A(Brand";v="24"
-sec-ch-ua-mobile
-?0
-sec-ch-ua-platform
-"macOS"
-referer
-http://localhost:8000/login
-accept-encoding
-gzip, deflate, br, zstd
-accept-language
-en-US,en;q=0.9
-cookie
-sb-anovzbbvasxsagkblbaf-auth-token.0=base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SW5KRlRYaEZkVU0zTWpOcWQzWjVTak1pTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDJGdWIzWjZZbUoyWVhONGMyRm5hMkpzWW1GbUxuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSXhNek5oWldRNVlpMDVaVEV5TFRSbVpXSXRZakJoT1MwM05ESXhPRGd3TW1Zek4yVWlMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpZeE5EUTJOVGN6TENKcFlYUWlPakUzTmpFME5ESTVOek1zSW1WdFlXbHNJam9pWkhKb0xtMTFhR0Z0YldGa1lYSnBaa0JuYldGcGJDNWpiMjBpTENKd2FHOXVaU0k2SWlJc0ltRndjRjl0WlhSaFpHRjBZU0k2ZXlKd2NtOTJhV1JsY2lJNkltZHZiMmRzWlNJc0luQnliM1pwWkdWeWN5STZXeUpuYjI5bmJHVWlYWDBzSW5WelpYSmZiV1YwWVdSaGRHRWlPbnNpWVhaaGRHRnlYM1Z5YkNJNkltaDBkSEJ6T2k4dmJHZ3pMbWR2YjJkc1pYVnpaWEpqYjI1MFpXNTBMbU52YlM5aEwwRkRaemh2WTBwWmQxVmplVkphWmtJd09HNXlaMFZFVDB0S1FqSnJjWEp0WTJ4cVgzVktPWEp5WldaRWJ6UnBXRTVTZUU0elJtYzljemsyTFdNaUxDSmxiV0ZwYkNJNkltUnlhQzV0ZFdoaGJXMWhaR0Z5YVdaQVoyMWhhV3d1WTI5dElpd2laVzFoYVd4ZmRtVnlhV1pwWldRaU9uUnlkV1VzSW1aMWJHeGZibUZ0WlNJNklrMTFhR0Z0YldGa0lFRnlhV1lpTENKcGMzTWlPaUpvZEhSd2N6b3ZMMkZqWTI5MWJuUnpMbWR2YjJkc1pTNWpiMjBpTENKdVlXMWxJam9pVFhWb1lXMXRZV1FnUVhKcFppSXNJbkJvYjI1bFgzWmxjbWxtYVdWa0lqcG1ZV3h6WlN3aWNHbGpkSFZ5WlNJNkltaDBkSEJ6T2k4dmJHZ3pMbWR2YjJkc1pYVnpaWEpqYjI1MFpXNTBMbU52YlM5aEwwRkRaemh2WTBwWmQxVmplVkphWmtJd09HNXlaMFZFVDB0S1FqSnJjWEp0WTJ4cVgzVktPWEp5WldaRWJ6UnBXRTVTZUU0elJtYzljemsyTFdNaUxDSndjbTkyYVdSbGNsOXBaQ0k2SWpFeE5URTVNak14TmpFNE1UQTJOelF3T1RZMk9TSXNJbk4xWWlJNklqRXhOVEU1TWpNeE5qRTRNVEEyTnpRd09UWTJPU0o5TENKeWIyeGxJam9pWVhWMGFHVnVkR2xqWVhSbFpDSXNJbUZoYkNJNkltRmhiREVpTENKaGJYSWlPbHQ3SW0xbGRHaHZaQ0k2SW05aGRYUm9JaXdpZEdsdFpYTjBZVzF3SWpveE56WXhORFF5T1RjemZWMHNJbk5sYzNOcGIyNWZhV1FpT2lJNU1qWXlNamRtTXkxa1pUZzBMVFJqWTJNdE9UQTBOQzB5WTJZM09XSTNOVE14TkRVaUxDSnBjMTloYm05dWVXMXZkWE1pT21aaGJITmxmUS5BVmZXYW5VSWN3ODE3WE1ReG9jWWN0THROSmRSdWNCREk5M2FXaF8yUFdjIiwidG9rZW5fdHlwZSI6ImJlYXJlciIsImV4cGlyZXNfaW4iOjM2MDAsImV4cGlyZXNfYXQiOjE3NjE0NDY1NzMsInJlZnJlc2hfdG9rZW4iOiJuNjJ2ZXA1dW5vejQiLCJ1c2VyIjp7ImlkIjoiMTMzYWVkOWItOWUxMi00ZmViLWIwYTktNzQyMTg4MDJmMzdlIiwiYXVkIjoiYXV0aGVudGljYXRlZCIsInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiZW1haWwiOiJkcmgubXVoYW1tYWRhcmlmQGdtYWlsLmNvbSIsImVtYWlsX2NvbmZpcm1lZF9hdCI6IjIwMjUtMTAtMjVUMTI6NDM6NDUuNzE5ODVaIiwicGhvbmUiOiIiLCJjb25maXJtZWRfYXQiOiIyMDI1LTEwLTI1VDEyOjQzOjQ1LjcxOTg1WiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMTAtMjZUMDE6NDI6NTMuMzk4NzI0MTg4WiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6Imdvb2dsZSIsInByb3ZpZGVycyI6WyJnb29nbGUiXX0sInVzZXJfbWV0YWRhdGEiOnsiYXZhdGFyX3VybCI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FDZzhvY0pZd1VjeVJaZkIwOG5yZ0VET0tKQjJrcXJtY2xqX3VKOXJyZWZEbzRpWE5SeE4zRmc9czk2LWMiLCJlbWFpbCI6ImRyaC5tdWhhbW1hZGFyaWZAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImZ1bGxfbmFtZSI6Ik11aGFtbWFkIEFyaWYiLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiTXVoYW1tYWQgQXJpZiIsInBob25lX3ZlcmlmaWVkIjpmYWxzZSwicGljdHVyZSI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FDZzhvY0pZd1VjeVJaZkIwOG5yZ0VET0tKQjJrcXJtY2xqX3VKOXJyZWZEbzRpWE5SeE4zRmc9czk2LWMiLCJwcm92aWRlcl9pZCI6IjExNTE5MjMxNjE4MTA2NzQwOTY2OSIsInN1YiI6IjExNTE5MjMxNjE4MTA2NzQwOTY2OSJ9LCJpZGVudGl0aWVzIjpbeyJpZGVudGl0eV9pZCI6ImY2MWZkODQ0LTQ0YzUtNDQzNy04MWIxLWFmMTBjZGE5ZWZhNyIsImlkIjoiMTE1MTkyMzE2MTgxMDY3NDA5NjY5IiwidXNlcl9pZCI6IjEzM2FlZDliL; sb-anovzbbvasxsagkblbaf-auth-token.1=TllMTItNGZlYi1iMGE5LTc0MjE4ODAyZjM3ZSIsImlkZW50aXR5X2RhdGEiOnsiYXZhdGFyX3VybCI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FDZzhvY0pZd1VjeVJaZkIwOG5yZ0VET0tKQjJrcXJtY2xqX3VKOXJyZWZEbzRpWE5SeE4zRmc9czk2LWMiLCJlbWFpbCI6ImRyaC5tdWhhbW1hZGFyaWZAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImZ1bGxfbmFtZSI6Ik11aGFtbWFkIEFyaWYiLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiTXVoYW1tYWQgQXJpZiIsInBob25lX3ZlcmlmaWVkIjpmYWxzZSwicGljdHVyZSI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FDZzhvY0pZd1VjeVJaZkIwOG5yZ0VET0tKQjJrcXJtY2xqX3VKOXJyZWZEbzRpWE5SeE4zRmc9czk2LWMiLCJwcm92aWRlcl9pZCI6IjExNTE5MjMxNjE4MTA2NzQwOTY2OSIsInN1YiI6IjExNTE5MjMxNjE4MTA2NzQwOTY2OSJ9LCJwcm92aWRlciI6Imdvb2dsZSIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMTAtMjVUMTI6NDM6NDUuNzA1MDk4WiIsImNyZWF0ZWRfYXQiOiIyMDI1LTEwLTI1VDEyOjQzOjQ1LjcwNTE1MloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0xMC0yNlQwMTo0Mjo1Mi42MzQyMjRaIiwiZW1haWwiOiJkcmgubXVoYW1tYWRhcmlmQGdtYWlsLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMTAtMjVUMTI6NDM6NDUuNjY1OTczWiIsInVwZGF0ZWRfYXQiOiIyMDI1LTEwLTI2VDAxOjQyOjUzLjQwNzg4N1oiLCJpc19hbm9ueW1vdXMiOmZhbHNlfSwicHJvdmlkZXJfdG9rZW4iOiJ5YTI5LmEwQVRpNksyc2l1V3R1U3I0RmsyYUpwSVF3aWxta2QxOGJkeWVMYTNIZk94VDVGNi1jTENlZl9jbThZTFNQT2VXMTBDRk1QeVdlOTJ2TEpLUmNKNXg5ajlsYjNLMThHMEtLdFBKUk1SZFRCc2xYS2RqY0c2aTcxWDBJQ2RITzJadkpSTTNFbFVTTHJ2T1I0Q1FTMVJjanhUVldXMUgxUUlWUFk2a2hYTmJDZ1g0VzByTkFPQ1pDNHhoNFlYS1FxM2xNSE1yVGl6d2FDZ1lLQWRrU0FSY1NGUUhHWDJNaUpORWZWLW13N1VyQk1ISXN2N0l2dncwMjA2IiwicHJvdmlkZXJfcmVmcmVzaF90b2tlbiI6IjEvLzBnQUxsaTU1YmxoMmtDZ1lJQVJBQUdCQVNOd0YtTDlJck1SU1h4OExFdUlpLXZKMTc2ME9Bd0s3bE9OcUZqcXVBanJTdGxRYXpVVnJ0UXdsNUwzdVpJNDMxNVBsamZjUWFzRzQifQ; _ga=GA1.1.124590460.1766332379; _ga_8MZ9CEF0PB=GS2.1.s1766332379$o1$g1$t1766332762$j60$l0$h0; XSRF-TOKEN=eyJpdiI6IjNBQ2YzV0VZYS9YNW9HTTVJYUR4cmc9PSIsInZhbHVlIjoicmVqbHRNUCt0MTNDQUJtMzZkN2E5MnQ0c3FwTXMyNE41bmVZUmtVcUdha2REdi9sMFM3VmJ1RzlSRXFTVVRpZXZla3Z2UkkrdXZrMTQwKzEvWUV1eWhFeVpHaENTMXRXdGloU3o5YVA2SS93eVFpdHVIeHJlUXRGc2RiMEVjM3IiLCJtYWMiOiI0ZjhhZWE5MDUyNzE3MjkwYzAyMDdmZmZkZjk1MGQxY2NjOWMxNDgzNjQ1YzBjOTBlOGEwMmM4MzkyNmE1ZWE5IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IlZPQVljclk4Q21UVDdMY0VIcTZxQmc9PSIsInZhbHVlIjoidldSVkNFNkRqS1dpbVNsV2poQzI3VWxFbmtZS0hQU2pPR2Z2aUhPU1hTWEM3dDE3QW4vdFpZRHRPeEJrZVcyUEJoUXlkWjR6WGR1a2hqVFRaT2Fia1pRYU52Um96RVFQWmV6N3lMVmUzVHhuL1pPcTJjd3ZDRmtpMDRPaVJoR2kiLCJtYWMiOiJmYjZmNGJjNDc2ODI0YzM5NWFiZTIwNzkxZGIxNWZkZWMxY2Y0MWVhZDZmNGFhODczNDlhYjk1MDM4OGNiMDhkIiwidGFnIjoiIn0%3D
-Body
-// No request body
-Routing
-controller
-Closure
-route name
-dashboard
-middleware
-web, auth
-Routing parameters
-// No routing parameters
+Risiko: Saat deployment, Laravel tidak bisa menjamin urutan eksekusi. Jika tabel profil dibuat sebelum tabel user, migrasi akan gagal total karena error Foreign Key.
 
+Solusi: Rename file migrasi secara manual, berikan jeda 1-2 detik antar file untuk menegaskan urutan dependensi.
 
+B. Data Scoping (Kebocoran Data Antar Dokter)
 
-# Illuminate\Database\Eloquent\RelationNotFoundException - Internal Server Error
+Temuan: Controller standar (PatientController, VisitController) cenderung menggunakan metode query umum tanpa filter user.
 
-Call to undefined relationship [owner] on model [App\Models\Patient].
+Risiko: Kebocoran Data Medis. Dokter A berpotensi melihat atau memanipulasi data pasien milik Dokter B lewat manipulasi ID di URL.
 
-PHP 8.5.1
-Laravel 12.44.0
-localhost:8000
+Solusi: Terapkan Global Scope pada Model atau filter eksplisit ->where('doctor_id', auth()->id()) di setiap query Controller.
 
-## Stack Trace
+C. Logika Konversi Multi-UOM Belum Terpusat
 
-0 - vendor/laravel/framework/src/Illuminate/Database/Eloquent/RelationNotFoundException.php:35
-1 - vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:969
-2 - vendor/laravel/framework/src/Illuminate/Database/Eloquent/Relations/Relation.php:119
-3 - vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:965
-4 - vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:939
-5 - vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:919
-6 - vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:885
-7 - resources/views/dashboard.blade.php:65
-8 - vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php:123
-9 - vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php:124
-10 - vendor/laravel/framework/src/Illuminate/View/Engines/PhpEngine.php:57
-11 - vendor/laravel/framework/src/Illuminate/View/Engines/CompilerEngine.php:76
-12 - vendor/laravel/framework/src/Illuminate/View/View.php:208
-13 - vendor/laravel/framework/src/Illuminate/View/View.php:191
-14 - vendor/laravel/framework/src/Illuminate/View/View.php:160
-15 - vendor/laravel/framework/src/Illuminate/Http/Response.php:78
-16 - vendor/laravel/framework/src/Illuminate/Http/Response.php:34
-17 - vendor/laravel/framework/src/Illuminate/Routing/Router.php:939
-18 - vendor/laravel/framework/src/Illuminate/Routing/Router.php:906
-19 - vendor/laravel/framework/src/Illuminate/Routing/Router.php:821
-20 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:180
-21 - vendor/laravel/framework/src/Illuminate/Routing/Middleware/SubstituteBindings.php:50
-22 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-23 - vendor/laravel/framework/src/Illuminate/Auth/Middleware/Authenticate.php:63
-24 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-25 - vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/VerifyCsrfToken.php:87
-26 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-27 - vendor/laravel/framework/src/Illuminate/View/Middleware/ShareErrorsFromSession.php:48
-28 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-29 - vendor/laravel/framework/src/Illuminate/Session/Middleware/StartSession.php:120
-30 - vendor/laravel/framework/src/Illuminate/Session/Middleware/StartSession.php:63
-31 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-32 - vendor/laravel/framework/src/Illuminate/Cookie/Middleware/AddQueuedCookiesToResponse.php:36
-33 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-34 - vendor/laravel/framework/src/Illuminate/Cookie/Middleware/EncryptCookies.php:74
-35 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-36 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:137
-37 - vendor/laravel/framework/src/Illuminate/Routing/Router.php:821
-38 - vendor/laravel/framework/src/Illuminate/Routing/Router.php:800
-39 - vendor/laravel/framework/src/Illuminate/Routing/Router.php:764
-40 - vendor/laravel/framework/src/Illuminate/Routing/Router.php:753
-41 - vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php:200
-42 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:180
-43 - vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php:21
-44 - vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/ConvertEmptyStringsToNull.php:31
-45 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-46 - vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php:21
-47 - vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TrimStrings.php:51
-48 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-49 - vendor/laravel/framework/src/Illuminate/Http/Middleware/ValidatePostSize.php:27
-50 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-51 - vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/PreventRequestsDuringMaintenance.php:109
-52 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-53 - vendor/laravel/framework/src/Illuminate/Http/Middleware/HandleCors.php:48
-54 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-55 - vendor/laravel/framework/src/Illuminate/Http/Middleware/TrustProxies.php:58
-56 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-57 - vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/InvokeDeferredCallbacks.php:22
-58 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-59 - vendor/laravel/framework/src/Illuminate/Http/Middleware/ValidatePathEncoding.php:26
-60 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-61 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:137
-62 - vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php:175
-63 - vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php:144
-64 - vendor/laravel/framework/src/Illuminate/Foundation/Application.php:1220
-65 - public/index.php:20
-66 - vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php:23
+Temuan: Kolom conversion_ratio sudah ada, namun logika pengurangan stok otomatis belum terimplementasi secara akurat.
 
-## Request
+Risiko: Ketidakakuratan stok. Contoh: Resep "2 Tablet" mungkin mengurangi "2 Box" jika logika konversi tidak ditangani dengan benar.
 
-GET /dashboard
+Solusi: Implementasi InventoryService untuk menangani logika: Stok Akhir = Stok Awal - (Input / Rasio).
 
-## Headers
+D. Syntax Error Tailwind CSS (Vite Fail)
 
-* **host**: localhost:8000
-* **connection**: keep-alive
-* **cache-control**: max-age=0
-* **upgrade-insecure-requests**: 1
-* **user-agent**: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
-* **accept**: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
-* **sec-fetch-site**: same-origin
-* **sec-fetch-mode**: navigate
-* **sec-fetch-user**: ?1
-* **sec-fetch-dest**: document
-* **sec-ch-ua**: "Google Chrome";v="143", "Chromium";v="143", "Not A(Brand";v="24"
-* **sec-ch-ua-mobile**: ?0
-* **sec-ch-ua-platform**: "macOS"
-* **referer**: http://localhost:8000/login
-* **accept-encoding**: gzip, deflate, br, zstd
-* **accept-language**: en-US,en;q=0.9
-* **cookie**: sb-anovzbbvasxsagkblbaf-auth-token.0=base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SW5KRlRYaEZkVU0zTWpOcWQzWjVTak1pTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDJGdWIzWjZZbUoyWVhONGMyRm5hMkpzWW1GbUxuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSXhNek5oWldRNVlpMDVaVEV5TFRSbVpXSXRZakJoT1MwM05ESXhPRGd3TW1Zek4yVWlMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpZeE5EUTJOVGN6TENKcFlYUWlPakUzTmpFME5ESTVOek1zSW1WdFlXbHNJam9pWkhKb0xtMTFhR0Z0YldGa1lYSnBaa0JuYldGcGJDNWpiMjBpTENKd2FHOXVaU0k2SWlJc0ltRndjRjl0WlhSaFpHRjBZU0k2ZXlKd2NtOTJhV1JsY2lJNkltZHZiMmRzWlNJc0luQnliM1pwWkdWeWN5STZXeUpuYjI5bmJHVWlYWDBzSW5WelpYSmZiV1YwWVdSaGRHRWlPbnNpWVhaaGRHRnlYM1Z5YkNJNkltaDBkSEJ6T2k4dmJHZ3pMbWR2YjJkc1pYVnpaWEpqYjI1MFpXNTBMbU52YlM5aEwwRkRaemh2WTBwWmQxVmplVkphWmtJd09HNXlaMFZFVDB0S1FqSnJjWEp0WTJ4cVgzVktPWEp5WldaRWJ6UnBXRTVTZUU0elJtYzljemsyTFdNaUxDSmxiV0ZwYkNJNkltUnlhQzV0ZFdoaGJXMWhaR0Z5YVdaQVoyMWhhV3d1WTI5dElpd2laVzFoYVd4ZmRtVnlhV1pwWldRaU9uUnlkV1VzSW1aMWJHeGZibUZ0WlNJNklrMTFhR0Z0YldGa0lFRnlhV1lpTENKcGMzTWlPaUpvZEhSd2N6b3ZMMkZqWTI5MWJuUnpMbWR2YjJkc1pTNWpiMjBpTENKdVlXMWxJam9pVFhWb1lXMXRZV1FnUVhKcFppSXNJbkJvYjI1bFgzWmxjbWxtYVdWa0lqcG1ZV3h6WlN3aWNHbGpkSFZ5WlNJNkltaDBkSEJ6T2k4dmJHZ3pMbWR2YjJkc1pYVnpaWEpqYjI1MFpXNTBMbU52YlM5aEwwRkRaemh2WTBwWmQxVmplVkphWmtJd09HNXlaMFZFVDB0S1FqSnJjWEp0WTJ4cVgzVktPWEp5WldaRWJ6UnBXRTVTZUU0elJtYzljemsyTFdNaUxDSndjbTkyYVdSbGNsOXBaQ0k2SWpFeE5URTVNak14TmpFNE1UQTJOelF3T1RZMk9TSXNJbk4xWWlJNklqRXhOVEU1TWpNeE5qRTRNVEEyTnpRd09UWTJPU0o5TENKeWIyeGxJam9pWVhWMGFHVnVkR2xqWVhSbFpDSXNJbUZoYkNJNkltRmhiREVpTENKaGJYSWlPbHQ3SW0xbGRHaHZaQ0k2SW05aGRYUm9JaXdpZEdsdFpYTjBZVzF3SWpveE56WXhORFF5T1RjemZWMHNJbk5sYzNOcGIyNWZhV1FpT2lJNU1qWXlNamRtTXkxa1pUZzBMVFJqWTJNdE9UQTBOQzB5WTJZM09XSTNOVE14TkRVaUxDSnBjMTloYm05dWVXMXZkWE1pT21aaGJITmxmUS5BVmZXYW5VSWN3ODE3WE1ReG9jWWN0THROSmRSdWNCREk5M2FXaF8yUFdjIiwidG9rZW5fdHlwZSI6ImJlYXJlciIsImV4cGlyZXNfaW4iOjM2MDAsImV4cGlyZXNfYXQiOjE3NjE0NDY1NzMsInJlZnJlc2hfdG9rZW4iOiJuNjJ2ZXA1dW5vejQiLCJ1c2VyIjp7ImlkIjoiMTMzYWVkOWItOWUxMi00ZmViLWIwYTktNzQyMTg4MDJmMzdlIiwiYXVkIjoiYXV0aGVudGljYXRlZCIsInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiZW1haWwiOiJkcmgubXVoYW1tYWRhcmlmQGdtYWlsLmNvbSIsImVtYWlsX2NvbmZpcm1lZF9hdCI6IjIwMjUtMTAtMjVUMTI6NDM6NDUuNzE5ODVaIiwicGhvbmUiOiIiLCJjb25maXJtZWRfYXQiOiIyMDI1LTEwLTI1VDEyOjQzOjQ1LjcxOTg1WiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMTAtMjZUMDE6NDI6NTMuMzk4NzI0MTg4WiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6Imdvb2dsZSIsInByb3ZpZGVycyI6WyJnb29nbGUiXX0sInVzZXJfbWV0YWRhdGEiOnsiYXZhdGFyX3VybCI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FDZzhvY0pZd1VjeVJaZkIwOG5yZ0VET0tKQjJrcXJtY2xqX3VKOXJyZWZEbzRpWE5SeE4zRmc9czk2LWMiLCJlbWFpbCI6ImRyaC5tdWhhbW1hZGFyaWZAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImZ1bGxfbmFtZSI6Ik11aGFtbWFkIEFyaWYiLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiTXVoYW1tYWQgQXJpZiIsInBob25lX3ZlcmlmaWVkIjpmYWxzZSwicGljdHVyZSI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FDZzhvY0pZd1VjeVJaZkIwOG5yZ0VET0tKQjJrcXJtY2xqX3VKOXJyZWZEbzRpWE5SeE4zRmc9czk2LWMiLCJwcm92aWRlcl9pZCI6IjExNTE5MjMxNjE4MTA2NzQwOTY2OSIsInN1YiI6IjExNTE5MjMxNjE4MTA2NzQwOTY2OSJ9LCJpZGVudGl0aWVzIjpbeyJpZGVudGl0eV9pZCI6ImY2MWZkODQ0LTQ0YzUtNDQzNy04MWIxLWFmMTBjZGE5ZWZhNyIsImlkIjoiMTE1MTkyMzE2MTgxMDY3NDA5NjY5IiwidXNlcl9pZCI6IjEzM2FlZDliL; sb-anovzbbvasxsagkblbaf-auth-token.1=TllMTItNGZlYi1iMGE5LTc0MjE4ODAyZjM3ZSIsImlkZW50aXR5X2RhdGEiOnsiYXZhdGFyX3VybCI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FDZzhvY0pZd1VjeVJaZkIwOG5yZ0VET0tKQjJrcXJtY2xqX3VKOXJyZWZEbzRpWE5SeE4zRmc9czk2LWMiLCJlbWFpbCI6ImRyaC5tdWhhbW1hZGFyaWZAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImZ1bGxfbmFtZSI6Ik11aGFtbWFkIEFyaWYiLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiTXVoYW1tYWQgQXJpZiIsInBob25lX3ZlcmlmaWVkIjpmYWxzZSwicGljdHVyZSI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FDZzhvY0pZd1VjeVJaZkIwOG5yZ0VET0tKQjJrcXJtY2xqX3VKOXJyZWZEbzRpWE5SeE4zRmc9czk2LWMiLCJwcm92aWRlcl9pZCI6IjExNTE5MjMxNjE4MTA2NzQwOTY2OSIsInN1YiI6IjExNTE5MjMxNjE4MTA2NzQwOTY2OSJ9LCJwcm92aWRlciI6Imdvb2dsZSIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMTAtMjVUMTI6NDM6NDUuNzA1MDk4WiIsImNyZWF0ZWRfYXQiOiIyMDI1LTEwLTI1VDEyOjQzOjQ1LjcwNTE1MloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0xMC0yNlQwMTo0Mjo1Mi42MzQyMjRaIiwiZW1haWwiOiJkcmgubXVoYW1tYWRhcmlmQGdtYWlsLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMTAtMjVUMTI6NDM6NDUuNjY1OTczWiIsInVwZGF0ZWRfYXQiOiIyMDI1LTEwLTI2VDAxOjQyOjUzLjQwNzg4N1oiLCJpc19hbm9ueW1vdXMiOmZhbHNlfSwicHJvdmlkZXJfdG9rZW4iOiJ5YTI5LmEwQVRpNksyc2l1V3R1U3I0RmsyYUpwSVF3aWxta2QxOGJkeWVMYTNIZk94VDVGNi1jTENlZl9jbThZTFNQT2VXMTBDRk1QeVdlOTJ2TEpLUmNKNXg5ajlsYjNLMThHMEtLdFBKUk1SZFRCc2xYS2RqY0c2aTcxWDBJQ2RITzJadkpSTTNFbFVTTHJ2T1I0Q1FTMVJjanhUVldXMUgxUUlWUFk2a2hYTmJDZ1g0VzByTkFPQ1pDNHhoNFlYS1FxM2xNSE1yVGl6d2FDZ1lLQWRrU0FSY1NGUUhHWDJNaUpORWZWLW13N1VyQk1ISXN2N0l2dncwMjA2IiwicHJvdmlkZXJfcmVmcmVzaF90b2tlbiI6IjEvLzBnQUxsaTU1YmxoMmtDZ1lJQVJBQUdCQVNOd0YtTDlJck1SU1h4OExFdUlpLXZKMTc2ME9Bd0s3bE9OcUZqcXVBanJTdGxRYXpVVnJ0UXdsNUwzdVpJNDMxNVBsamZjUWFzRzQifQ; _ga=GA1.1.124590460.1766332379; _ga_8MZ9CEF0PB=GS2.1.s1766332379$o1$g1$t1766332762$j60$l0$h0; XSRF-TOKEN=eyJpdiI6IjNBQ2YzV0VZYS9YNW9HTTVJYUR4cmc9PSIsInZhbHVlIjoicmVqbHRNUCt0MTNDQUJtMzZkN2E5MnQ0c3FwTXMyNE41bmVZUmtVcUdha2REdi9sMFM3VmJ1RzlSRXFTVVRpZXZla3Z2UkkrdXZrMTQwKzEvWUV1eWhFeVpHaENTMXRXdGloU3o5YVA2SS93eVFpdHVIeHJlUXRGc2RiMEVjM3IiLCJtYWMiOiI0ZjhhZWE5MDUyNzE3MjkwYzAyMDdmZmZkZjk1MGQxY2NjOWMxNDgzNjQ1YzBjOTBlOGEwMmM4MzkyNmE1ZWE5IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IlZPQVljclk4Q21UVDdMY0VIcTZxQmc9PSIsInZhbHVlIjoidldSVkNFNkRqS1dpbVNsV2poQzI3VWxFbmtZS0hQU2pPR2Z2aUhPU1hTWEM3dDE3QW4vdFpZRHRPeEJrZVcyUEJoUXlkWjR6WGR1a2hqVFRaT2Fia1pRYU52Um96RVFQWmV6N3lMVmUzVHhuL1pPcTJjd3ZDRmtpMDRPaVJoR2kiLCJtYWMiOiJmYjZmNGJjNDc2ODI0YzM5NWFiZTIwNzkxZGIxNWZkZWMxY2Y0MWVhZDZmNGFhODczNDlhYjk1MDM4OGNiMDhkIiwidGFnIjoiIn0%3D
+Temuan: Penggunaan utility class !important yang salah pada file resources/css/app.css.
 
-## Route Context
+Risiko: Gagal Build/Compile. Aplikasi tidak akan bisa dideploy ke produksi karena proses bundling aset akan terhenti.
 
-controller: Closure
-route name: dashboard
-middleware: web, auth
+Solusi: Ubah semua penggunaan important manual menjadi prefix Tailwind. Contoh: Ganti hidden !important menjadi !hidden.
 
-## Route Parameters
+🛠️ 2. High Severity (Fungsionalitas Belum Lengkap)
 
-No route parameter data available.
+Fitur ada di Canvas tapi belum berfungsi penuh di kode.
 
-## Database Queries
+A. Validasi Link 48 Jam (Auto-Secure)
 
-* sqlite - select * from "sessions" where "id" = 'koWA8ns5EhLH1cmQOkm4CWX8HyZkQ4SDkxkIU5vB' limit 1 (0.92 ms)
-* sqlite - select * from "users" where "id" = 1 limit 1 (0.08 ms)
-* sqlite - select count(*) as aggregate from "patients" (0.2 ms)
-* sqlite - select count(*) as aggregate from "products" (0.03 ms)
-* sqlite - select count(*) as aggregate from "users" (0.03 ms)
-* sqlite - select * from "patients" order by "created_at" desc limit 5 (0.06 ms)
+Canvas: Invoice/Referral publik terkunci setelah 48 jam.
+
+Missing: Logika pengecekan timestamp pada link publik belum aktif.
+
+Rekomendasi: Tambahkan guard clause pada controller terkait untuk memaksa login jika link sudah melewati batas waktu.
+
+B. Digital Signature & Storage Logic
+
+Canvas: Tanda tangan digital dokter & klien.
+
+Risiko: Penyimpanan string Base64 mentah di database akan membuat ukuran database membengkak sangat cepat.
+
+Rekomendasi: Ubah alur untuk mengonversi Base64 menjadi file .png dan simpan di storage/app/public/signatures.
+
+C. Smart Engagement Scheduler
+
+Canvas: Notifikasi otomatis H-3 Vaksin.
+
+Missing: Mekanisme Task Scheduling (app/Console/Kernel.php) untuk memindai data pasien secara harian belum ada.
+
+⚠️ 3. UI/UX & Mobile Experience (Medium Severity)
+
+Isu kenyamanan penggunaan di lapangan.
+
+A. Tampilan Tabel vs Card (Mobile View)
+
+Temuan: Daftar kunjungan dan pasien masih menggunakan format tabel standar.
+
+Risiko: Pengalaman buruk di HP (Horizontal Scrolling).
+
+Solusi: Refactor view menggunakan CSS Grid untuk menampilkan Card View di layar kecil.
+
+B. Dashboard "Command Center"
+
+Temuan: Dashboard masih berupa angka statistik pasif.
+
+Rekomendasi: Implementasikan konsep Timeline View (garis waktu vertikal) untuk jadwal hari ini dan pasang tombol SOS Floating yang mencolok.
+
+📋 4. Rencana Perbaikan (Remediation Plan)
+
+Fase 1: Integritas & Keamanan (Segera)
+
+[ ] Fix Migrations: Rename file migrasi untuk urutan waktu yang logis.
+
+[ ] Global Scopes: Pasang filter keamanan data per dokter di semua Model.
+
+[ ] CSS Fix: Perbaiki sintaks !important di app.css agar build lancar.
+
+Fase 2: Logika Bisnis Inti
+
+[ ] Inventory Service: Buat helper class untuk konversi satuan stok otomatis.
+
+[ ] Scheduler: Setup Cron Job harian untuk generate notifikasi vaksin/kontrol.
+
+[ ] Secure Links: Implementasi logika kedaluwarsa 48 jam pada link invoice/referral.
+
+Fase 3: UI/UX Mobile Polish
+
+[ ] Card Views: Refactor tampilan tabel menjadi kartu responsif.
+
+[ ] Dashboard: Ubah menjadi Timeline View dengan Quick Actions.
+
+[ ] SOS Logic: Hubungkan tombol SOS dengan Geolocation browser dan API WhatsApp.
+
+Validasi Akhir:
+Laporan ini berfungsi sebagai daftar periksa (checklist) teknis. Setelah semua poin di atas terpenuhi, aplikasi Birawa Vet dapat dianggap layak untuk masuk ke tahap UAT (User Acceptance Testing) dan produksi.

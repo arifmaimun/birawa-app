@@ -13,9 +13,17 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\Diagnosis;
+use App\Services\InventoryService;
 
 class MedicalRecordController extends Controller
 {
+    protected $inventoryService;
+
+    public function __construct(InventoryService $inventoryService)
+    {
+        $this->inventoryService = $inventoryService;
+    }
+
     public function create(Visit $visit)
     {
         // Ensure the visit belongs to the doctor or doctor has access
@@ -80,35 +88,21 @@ class MedicalRecordController extends Controller
             if ($request->has('inventory_items')) {
                 foreach ($request->inventory_items as $item) {
                     if ($item['qty'] > 0) {
-                        $inventory = DoctorInventory::find($item['id']);
-                        
-                        // Check if inventory belongs to doctor
-                        if ($inventory->user_id !== Auth::id()) {
-                            continue; 
-                        }
-
-                        // Deduct stock
-                        if ($inventory->stock_qty >= $item['qty']) {
-                            $inventory->decrement('stock_qty', $item['qty']);
+                        try {
+                            // Use InventoryService to handle deduction and conversion
+                            $this->inventoryService->deductStock($item['id'], $item['qty']);
                             
                             // Log usage in MedicalUsageLog (Medical Context)
+                            // Note: InventoryTransaction is already handled inside InventoryService
                             MedicalUsageLog::create([
                                 'medical_record_id' => $record->id,
-                                'doctor_inventory_id' => $inventory->id,
+                                'doctor_inventory_id' => $item['id'],
                                 'quantity_used' => $item['qty'],
                             ]);
 
-                            // Log transaction in InventoryTransaction (Inventory Context)
-                            InventoryTransaction::create([
-                                'doctor_inventory_id' => $inventory->id,
-                                'type' => 'OUT',
-                                'quantity_change' => -$item['qty'],
-                                'notes' => "Used in Medical Record #{$record->id} for Patient {$visit->patient->name}",
-                            ]);
-
-                        } else {
+                        } catch (\Exception $e) {
                             // Throwing error to rollback transaction
-                            throw new \Exception("Insufficient stock for item: {$inventory->item_name}. Available: {$inventory->stock_qty}, Requested: {$item['qty']}");
+                            throw new \Exception("Inventory Error: " . $e->getMessage());
                         }
                     }
                 }
