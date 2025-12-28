@@ -10,14 +10,25 @@ use Illuminate\Support\Str;
 
 class ReferralController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $search = $request->input('search');
+
         $referrals = Referral::where('source_doctor_id', Auth::id())
             ->with('patient')
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('target_clinic_name', 'like', "%{$search}%")
+                      ->orWhere('notes', 'like', "%{$search}%")
+                      ->orWhereHas('patient', function ($q2) use ($search) {
+                          $q2->where('name', 'like', "%{$search}%");
+                      });
+                });
+            })
             ->latest()
             ->paginate(10);
             
-        return view('referrals.index', compact('referrals'));
+        return view('referrals.index', compact('referrals', 'search'));
     }
 
     public function create()
@@ -51,9 +62,10 @@ class ReferralController extends Controller
     {
         $referral = Referral::where('access_token', $token)->firstOrFail();
 
-        // Check Expiry
-        if ($referral->valid_until->isPast()) {
-            return response()->view('referrals.expired', [], 403);
+        // LOGIC: If valid_until is past AND user is NOT logged in -> Redirect to login
+        // If user IS logged in, they can view it.
+        if ($referral->valid_until->isPast() && !Auth::check()) {
+            return redirect()->route('login')->with('error', 'This referral link has expired. Please log in to view.');
         }
 
         return view('referrals.public_show', compact('referral'));

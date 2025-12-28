@@ -11,12 +11,19 @@ use Illuminate\Support\Facades\DB;
 
 class DoctorInventoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $search = $request->input('search');
+
         $items = DoctorInventory::where('user_id', Auth::id())
+            ->when($search, function ($query) use ($search) {
+                $query->where('item_name', 'like', "%{$search}%")
+                      ->orWhere('sku', 'like', "%{$search}%");
+            })
             ->orderBy('item_name')
             ->paginate(10);
-        return view('inventory.index', compact('items'));
+            
+        return view('inventory.index', compact('items', 'search'));
     }
 
     public function create()

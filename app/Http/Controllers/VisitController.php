@@ -13,10 +13,22 @@ class VisitController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $visits = Visit::with(['patient.owners', 'user', 'invoice', 'medicalRecords'])->latest('scheduled_at')->paginate(10);
-        return view('visits.index', compact('visits'));
+        $search = $request->input('search');
+        
+        $visits = Visit::with(['patient.owners', 'user', 'invoice', 'medicalRecords'])
+            ->when($search, function ($query) use ($search) {
+                $query->whereHas('patient', function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%");
+                })->orWhereHas('patient.owners', function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%");
+                });
+            })
+            ->latest('scheduled_at')
+            ->paginate(10);
+            
+        return view('visits.index', compact('visits', 'search'));
     }
 
     /**

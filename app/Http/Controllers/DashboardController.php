@@ -36,13 +36,26 @@ class DashboardController extends Controller
             ->get();
 
         // Upcoming Visits (Today)
+        $todayVisits = Visit::where('user_id', $user->id)
+            ->whereDate('scheduled_at', now())
+            ->where('status', '!=', 'cancelled')
+            ->with(['patient', 'patient.owners'])
+            ->orderBy('scheduled_at')
+            ->get();
+
         $upcomingVisits = Visit::where('user_id', $user->id)
             ->where('status', 'scheduled')
-            ->whereDate('scheduled_at', '>=', now())
+            ->whereDate('scheduled_at', '>', now())
             ->orderBy('scheduled_at')
             ->take(5)
             ->with(['patient', 'patient.owners'])
             ->get();
+
+        $pendingInvoicesCount = \App\Models\Invoice::where('payment_status', 'unpaid')
+            ->whereHas('visit', function($q) use ($user) {
+                $q->where('user_id', $user->id);
+            })
+            ->count();
 
         // Recent Patients (Global for now, as per original dashboard)
         $recentPatients = Patient::with('owners')->latest()->take(5)->get();
@@ -52,8 +65,10 @@ class DashboardController extends Controller
             'activeVets', 
             'myInventoryCount', 
             'lowStockItems', 
+            'todayVisits',
             'upcomingVisits',
-            'recentPatients'
+            'recentPatients',
+            'pendingInvoicesCount'
         ));
     }
 }

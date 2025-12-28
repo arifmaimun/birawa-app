@@ -1,43 +1,71 @@
 <x-app-layout>
-    <div class="mb-6">
-        <h1 class="text-3xl font-bold text-gray-800">Tambah Pemilik Baru</h1>
-    </div>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-slate-800 leading-tight">
+            {{ __('Add New Owner') }}
+        </h2>
+    </x-slot>
 
-    <div class="bg-white rounded-lg shadow p-6 max-w-2xl">
-        <form action="{{ route('owners.store') }}" method="POST">
-            @csrf
-            <div class="mb-4">
-                <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Nama Lengkap</label>
-                <input type="text" name="name" id="name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('name') border-red-500 @enderror" value="{{ old('name') }}" required>
-                @error('name')
-                    <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
-                @enderror
-            </div>
+    <div class="py-6">
+        <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+                <form action="{{ route('owners.store') }}" method="POST" class="space-y-6">
+                    @csrf
+                    
+                    <!-- Name -->
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-slate-700">Full Name</label>
+                        <input type="text" name="name" id="name" 
+                               class="mt-1 block w-full rounded-xl border-slate-200 shadow-sm focus:border-birawa-500 focus:ring focus:ring-birawa-500 focus:ring-opacity-50" 
+                               value="{{ old('name') }}" required>
+                        @error('name')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-            <div class="mb-4">
-                <label for="phone" class="block text-gray-700 text-sm font-bold mb-2">Nomor Telepon</label>
-                <input type="text" name="phone" id="phone" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('phone') border-red-500 @enderror" value="{{ old('phone') }}" required>
-                @error('phone')
-                    <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
-                @enderror
-            </div>
+                    <!-- Phone -->
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-slate-700">Phone Number</label>
+                        <input type="text" name="phone" id="phone" 
+                               class="mt-1 block w-full rounded-xl border-slate-200 shadow-sm focus:border-birawa-500 focus:ring focus:ring-birawa-500 focus:ring-opacity-50" 
+                               value="{{ old('phone') }}" required>
+                        @error('phone')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-            <div class="mb-6">
-                <label for="address" class="block text-gray-700 text-sm font-bold mb-2">Alamat</label>
-                <textarea name="address" id="address" rows="3" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('address') border-red-500 @enderror" required>{{ old('address') }}</textarea>
-                @error('address')
-                    <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
-                @enderror
-            </div>
+                    <!-- Email -->
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-slate-700">Email Address (Optional)</label>
+                        <input type="email" name="email" id="email" 
+                               class="mt-1 block w-full rounded-xl border-slate-200 shadow-sm focus:border-birawa-500 focus:ring focus:ring-birawa-500 focus:ring-opacity-50" 
+                               value="{{ old('email') }}">
+                        <p class="mt-1 text-xs text-slate-500">If left blank, a placeholder email will be generated.</p>
+                        @error('email')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-            <div class="flex items-center justify-between">
-                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                    Simpan
-                </button>
-                <a href="{{ route('owners.index') }}" class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800">
-                    Batal
-                </a>
+                    <!-- Address -->
+                    <div>
+                        <label for="address" class="block text-sm font-medium text-slate-700">Address</label>
+                        <textarea name="address" id="address" rows="3" 
+                                  class="mt-1 block w-full rounded-xl border-slate-200 shadow-sm focus:border-birawa-500 focus:ring focus:ring-birawa-500 focus:ring-opacity-50" 
+                                  >{{ old('address') }}</textarea>
+                        @error('address')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="flex items-center justify-end gap-4 pt-4 border-t border-slate-100">
+                        <a href="{{ route('owners.index') }}" class="text-sm font-medium text-slate-600 hover:text-slate-900">
+                            Cancel
+                        </a>
+                        <button type="submit" class="inline-flex justify-center items-center px-4 py-2 bg-birawa-600 border border-transparent rounded-xl font-semibold text-sm text-white hover:bg-birawa-700 focus:outline-none focus:ring-2 focus:ring-birawa-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-sm">
+                            Save Owner
+                        </button>
+                    </div>
+                </form>
             </div>
-        </form>
+        </div>
     </div>
 </x-app-layout>

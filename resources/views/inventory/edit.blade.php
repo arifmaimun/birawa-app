@@ -1,70 +1,106 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Edit Inventory Item') }}: {{ $doctorInventory->item_name }}
-        </h2>
-    </x-slot>
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <!-- Header -->
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold text-slate-800">Edit Inventory Item</h1>
+            <p class="text-sm text-slate-500">Update details for {{ $doctorInventory->item_name }}</p>
+        </div>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <form action="{{ route('inventory.update', $doctorInventory) }}" method="POST">
-                        @csrf
-                        @method('PUT')
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <x-input-label for="item_name" :value="__('Item Name')" />
-                                <x-text-input id="item_name" class="block mt-1 w-full" type="text" name="item_name" :value="old('item_name', $doctorInventory->item_name)" required autofocus />
-                                <x-input-error :messages="$errors->get('item_name')" class="mt-2" />
-                            </div>
-
-                            <div>
-                                <x-input-label for="sku" :value="__('SKU (Optional)')" />
-                                <x-text-input id="sku" class="block mt-1 w-full" type="text" name="sku" :value="old('sku', $doctorInventory->sku)" />
-                                <x-input-error :messages="$errors->get('sku')" class="mt-2" />
-                            </div>
-
-                            <div>
-                                <x-input-label for="base_unit" :value="__('Base Unit (Usage)')" />
-                                <select id="base_unit" name="base_unit" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                                    @foreach(['tablet', 'ml', 'gram', 'pcs', 'capsule', 'drop'] as $unit)
-                                        <option value="{{ $unit }}" {{ $doctorInventory->base_unit == $unit ? 'selected' : '' }}>{{ ucfirst($unit) }}</option>
-                                    @endforeach
-                                </select>
-                                <x-input-error :messages="$errors->get('base_unit')" class="mt-2" />
-                            </div>
-
-                            <div>
-                                <x-input-label for="purchase_unit" :value="__('Purchase Unit (Stocking)')" />
-                                <select id="purchase_unit" name="purchase_unit" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                                    @foreach(['box', 'bottle', 'vial', 'strip', 'can', 'tube'] as $unit)
-                                        <option value="{{ $unit }}" {{ $doctorInventory->purchase_unit == $unit ? 'selected' : '' }}>{{ ucfirst($unit) }}</option>
-                                    @endforeach
-                                </select>
-                                <x-input-error :messages="$errors->get('purchase_unit')" class="mt-2" />
-                            </div>
-
-                            <div>
-                                <x-input-label for="conversion_ratio" :value="__('Conversion Ratio')" />
-                                <x-text-input id="conversion_ratio" class="block mt-1 w-full" type="number" name="conversion_ratio" :value="old('conversion_ratio', $doctorInventory->conversion_ratio)" required min="1" />
-                                <x-input-error :messages="$errors->get('conversion_ratio')" class="mt-2" />
-                            </div>
-
-                            <div>
-                                <x-input-label for="alert_threshold" :value="__('Low Stock Alert Threshold')" />
-                                <x-text-input id="alert_threshold" class="block mt-1 w-full" type="number" name="alert_threshold" :value="old('alert_threshold', $doctorInventory->alert_threshold)" required min="0" />
-                                <x-input-error :messages="$errors->get('alert_threshold')" class="mt-2" />
-                            </div>
+        <div class="bg-white rounded-3xl shadow-lg border border-slate-100 overflow-hidden">
+            <div class="p-8">
+                <form action="{{ route('inventory.update', $doctorInventory) }}" method="POST">
+                    @csrf
+                    @method('PUT')
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <!-- Item Name -->
+                        <div class="col-span-1 md:col-span-2">
+                            <label for="item_name" class="block text-sm font-bold text-slate-700 mb-2">Item Name</label>
+                            <input type="text" id="item_name" name="item_name" 
+                                   class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 placeholder-slate-400 transition-colors shadow-sm"
+                                   value="{{ old('item_name', $doctorInventory->item_name) }}" required autofocus>
+                            <x-input-error :messages="$errors->get('item_name')" class="mt-2" />
                         </div>
 
-                        <div class="flex items-center justify-end mt-4">
-                            <x-primary-button class="ml-4">
-                                {{ __('Update Item') }}
-                            </x-primary-button>
+                        <!-- SKU -->
+                        <div>
+                            <label for="sku" class="block text-sm font-bold text-slate-700 mb-2">SKU <span class="text-slate-400 font-normal">(Optional)</span></label>
+                            <input type="text" id="sku" name="sku" 
+                                   class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 placeholder-slate-400 transition-colors shadow-sm"
+                                   value="{{ old('sku', $doctorInventory->sku) }}">
+                            <x-input-error :messages="$errors->get('sku')" class="mt-2" />
                         </div>
-                    </form>
-                </div>
+
+                        <!-- Selling Price -->
+                        <div>
+                            <label for="selling_price" class="block text-sm font-bold text-slate-700 mb-2">Selling Price <span class="text-slate-400 font-normal">(Per Base Unit)</span></label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-slate-500 font-bold sm:text-sm">Rp</span>
+                                </div>
+                                <input type="number" id="selling_price" name="selling_price" 
+                                       class="w-full pl-10 rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 placeholder-slate-400 transition-colors shadow-sm"
+                                       value="{{ old('selling_price', $doctorInventory->selling_price) }}" min="0" step="100">
+                            </div>
+                            <p class="text-xs text-slate-500 mt-1">Leave 0 to auto-calculate (Cost + 20%)</p>
+                            <x-input-error :messages="$errors->get('selling_price')" class="mt-2" />
+                        </div>
+
+                        <!-- Base Unit -->
+                        <div>
+                            <label for="base_unit" class="block text-sm font-bold text-slate-700 mb-2">Base Unit <span class="text-slate-400 font-normal">(Usage)</span></label>
+                            <select id="base_unit" name="base_unit" class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 shadow-sm transition-colors cursor-pointer">
+                                @foreach(['tablet', 'ml', 'gram', 'pcs', 'capsule', 'drop'] as $unit)
+                                    <option value="{{ $unit }}" {{ $doctorInventory->base_unit == $unit ? 'selected' : '' }}>{{ ucfirst($unit) }}</option>
+                                @endforeach
+                            </select>
+                            <x-input-error :messages="$errors->get('base_unit')" class="mt-2" />
+                        </div>
+
+                        <!-- Purchase Unit -->
+                        <div>
+                            <label for="purchase_unit" class="block text-sm font-bold text-slate-700 mb-2">Purchase Unit <span class="text-slate-400 font-normal">(Stocking)</span></label>
+                            <select id="purchase_unit" name="purchase_unit" class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 shadow-sm transition-colors cursor-pointer">
+                                @foreach(['box', 'bottle', 'vial', 'strip', 'can', 'tube'] as $unit)
+                                    <option value="{{ $unit }}" {{ $doctorInventory->purchase_unit == $unit ? 'selected' : '' }}>{{ ucfirst($unit) }}</option>
+                                @endforeach
+                            </select>
+                            <x-input-error :messages="$errors->get('purchase_unit')" class="mt-2" />
+                        </div>
+
+                        <!-- Conversion Ratio -->
+                        <div>
+                            <label for="conversion_ratio" class="block text-sm font-bold text-slate-700 mb-2">Conversion Ratio</label>
+                            <input type="number" id="conversion_ratio" name="conversion_ratio" 
+                                   class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 placeholder-slate-400 transition-colors shadow-sm"
+                                   value="{{ old('conversion_ratio', $doctorInventory->conversion_ratio) }}" required min="1">
+                            <p class="mt-1.5 text-xs text-slate-500">
+                                How many <span class="font-bold text-slate-700">Base Units</span> are in 1 <span class="font-bold text-slate-700">Purchase Unit</span>?
+                            </p>
+                            <x-input-error :messages="$errors->get('conversion_ratio')" class="mt-2" />
+                        </div>
+
+                        <!-- Alert Threshold -->
+                        <div>
+                            <label for="alert_threshold" class="block text-sm font-bold text-slate-700 mb-2">Low Stock Alert</label>
+                            <input type="number" id="alert_threshold" name="alert_threshold" 
+                                   class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 placeholder-slate-400 transition-colors shadow-sm"
+                                   value="{{ old('alert_threshold', $doctorInventory->alert_threshold) }}" required min="0">
+                            <p class="mt-1.5 text-xs text-slate-500">Alert when stock (in Base Units) falls below this.</p>
+                            <x-input-error :messages="$errors->get('alert_threshold')" class="mt-2" />
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex items-center justify-end gap-4 pt-6 border-t border-slate-100">
+                        <a href="{{ route('inventory.index') }}" class="text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors">
+                            Cancel
+                        </a>
+                        <button type="submit" class="px-6 py-2.5 bg-birawa-600 text-white text-sm font-bold rounded-xl shadow-lg hover:bg-birawa-700 focus:ring-4 focus:ring-birawa-100 transition-all active:scale-95">
+                            Update Item
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

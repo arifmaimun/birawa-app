@@ -1,67 +1,102 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Medical Record Details') }}
-        </h2>
-    </x-slot>
-
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <div class="flex justify-between items-start mb-6 border-b pb-4">
-                        <div>
-                            <h3 class="text-2xl font-bold text-gray-900">Patient: {{ $medicalRecord->patient->name }}</h3>
-                            <p class="text-sm text-gray-600">Recorded by: {{ $medicalRecord->doctor->name }} on {{ $medicalRecord->created_at->format('d M Y, H:i') }}</p>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="p-6 md:p-8">
+                <!-- Header -->
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 border-b border-slate-100 pb-6 gap-4">
+                    <div>
+                        <div class="flex items-center gap-3 mb-1">
+                            <h1 class="text-2xl font-bold text-slate-800">Medical Record Details</h1>
+                            <span class="px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-full text-xs font-bold uppercase tracking-wide flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                Finalized
+                            </span>
                         </div>
-                        <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">Finalized</span>
+                        <p class="text-sm text-slate-500 flex items-center gap-2">
+                            <span class="font-bold text-slate-700">{{ $medicalRecord->patient->name }}</span>
+                            <span class="text-slate-300">•</span>
+                            <span>Recorded by {{ $medicalRecord->doctor->name }}</span>
+                            <span class="text-slate-300">•</span>
+                            <span>{{ $medicalRecord->created_at->format('d M Y, H:i') }}</span>
+                        </p>
+                    </div>
+                    <a href="{{ route('visits.index') }}" class="px-4 py-2 bg-slate-100 text-slate-600 text-sm font-bold rounded-xl hover:bg-slate-200 transition-colors">
+                        &larr; Back to Visits
+                    </a>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
+                    <!-- Left Column: SOAP -->
+                    <div class="space-y-8">
+                        <div>
+                            <h4 class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+                                <span class="w-6 h-6 rounded-full bg-birawa-100 text-birawa-600 flex items-center justify-center text-[10px]">S</span>
+                                Subjective
+                            </h4>
+                            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-slate-700 leading-relaxed text-sm">
+                                {{ $medicalRecord->subjective }}
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+                                <span class="w-6 h-6 rounded-full bg-birawa-100 text-birawa-600 flex items-center justify-center text-[10px]">O</span>
+                                Objective
+                            </h4>
+                            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-slate-700 leading-relaxed text-sm">
+                                {{ $medicalRecord->objective }}
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+                                <span class="w-6 h-6 rounded-full bg-birawa-100 text-birawa-600 flex items-center justify-center text-[10px]">A</span>
+                                Assessment
+                            </h4>
+                            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-slate-700 leading-relaxed text-sm">
+                                {{ $medicalRecord->assessment }}
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                        <!-- Left Column: SOAP -->
-                        <div class="space-y-6">
-                            <div>
-                                <h4 class="text-sm font-bold text-gray-500 uppercase tracking-wider">Subjective</h4>
-                                <p class="mt-1 text-gray-900 bg-gray-50 p-3 rounded">{{ $medicalRecord->subjective }}</p>
-                            </div>
-                            <div>
-                                <h4 class="text-sm font-bold text-gray-500 uppercase tracking-wider">Objective</h4>
-                                <p class="mt-1 text-gray-900 bg-gray-50 p-3 rounded">{{ $medicalRecord->objective }}</p>
-                            </div>
-                            <div>
-                                <h4 class="text-sm font-bold text-gray-500 uppercase tracking-wider">Assessment</h4>
-                                <p class="mt-1 text-gray-900 bg-gray-50 p-3 rounded">{{ $medicalRecord->assessment }}</p>
+                    <!-- Right Column: Plan & Usage -->
+                    <div class="space-y-8">
+                        <div>
+                            <h4 class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+                                <span class="w-6 h-6 rounded-full bg-birawa-100 text-birawa-600 flex items-center justify-center text-[10px]">P</span>
+                                Plan (Treatment)
+                            </h4>
+                            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-slate-700 leading-relaxed text-sm">
+                                {{ $medicalRecord->plan_treatment }}
                             </div>
                         </div>
+                        
+                        <!-- Internal Note -->
+                        <div class="bg-amber-50 rounded-2xl p-5 border border-amber-100">
+                            <h4 class="flex items-center gap-2 text-xs font-bold text-amber-600 uppercase tracking-wider mb-3">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                                Internal Plan / Recipe
+                            </h4>
+                            <p class="text-sm text-amber-900 italic leading-relaxed">
+                                {{ $medicalRecord->plan_recipe ?? 'No internal notes.' }}
+                            </p>
+                        </div>
 
-                        <!-- Right Column: Plan & Usage -->
-                        <div class="space-y-6">
-                            <div>
-                                <h4 class="text-sm font-bold text-gray-500 uppercase tracking-wider">Plan (Treatment)</h4>
-                                <p class="mt-1 text-gray-900 bg-gray-50 p-3 rounded">{{ $medicalRecord->plan_treatment }}</p>
-                            </div>
-                            
-                            <!-- Internal Note: Only visible if it's the creator or authorized peer -->
-                            <div class="border-l-4 border-yellow-400 pl-4">
-                                <h4 class="text-sm font-bold text-yellow-600 uppercase tracking-wider">Internal Plan / Recipe (Hidden from Client)</h4>
-                                <p class="mt-1 text-gray-700 italic">{{ $medicalRecord->plan_recipe ?? 'No internal notes.' }}</p>
-                            </div>
-
-                            <div class="mt-8">
-                                <h4 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Medical Usage Log</h4>
-                                <ul class="list-disc list-inside text-sm text-gray-700 bg-gray-50 p-3 rounded">
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Medical Usage Log</h4>
+                            <div class="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
+                                <ul class="divide-y divide-slate-50">
                                     @forelse($medicalRecord->usageLogs as $log)
-                                        <li>{{ $log->inventoryItem->item_name ?? 'Unknown Item' }} - {{ $log->quantity_used }} {{ $log->inventoryItem->unit ?? '' }}</li>
+                                        <li class="px-4 py-3 flex justify-between items-center text-sm">
+                                            <span class="font-medium text-slate-700">{{ $log->inventoryItem->item_name ?? 'Unknown Item' }}</span>
+                                            <span class="bg-slate-100 text-slate-600 px-2 py-1 rounded-lg text-xs font-bold">
+                                                {{ $log->quantity_used }} {{ $log->inventoryItem->unit ?? '' }}
+                                            </span>
+                                        </li>
                                     @empty
-                                        <li class="italic text-gray-500">No items used.</li>
+                                        <li class="px-4 py-6 text-center text-slate-400 text-sm italic">No items used during this visit.</li>
                                     @endforelse
                                 </ul>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="flex justify-end mt-6">
-                        <a href="{{ route('visits.index') }}" class="text-gray-600 hover:text-gray-900 font-medium">Back to Visits</a>
                     </div>
                 </div>
             </div>
