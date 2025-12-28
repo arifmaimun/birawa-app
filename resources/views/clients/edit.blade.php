@@ -2,8 +2,8 @@
     <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <!-- Header -->
         <div class="flex items-center justify-between mb-6">
-            <h1 class="text-2xl font-bold text-slate-800">Edit Owner</h1>
-            <a href="{{ route('owners.show', $owner) }}" class="text-sm font-medium text-birawa-600 hover:text-birawa-700 flex items-center gap-1">
+            <h1 class="text-2xl font-bold text-slate-800">Edit Client</h1>
+            <a href="{{ route('clients.show', $client) }}" class="text-sm font-medium text-birawa-600 hover:text-birawa-700 flex items-center gap-1">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
@@ -15,7 +15,7 @@
         <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 relative overflow-hidden">
             <div class="absolute top-0 right-0 w-32 h-32 bg-birawa-50 rounded-bl-full -mr-16 -mt-16 opacity-50 pointer-events-none"></div>
             
-            <form action="{{ route('owners.update', $owner) }}" method="POST" class="flex flex-col gap-5 relative z-10">
+            <form action="{{ route('clients.update', $client) }}" method="POST" class="flex flex-col gap-5 relative z-10">
                 @csrf
                 @method('PUT')
                 
@@ -24,7 +24,7 @@
                     <label for="name" class="block text-sm font-bold text-slate-700 mb-2">Full Name</label>
                     <input type="text" name="name" id="name" 
                            class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 placeholder-slate-400 transition-colors shadow-sm"
-                           value="{{ old('name', $owner->name) }}" required>
+                           value="{{ old('name', $client->name) }}" required>
                     @error('name')
                         <p class="mt-1 text-sm text-red-500 font-medium flex items-center gap-1">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -40,7 +40,7 @@
                     <label for="phone" class="block text-sm font-bold text-slate-700 mb-2">Phone Number</label>
                     <input type="tel" name="phone" id="phone" 
                            class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 placeholder-slate-400 transition-colors shadow-sm"
-                           value="{{ old('phone', $owner->phone) }}" required>
+                           value="{{ old('phone', $client->phone) }}" required>
                     @error('phone')
                         <p class="mt-1 text-sm text-red-500 font-medium flex items-center gap-1">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -58,7 +58,7 @@
                     </label>
                     <input type="email" name="email" id="email" 
                            class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 placeholder-slate-400 transition-colors shadow-sm"
-                           value="{{ old('email', str_contains($owner->email, '@birawa.vet') ? '' : $owner->email) }}">
+                           value="{{ old('email', ($client->user && str_contains($client->user->email, '@birawa.vet')) ? '' : ($client->user->email ?? '')) }}">
                     <p class="mt-1.5 text-xs text-slate-500 flex items-center gap-1">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -80,7 +80,7 @@
                     <label for="address" class="block text-sm font-bold text-slate-700 mb-2">Address</label>
                     <textarea name="address" id="address" rows="3" 
                               class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 placeholder-slate-400 transition-colors shadow-sm"
-                              required>{{ old('address', $owner->address) }}</textarea>
+                              required>{{ old('address', $client->address) }}</textarea>
                     @error('address')
                         <p class="mt-1 text-sm text-red-500 font-medium flex items-center gap-1">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -97,7 +97,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
-                        Update Owner
+                        Update Client
                     </button>
                 </div>
             </form>

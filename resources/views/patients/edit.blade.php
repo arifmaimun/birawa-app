@@ -16,16 +16,16 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <!-- Owner Selection -->
                             <div class="col-span-1 md:col-span-2">
-                                <label for="owner_id" class="block text-sm font-medium text-gray-700">Owner</label>
-                                <select name="owner_id" id="owner_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-birawa-500 focus:ring focus:ring-birawa-500 focus:ring-opacity-50" required>
-                                    <option value="">Select Owner</option>
-                                    @foreach($owners as $owner)
-                                        <option value="{{ $owner->id }}" {{ (old('owner_id', $patient->owners->first()->id ?? '') == $owner->id) ? 'selected' : '' }}>
-                                            {{ $owner->name }}
+                                <label for="client_id" class="block text-sm font-medium text-gray-700">Client</label>
+                                <select name="client_id" id="client_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-birawa-500 focus:ring focus:ring-birawa-500 focus:ring-opacity-50" required>
+                                    <option value="">Select Client</option>
+                                    @foreach($clients as $client)
+                                        <option value="{{ $client->id }}" {{ (old('client_id', $patient->client_id) == $client->id) ? 'selected' : '' }}>
+                                            {{ $client->name }}
                                         </option>
                                     @endforeach
                                 </select>
-                                @error('owner_id')
+                                @error('client_id')
                                     <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
                                 @enderror
                             </div>

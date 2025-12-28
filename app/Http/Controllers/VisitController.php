@@ -17,12 +17,12 @@ class VisitController extends Controller
     {
         $search = $request->input('search');
         
-        $visits = Visit::with(['patient.owners', 'user', 'invoice', 'medicalRecords'])
+        $visits = Visit::with(['patient.client', 'user', 'invoice', 'medicalRecords'])
             ->where('user_id', Auth::id()) // SCOPED: Only show visits for the logged-in doctor
             ->when($search, function ($query) use ($search) {
                 $query->whereHas('patient', function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%");
-                })->orWhereHas('patient.owners', function ($q) use ($search) {
+                })->orWhereHas('patient.client', function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%");
                 });
             })
@@ -39,7 +39,7 @@ class VisitController extends Controller
     {
         // SCOPED: Only show patients linked to the doctor
         $user = Auth::user();
-        $patients = Patient::with('owners')
+        $patients = Patient::with('client')
             ->where(function($q) use ($user) {
                 $q->whereHas('visits', function($v) use ($user) {
                     $v->where('user_id', $user->id);
@@ -158,7 +158,7 @@ class VisitController extends Controller
         }
         
         $user = Auth::user();
-        $patients = Patient::with('owners')
+        $patients = Patient::with('client')
             ->where(function($q) use ($user) {
                 $q->whereHas('visits', function($v) use ($user) {
                     $v->where('user_id', $user->id);
@@ -218,7 +218,7 @@ class VisitController extends Controller
 
         $visits = Visit::where('user_id', Auth::id())
             ->whereBetween('scheduled_at', [$start, $end])
-            ->with('patient.owners')
+            ->with('patient.client')
             ->get();
 
         $events = $visits->map(function ($visit) {
@@ -230,11 +230,11 @@ class VisitController extends Controller
             };
             
             $patientName = $visit->patient->name ?? 'Unknown';
-            $ownerName = $visit->patient->owners->first()->name ?? 'No Owner';
+            $clientName = $visit->patient->client->name ?? 'No Client';
 
             return [
                 'id' => $visit->id,
-                'title' => "$patientName ($ownerName)",
+                'title' => "$patientName ($clientName)",
                 'start' => $visit->scheduled_at,
                 'url' => route('visits.show', $visit->id),
                 'backgroundColor' => $color,

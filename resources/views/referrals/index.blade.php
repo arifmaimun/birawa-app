@@ -61,7 +61,7 @@
                         </div>
                         <div class="min-w-0">
                             <p class="font-bold text-slate-700 text-sm truncate">{{ $referral->patient->name }}</p>
-                            <p class="text-xs text-slate-500 truncate">{{ $referral->patient->owners->first()->name ?? 'Unknown Owner' }}</p>
+                            <p class="text-xs text-slate-500 truncate">{{ $referral->patient->client->name ?? 'Unknown Owner' }}</p>
                         </div>
                     </div>
 

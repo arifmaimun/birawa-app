@@ -53,7 +53,7 @@
                         </div>
                         <div>
                             <p class="font-bold text-slate-700 text-sm">{{ $invoice->visit->patient->name }}</p>
-                            <p class="text-xs text-slate-500">{{ $invoice->visit->patient->owners->first()->name ?? 'Unknown Owner' }}</p>
+                            <p class="text-xs text-slate-500">{{ $invoice->visit->patient->client->name ?? 'Unknown Owner' }}</p>
                         </div>
                     </div>
 

@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\OwnerController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\VisitController;
 use App\Http\Controllers\ProductController;
@@ -39,7 +39,7 @@ Route::middleware(['auth'])->group(function () {
     // Referrals
     Route::resource('referrals', App\Http\Controllers\ReferralController::class);
 
-    Route::resource('owners', OwnerController::class);
+    Route::resource('clients', ClientController::class);
     Route::resource('patients', PatientController::class);
     
     Route::get('visits/calendar-events', [VisitController::class, 'calendarEvents'])->name('visits.calendar-events');
@@ -60,6 +60,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/onboarding/check', [OnboardingController::class, 'checkOrRegister'])->name('onboarding.check');
 
     // Inventory
+    Route::get('inventory/items/search', [\App\Http\Controllers\DoctorInventoryController::class, 'searchItems'])->name('inventory.items.search');
     Route::resource('inventory', \App\Http\Controllers\DoctorInventoryController::class);
     Route::get('inventory/{doctorInventory}/restock', [\App\Http\Controllers\DoctorInventoryController::class, 'restockForm'])->name('inventory.restock');
     Route::post('inventory/{doctorInventory}/restock', [\App\Http\Controllers\DoctorInventoryController::class, 'restock'])->name('inventory.restock.store');

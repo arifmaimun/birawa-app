@@ -39,7 +39,7 @@ class DashboardController extends Controller
         $todayVisits = Visit::where('user_id', $user->id)
             ->whereDate('scheduled_at', now())
             ->where('status', '!=', 'cancelled')
-            ->with(['patient', 'patient.owners'])
+            ->with(['patient', 'patient.client'])
             ->orderBy('scheduled_at')
             ->get();
 
@@ -48,7 +48,7 @@ class DashboardController extends Controller
             ->whereDate('scheduled_at', '>', now())
             ->orderBy('scheduled_at')
             ->take(5)
-            ->with(['patient', 'patient.owners'])
+            ->with(['patient', 'patient.client'])
             ->get();
 
         $pendingInvoicesCount = \App\Models\Invoice::where('payment_status', 'unpaid')
@@ -58,7 +58,7 @@ class DashboardController extends Controller
             ->count();
 
         // Recent Patients (Global for now, as per original dashboard)
-        $recentPatients = Patient::with('owners')->latest()->take(5)->get();
+        $recentPatients = Patient::with('client')->latest()->take(5)->get();
 
         return view('dashboard', compact(
             'totalPatients', 

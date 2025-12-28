@@ -23,13 +23,17 @@ class InvoiceTest extends TestCase
         $doctor = User::factory()->create();
         $this->actingAs($doctor);
 
-        $patient = Patient::factory()->create(); // Needs owner? Factory usually handles it or we need to check factory definition
-        // Let's create owner if factory doesn't
-        if (!$patient->owners()->exists()) {
-             // Attach owner manually if needed, but assuming factory works or we fix it.
-             // Actually, Patient factory might depend on Owner factory.
-             // Let's just rely on factory for now.
-        }
+        // Create Client for the patient
+        $clientUser = User::factory()->create(['role' => 'client']);
+        $client = \App\Models\Client::create([
+            'user_id' => $clientUser->id,
+            'name' => $clientUser->name,
+            'phone' => '08123456789',
+        ]);
+
+        $patient = Patient::factory()->create([
+            'client_id' => $client->id
+        ]);
 
         // 2. Create Visit with Transport Fee
         $visit = Visit::factory()->create([

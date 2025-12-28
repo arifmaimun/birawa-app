@@ -73,8 +73,8 @@
                 <div>
                     <dt class="text-sm font-medium text-gray-500">Pemilik</dt>
                     <dd class="mt-1 text-lg text-gray-900">
-                        @if($visit->patient->owners->first())
-                        <a href="{{ route('owners.show', $visit->patient->owners->first()) }}" class="text-blue-600 hover:text-blue-800">{{ $visit->patient->owners->first()->name }}</a>
+                        @if($visit->patient->client)
+                        <a href="{{ route('clients.show', $visit->patient->client) }}" class="text-blue-600 hover:text-blue-800">{{ $visit->patient->client->name }}</a>
                         @else
                         -
                         @endif

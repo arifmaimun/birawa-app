@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/forms";
 
+[x-cloak] {
+    display: none !important;
+}
+
 @theme {
     --color-birawa-50: #f0fdfa;
     --color-birawa-100: #ccfbf1;

@@ -42,9 +42,21 @@ class OnboardingController extends Controller
             ]);
         }
 
-        // Attach to patient if not already attached
-        if (!$patient->owners()->where('user_id', $user->id)->exists()) {
-            $patient->owners()->attach($user->id, ['is_primary' => false]);
+        // Ensure user has a client profile
+        $client = \App\Models\Client::firstOrCreate(
+            ['user_id' => $user->id],
+            [
+                'name' => $user->name,
+                'phone' => $user->phone,
+                'address' => $user->address ?? 'Address pending',
+            ]
+        );
+
+        // Update patient owner
+        // Note: System now supports single owner (Client). This action will transfer ownership.
+        if ($patient->client_id !== $client->id) {
+            $patient->client_id = $client->id;
+            $patient->save();
         }
 
         if ($isNewUser) {

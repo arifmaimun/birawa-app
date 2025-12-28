@@ -26,7 +26,7 @@
                     </div>
                     <input type="text" name="search" value="{{ request('search') }}" 
                            class="pl-10 block w-full rounded-xl border-slate-200 shadow-sm focus:border-birawa-500 focus:ring focus:ring-birawa-500 focus:ring-opacity-50 py-3" 
-                           placeholder="Search patients or owners...">
+                           placeholder="Search patients or clients...">
                 </form>
             </div>
 
@@ -60,16 +60,16 @@
                             </span>
                         </div>
 
-                        <!-- Owner Info -->
+                        <!-- Client Info -->
                         <div class="flex items-center gap-2 p-3 bg-slate-50 rounded-xl border border-slate-100">
                             <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                             </svg>
                             <div class="flex-1">
-                                @if($patient->owners->first())
-                                    <p class="text-sm font-medium text-slate-700">{{ $patient->owners->first()->name }}</p>
+                                @if($patient->client)
+                                    <p class="text-sm font-medium text-slate-700">{{ $patient->client->name }}</p>
                                 @else
-                                    <p class="text-sm text-slate-400 italic">No Owner</p>
+                                    <p class="text-sm text-slate-400 italic">No Client</p>
                                 @endif
                             </div>
                         </div>
@@ -139,7 +139,7 @@
             </div>
 
             <!-- Pagination -->
-            @if($patients->hasPages())
+            @if(method_exists($patients, 'hasPages') && $patients->hasPages())
                 <div class="mt-6">
                     {{ $patients->withQueryString()->links() }}
                 </div>

@@ -12,11 +12,20 @@ class ViewRenderTest extends TestCase
 {
     use RefreshDatabase;
 
+    private function createPatientWithClient($user)
+    {
+        $client = \App\Models\Client::create([
+            'user_id' => $user->id,
+            'name' => $user->name,
+            'phone' => '08123456789',
+        ]);
+        return Patient::factory()->create(['client_id' => $client->id]);
+    }
+
     public function test_dashboard_screen_can_be_rendered()
     {
         $user = User::factory()->create();
-        $patient = Patient::factory()->create();
-        $patient->owners()->attach($user);
+        $patient = $this->createPatientWithClient($user);
 
         $response = $this->actingAs($user)->get('/dashboard');
 
@@ -27,8 +36,7 @@ class ViewRenderTest extends TestCase
     public function test_patients_index_can_be_rendered()
     {
         $user = User::factory()->create();
-        $patient = Patient::factory()->create();
-        $patient->owners()->attach($user);
+        $patient = $this->createPatientWithClient($user);
 
         $response = $this->actingAs($user)->get(route('patients.index'));
 
@@ -39,8 +47,7 @@ class ViewRenderTest extends TestCase
     public function test_patient_show_can_be_rendered()
     {
         $user = User::factory()->create();
-        $patient = Patient::factory()->create();
-        $patient->owners()->attach($user);
+        $patient = $this->createPatientWithClient($user);
 
         $response = $this->actingAs($user)->get(route('patients.show', $patient));
 
@@ -51,8 +58,7 @@ class ViewRenderTest extends TestCase
     public function test_visits_index_can_be_rendered()
     {
         $user = User::factory()->create();
-        $patient = Patient::factory()->create();
-        $patient->owners()->attach($user);
+        $patient = $this->createPatientWithClient($user);
         $visit = Visit::factory()->create([
             'patient_id' => $patient->id,
             'user_id' => $user->id, // Assuming doctor/user
@@ -66,8 +72,7 @@ class ViewRenderTest extends TestCase
     public function test_visit_show_can_be_rendered()
     {
         $user = User::factory()->create();
-        $patient = Patient::factory()->create();
-        $patient->owners()->attach($user);
+        $patient = $this->createPatientWithClient($user);
         $visit = Visit::factory()->create([
             'patient_id' => $patient->id,
             'user_id' => $user->id,
@@ -81,8 +86,7 @@ class ViewRenderTest extends TestCase
     public function test_visit_edit_can_be_rendered()
     {
         $user = User::factory()->create();
-        $patient = Patient::factory()->create();
-        $patient->owners()->attach($user);
+        $patient = $this->createPatientWithClient($user);
         $visit = Visit::factory()->create([
             'patient_id' => $patient->id,
             'user_id' => $user->id,
@@ -96,8 +100,7 @@ class ViewRenderTest extends TestCase
     public function test_visit_create_can_be_rendered()
     {
         $user = User::factory()->create();
-        $patient = Patient::factory()->create();
-        $patient->owners()->attach($user);
+        $patient = $this->createPatientWithClient($user);
 
         $response = $this->actingAs($user)->get(route('visits.create'));
 
@@ -107,8 +110,7 @@ class ViewRenderTest extends TestCase
     public function test_patient_edit_can_be_rendered()
     {
         $user = User::factory()->create();
-        $patient = Patient::factory()->create();
-        $patient->owners()->attach($user);
+        $patient = $this->createPatientWithClient($user);
 
         $response = $this->actingAs($user)->get(route('patients.edit', $patient));
 

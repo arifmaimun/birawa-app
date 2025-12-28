@@ -39,12 +39,12 @@
                         <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Bill To</h4>
                         <div class="flex items-start gap-3">
                             <div class="w-10 h-10 rounded-full bg-birawa-50 text-birawa-600 flex items-center justify-center font-bold">
-                                {{ substr($invoice->visit->patient->owners->first()->name ?? 'U', 0, 1) }}
+                                {{ substr($invoice->visit->patient->client->name ?? 'U', 0, 1) }}
                             </div>
                             <div>
-                                <p class="font-bold text-slate-800">{{ $invoice->visit->patient->owners->first()->name ?? 'Unknown Owner' }}</p>
-                                <p class="text-sm text-slate-500 mt-0.5">{{ $invoice->visit->patient->owners->first()->address ?? 'No Address' }}</p>
-                                <p class="text-sm text-slate-500 mt-0.5">{{ $invoice->visit->patient->owners->first()->phone ?? 'No Phone' }}</p>
+                                <p class="font-bold text-slate-800">{{ $invoice->visit->patient->client->name ?? 'Unknown Owner' }}</p>
+                                <p class="text-sm text-slate-500 mt-0.5">{{ $invoice->visit->patient->client->address ?? 'No Address' }}</p>
+                                <p class="text-sm text-slate-500 mt-0.5">{{ $invoice->visit->patient->client->phone ?? 'No Phone' }}</p>
                             </div>
                         </div>
                     </div>

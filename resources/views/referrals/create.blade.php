@@ -19,7 +19,7 @@
                                 <select name="patient_id" class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 shadow-sm transition-colors cursor-pointer" required>
                                     <option value="">-- Select Patient --</option>
                                     @foreach($patients as $patient)
-                                        <option value="{{ $patient->id }}">{{ $patient->name }} ({{ $patient->owners->first()->name ?? 'No Owner' }})</option>
+                                        <option value="{{ $patient->id }}">{{ $patient->name }} ({{ $patient->client->name ?? 'No Owner' }})</option>
                                     @endforeach
                                 </select>
                             </div>

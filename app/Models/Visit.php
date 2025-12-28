@@ -35,6 +35,10 @@ class Visit extends Model
         'distance_km'
     ];
 
+    protected $casts = [
+        'scheduled_at' => 'datetime',
+    ];
+
     public function patient(): BelongsTo
     {
         return $this->belongsTo(Patient::class);

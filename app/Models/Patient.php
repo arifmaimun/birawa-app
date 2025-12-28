@@ -4,20 +4,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Patient extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
-    protected $fillable = ['name', 'species', 'breed', 'gender', 'dob'];
+    protected $fillable = ['client_id', 'name', 'species', 'breed', 'gender', 'dob'];
 
-    public function owners(): BelongsToMany
+    public function client(): BelongsTo
     {
-        return $this->belongsToMany(User::class, 'pet_owners')
-                    ->withPivot('is_primary')
-                    ->withTimestamps();
+        return $this->belongsTo(Client::class);
     }
 
     public function visits(): HasMany

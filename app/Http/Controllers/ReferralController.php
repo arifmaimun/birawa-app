@@ -33,7 +33,7 @@ class ReferralController extends Controller
 
     public function create()
     {
-        $patients = Patient::whereHas('owners')->orderBy('name')->get();
+        $patients = Patient::has('client')->orderBy('name')->get();
         return view('referrals.create', compact('patients'));
     }
 

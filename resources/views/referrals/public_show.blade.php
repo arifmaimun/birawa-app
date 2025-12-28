@@ -120,7 +120,7 @@
                         </div>
                         <div>
                             <span class="block text-xs text-birawa-600/70 uppercase font-semibold mb-1">Owner</span>
-                            <span class="font-bold text-birawa-900">{{ $referral->patient->owners->first()->name ?? 'N/A' }}</span>
+                            <span class="font-bold text-birawa-900">{{ $referral->patient->client->name ?? 'N/A' }}</span>
                         </div>
                     </div>
                 </div>

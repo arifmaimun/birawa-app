@@ -26,6 +26,19 @@ class DoctorInventoryController extends Controller
         return view('inventory.index', compact('items', 'search'));
     }
 
+    public function searchItems(Request $request)
+    {
+        $search = $request->input('q');
+        
+        $items = DoctorInventory::where('user_id', Auth::id())
+            ->where('item_name', 'like', "%{$search}%")
+            ->orderBy('item_name')
+            ->limit(10)
+            ->get();
+            
+        return response()->json($items);
+    }
+
     public function create()
     {
         return view('inventory.create');

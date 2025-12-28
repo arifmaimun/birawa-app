@@ -14,7 +14,7 @@
                     <option value="">Pilih Pasien</option>
                     @foreach($patients as $patient)
                         <option value="{{ $patient->id }}" {{ (old('patient_id', $visit->patient_id) == $patient->id) ? 'selected' : '' }}>
-                            {{ $patient->name }} ({{ $patient->species }}) - Pemilik: {{ $patient->owners->first()->name ?? '-' }}
+                            {{ $patient->name }} ({{ $patient->species }}) - Pemilik: {{ $patient->client->name ?? '-' }}
                         </option>
                     @endforeach
                 </select>

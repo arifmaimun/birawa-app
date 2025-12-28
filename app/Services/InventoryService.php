@@ -21,43 +21,26 @@ class InventoryService
     public function deductStock(int $inventoryId, float $quantity, string $unitType = 'unit')
     {
         $inventory = DoctorInventory::where('id', $inventoryId)
-            ->where('doctor_id', Auth::id())
+            ->where('user_id', Auth::id())
             ->firstOrFail();
 
         // Normalize everything to 'unit' (smallest unit)
         $quantityInUnits = $this->convertToUnits($inventory, $quantity, $unitType);
 
         DB::transaction(function () use ($inventory, $quantityInUnits, $quantity, $unitType) {
-            // Deduct from total_units (conceptually)
-            // But we store: stock_boxes, stock_units
-            // Logic: 
-            // 1 Box = conversion_ratio Units.
-            // Total Units Available = (stock_boxes * conversion_ratio) + stock_units.
+            // Deduct from stock_qty (decimal)
             
-            $currentTotalUnits = ($inventory->stock_boxes * $inventory->conversion_ratio) + $inventory->stock_units;
-            
-            if ($currentTotalUnits < $quantityInUnits) {
-                throw new \Exception("Insufficient stock for {$inventory->product_name}. Available: {$currentTotalUnits}, Required: {$quantityInUnits}");
+            if ($inventory->stock_qty < $quantityInUnits) {
+                throw new \Exception("Insufficient stock for {$inventory->item_name}. Available: {$inventory->stock_qty}, Required: {$quantityInUnits}");
             }
 
-            $newTotalUnits = $currentTotalUnits - $quantityInUnits;
-
-            // Convert back to Boxes + Units
-            // Usually we keep units < conversion_ratio
-            $newBoxes = floor($newTotalUnits / $inventory->conversion_ratio);
-            $newUnits = $newTotalUnits % $inventory->conversion_ratio;
-
-            $inventory->update([
-                'stock_boxes' => $newBoxes,
-                'stock_units' => $newUnits,
-            ]);
+            $inventory->decrement('stock_qty', $quantityInUnits);
 
             // Log Transaction
             InventoryTransaction::create([
                 'doctor_inventory_id' => $inventory->id,
-                'type' => 'usage',
-                'quantity' => $quantity, // Original qty input
-                'unit' => $unitType,
+                'type' => 'OUT',
+                'quantity_change' => -1 * $quantityInUnits,
                 'notes' => "Used {$quantity} {$unitType} (calculated as {$quantityInUnits} base units)",
             ]);
         });

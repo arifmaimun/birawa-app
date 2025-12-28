@@ -39,10 +39,37 @@
              </div>
              <h1 class="font-bold text-lg text-slate-800 tracking-tight">{{ $header ?? 'Birawa Vet' }}</h1>
         </div>
-        <div class="flex items-center gap-3">
-             <div class="h-9 w-9 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 font-bold text-sm">
-                 {{ substr(Auth::user()->name ?? 'U', 0, 1) }}
-             </div>
+        <div class="flex items-center gap-3" x-data="{ open: false }">
+            <div class="relative">
+                 <button @click="open = !open" class="h-9 w-9 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 font-bold text-sm hover:bg-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-birawa-500">
+                     {{ substr(Auth::user()->name ?? 'U', 0, 1) }}
+                 </button>
+
+                 <!-- Dropdown -->
+                 <div x-show="open" @click.away="open = false" 
+                      x-transition:enter="transition ease-out duration-200"
+                      x-transition:enter-start="opacity-0 scale-95"
+                      x-transition:enter-end="opacity-100 scale-100"
+                      x-transition:leave="transition ease-in duration-75"
+                      x-transition:leave-start="opacity-100 scale-100"
+                      x-transition:leave-end="opacity-0 scale-95"
+                      class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg py-1 border border-slate-100 z-50 origin-top-right">
+                      
+                      <div class="px-4 py-2 border-b border-slate-50">
+                          <p class="text-sm font-bold text-slate-800">{{ Auth::user()->name }}</p>
+                          <p class="text-xs text-slate-500 truncate">{{ Auth::user()->email }}</p>
+                      </div>
+                      
+                      <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Profile</a>
+                      
+                      <form method="POST" action="{{ route('logout') }}">
+                          @csrf
+                          <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                              Log Out
+                          </button>
+                      </form>
+                 </div>
+            </div>
         </div>
     </header>
 
@@ -79,7 +106,7 @@
 
         <!-- Menu/More -->
         <div x-data="{ open: false }" class="relative w-full h-full flex flex-col items-center justify-center">
-            <button @click="open = !open" class="flex flex-col items-center justify-center w-full h-full space-y-1 {{ request()->routeIs('owners.*', 'inventory.*', 'expenses.*', 'products.*') ? 'text-birawa-600' : 'text-slate-400 hover:text-slate-600' }}">
+            <button @click="open = !open" class="flex flex-col items-center justify-center w-full h-full space-y-1 {{ request()->routeIs('clients.*', 'inventory.*', 'expenses.*', 'products.*') ? 'text-birawa-600' : 'text-slate-400 hover:text-slate-600' }}">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                 </svg>
@@ -88,6 +115,7 @@
             
             <!-- Upward Menu (Popover) -->
             <div x-show="open" @click.away="open = false" 
+                 x-cloak
                  x-transition:enter="transition ease-out duration-200"
                  x-transition:enter-start="opacity-0 translate-y-10 scale-95"
                  x-transition:enter-end="opacity-100 translate-y-0 scale-100"
@@ -100,9 +128,9 @@
                     <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Management</p>
                  </div>
                  
-                 <a href="{{ route('owners.index') }}" class="flex items-center px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 border-b border-slate-50 transition-colors">
+                 <a href="{{ route('clients.index') }}" class="flex items-center px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 border-b border-slate-50 transition-colors">
                     <svg class="w-5 h-5 mr-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                    Owners
+                    Clients
                  </a>
                  <a href="{{ route('inventory.index') }}" class="flex items-center px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 border-b border-slate-50 transition-colors">
                     <svg class="w-5 h-5 mr-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
@@ -115,6 +143,10 @@
                  <a href="{{ route('products.index') }}" class="flex items-center px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 border-b border-slate-50 transition-colors">
                     <svg class="w-5 h-5 mr-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                     Clinic Products
+                 </a>
+                 <a href="{{ route('profile.edit') }}" class="flex items-center px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 border-b border-slate-50 transition-colors">
+                    <svg class="w-5 h-5 mr-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    My Profile
                  </a>
                  
                  <div class="border-t border-slate-100 my-1"></div>

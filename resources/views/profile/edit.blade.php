@@ -1,100 +1,188 @@
 <x-app-layout>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <!-- Header -->
-        <div class="mb-6">
-            <h1 class="text-2xl font-bold text-slate-800">Edit Profile</h1>
-            <p class="text-sm text-slate-500">Manage your personal information and safety settings</p>
-        </div>
+    <!-- Top Navigation Bar -->
+    <div class="sticky top-0 z-30 flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200 shadow-sm">
+        <a href="{{ route('dashboard') }}" class="p-2 -ml-2 text-gray-600 rounded-full hover:bg-gray-100">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+        </a>
+        <h1 class="text-lg font-bold text-gray-800">Edit Profile</h1>
+        <div class="w-8"></div>
+    </div>
 
-        <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-            <div class="p-6 md:p-8">
-                @if (session('success'))
-                    <div class="mb-6 bg-emerald-50 border border-emerald-100 text-emerald-600 px-4 py-3 rounded-xl flex items-center gap-2" role="alert">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                        </svg>
-                        <span class="font-bold text-sm">{{ session('success') }}</span>
-                    </div>
-                @endif
-
-                <form method="POST" action="{{ route('profile.update') }}">
+    <div class="max-w-xl px-4 py-6 mx-auto pb-28">
+        
+        <!-- Section 1: Profile Information -->
+        <div class="mb-6 bg-white border border-gray-100 shadow-sm rounded-2xl overflow-hidden">
+            <div class="px-5 py-4 border-b border-gray-50 bg-gray-50/50 flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-birawa-100 flex items-center justify-center text-birawa-600">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                </div>
+                <h2 class="font-bold text-gray-800">Profile Information</h2>
+            </div>
+            
+            <div class="p-5">
+                <form id="send-verification" method="post" action="{{ route('verification.send') }}">
                     @csrf
-                    @method('PATCH')
+                </form>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <!-- Basic Info -->
-                        <div class="space-y-6">
-                            <div class="flex items-center gap-3 pb-2 border-b border-slate-100">
-                                <div class="w-8 h-8 rounded-full bg-birawa-100 flex items-center justify-center text-birawa-600">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                    </svg>
-                                </div>
-                                <h3 class="text-lg font-bold text-slate-800">Basic Information</h3>
-                            </div>
-                            
-                            <div>
-                                <label for="name" class="block text-slate-700 text-sm font-bold mb-2">Name</label>
-                                <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}" class="w-full rounded-xl border-slate-200 shadow-sm focus:border-birawa-500 focus:ring-birawa-500 transition-colors" required>
-                            </div>
-                            
-                            <div>
-                                <label for="email" class="block text-slate-700 text-sm font-bold mb-2">Email</label>
-                                <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}" class="w-full rounded-xl border-slate-200 shadow-sm focus:border-birawa-500 focus:ring-birawa-500 transition-colors" required>
-                            </div>
-                            
-                            <div>
-                                <label for="specialty" class="block text-slate-700 text-sm font-bold mb-2">Specialty</label>
-                                <input type="text" name="specialty" id="specialty" value="{{ old('specialty', $profile->specialty) }}" class="w-full rounded-xl border-slate-200 shadow-sm focus:border-birawa-500 focus:ring-birawa-500 transition-colors">
-                            </div>
-                            
-                            <div>
-                                <label for="bio" class="block text-slate-700 text-sm font-bold mb-2">Bio</label>
-                                <textarea name="bio" id="bio" rows="3" class="w-full rounded-xl border-slate-200 shadow-sm focus:border-birawa-500 focus:ring-birawa-500 transition-colors">{{ old('bio', $profile->bio) }}</textarea>
-                            </div>
-                        </div>
+                <form method="post" action="{{ route('profile.update') }}" class="space-y-4">
+                    @csrf
+                    @method('patch')
 
-                        <!-- Safety & Emergency -->
-                        <div class="space-y-6">
-                            <div class="flex items-center gap-3 pb-2 border-b border-red-100">
-                                <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                    </svg>
-                                </div>
-                                <h3 class="text-lg font-bold text-red-900">Safety & Emergency (SOS)</h3>
-                            </div>
-
-                            <div class="bg-red-50 p-4 rounded-2xl border border-red-100">
-                                <p class="text-sm text-red-700 font-medium">
-                                    This information will be used for the SOS Panic Button during visits.
-                                </p>
-                            </div>
-
-                            <div>
-                                <label for="emergency_contact_name" class="block text-slate-700 text-sm font-bold mb-2">Emergency Contact Name</label>
-                                <input type="text" name="emergency_contact_name" id="emergency_contact_name" value="{{ old('emergency_contact_name', $profile->emergency_contact_name) }}" class="w-full rounded-xl border-slate-200 shadow-sm focus:border-red-500 focus:ring-red-500 transition-colors" placeholder="e.g. Spouse, Parent, Partner">
-                            </div>
-                            
-                            <div>
-                                <label for="emergency_contact_number" class="block text-slate-700 text-sm font-bold mb-2">Emergency Contact Number (WhatsApp)</label>
-                                <input type="text" name="emergency_contact_number" id="emergency_contact_number" value="{{ old('emergency_contact_number', $profile->emergency_contact_number) }}" class="w-full rounded-xl border-slate-200 shadow-sm focus:border-red-500 focus:ring-red-500 transition-colors" placeholder="e.g. 628123456789">
-                                <p class="text-xs text-slate-500 mt-2 flex items-center gap-1">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    Format: 628xxx (No spaces or dashes). Must be WhatsApp active.
-                                </p>
-                            </div>
-                        </div>
+                    <div>
+                        <label for="name" class="block mb-1 text-sm font-medium text-gray-700">Name</label>
+                        <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}" class="block w-full px-4 py-3 text-gray-700 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-birawa-500 focus:border-birawa-500" required autofocus autocomplete="name">
+                        <x-input-error class="mt-2" :messages="$errors->get('name')" />
                     </div>
 
-                    <div class="flex items-center justify-end mt-8 pt-6 border-t border-slate-100">
-                        <button type="submit" class="inline-flex justify-center items-center px-6 py-3 bg-birawa-600 border border-transparent rounded-xl font-bold text-sm text-white uppercase tracking-widest hover:bg-birawa-700 focus:bg-birawa-700 active:bg-birawa-900 focus:outline-none focus:ring-2 focus:ring-birawa-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-lg shadow-birawa-100">
-                            Save Profile
-                        </button>
+                    <div>
+                        <label for="email" class="block mb-1 text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}" class="block w-full px-4 py-3 text-gray-700 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-birawa-500 focus:border-birawa-500" required autocomplete="username">
+                        <x-input-error class="mt-2" :messages="$errors->get('email')" />
+
+                        @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
+                            <div class="mt-2">
+                                <p class="text-sm text-gray-800">
+                                    {{ __('Your email address is unverified.') }}
+
+                                    <button form="send-verification" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                        {{ __('Click here to re-send the verification email.') }}
+                                    </button>
+                                </p>
+
+                                @if (session('status') === 'verification-link-sent')
+                                    <p class="mt-2 font-medium text-sm text-green-600">
+                                        {{ __('A new verification link has been sent to your email address.') }}
+                                    </p>
+                                @endif
+                            </div>
+                        @endif
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <!-- Section 2: Update Password -->
+        <div class="mb-6 bg-white border border-gray-100 shadow-sm rounded-2xl overflow-hidden">
+            <div class="px-5 py-4 border-b border-gray-50 bg-gray-50/50 flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                </div>
+                <h2 class="font-bold text-gray-800">Update Password</h2>
+            </div>
+
+            <div class="p-5">
+                <form method="post" action="{{ route('password.update') }}" class="space-y-4">
+                    @csrf
+                    @method('put')
+
+                    <div>
+                        <label for="current_password" class="block mb-1 text-sm font-medium text-gray-700">Current Password</label>
+                        <input type="password" name="current_password" id="current_password" class="block w-full px-4 py-3 text-gray-700 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-birawa-500 focus:border-birawa-500" autocomplete="current-password">
+                        <x-input-error :messages="$errors->updatePassword->get('current_password')" class="mt-2" />
+                    </div>
+
+                    <div>
+                        <label for="password" class="block mb-1 text-sm font-medium text-gray-700">New Password</label>
+                        <input type="password" name="password" id="password" class="block w-full px-4 py-3 text-gray-700 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-birawa-500 focus:border-birawa-500" autocomplete="new-password">
+                        <x-input-error :messages="$errors->updatePassword->get('password')" class="mt-2" />
+                    </div>
+
+                    <div>
+                        <label for="password_confirmation" class="block mb-1 text-sm font-medium text-gray-700">Confirm Password</label>
+                        <input type="password" name="password_confirmation" id="password_confirmation" class="block w-full px-4 py-3 text-gray-700 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-birawa-500 focus:border-birawa-500" autocomplete="new-password">
+                        <x-input-error :messages="$errors->updatePassword->get('password_confirmation')" class="mt-2" />
+                    </div>
+                    
+                    <div class="flex items-center gap-4">
+                         <!-- Separate Save Button for Password -->
+                        <button type="submit" class="px-4 py-2 bg-gray-800 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 transition ease-in-out duration-150">
+                            {{ __('Save Password') }}
+                        </button>
+
+                        @if (session('status') === 'password-updated')
+                            <p
+                                x-data="{ show: true }"
+                                x-show="show"
+                                x-transition
+                                x-init="setTimeout(() => show = false, 2000)"
+                                class="text-sm text-gray-600"
+                            >{{ __('Saved.') }}</p>
+                        @endif
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Section 3: Delete Account -->
+        <div class="mb-6 bg-white border border-red-100 shadow-sm rounded-2xl overflow-hidden">
+            <div class="px-5 py-4 border-b border-red-50 bg-red-50/50 flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </div>
+                <h2 class="font-bold text-red-800">Delete Account</h2>
+            </div>
+
+            <div class="p-5">
+                <p class="text-sm text-gray-600 mb-4">
+                    {{ __('Once your account is deleted, all of its resources and data will be permanently deleted.') }}
+                </p>
+
+                <button x-data="" x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')" class="px-4 py-2 bg-red-600 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 active:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                    {{ __('Delete Account') }}
+                </button>
+
+                <x-modal name="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable>
+                    <form method="post" action="{{ route('profile.destroy') }}" class="p-6">
+                        @csrf
+                        @method('delete')
+
+                        <h2 class="text-lg font-medium text-gray-900">
+                            {{ __('Are you sure you want to delete your account?') }}
+                        </h2>
+
+                        <p class="mt-1 text-sm text-gray-600">
+                            {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.') }}
+                        </p>
+
+                        <div class="mt-6">
+                            <x-input-label for="password" value="{{ __('Password') }}" class="sr-only" />
+
+                            <x-text-input
+                                id="password"
+                                name="password"
+                                type="password"
+                                class="mt-1 block w-3/4"
+                                placeholder="{{ __('Password') }}"
+                            />
+
+                            <x-input-error :messages="$errors->userDeletion->get('password')" class="mt-2" />
+                        </div>
+
+                        <div class="mt-6 flex justify-end">
+                            <x-secondary-button x-on:click="$dispatch('close')">
+                                {{ __('Cancel') }}
+                            </x-secondary-button>
+
+                            <x-danger-button class="ms-3">
+                                {{ __('Delete Account') }}
+                            </x-danger-button>
+                        </div>
+                    </form>
+                </x-modal>
+            </div>
+        </div>
+
+        <!-- Fixed Bottom Action Bar (For Main Profile Update) -->
+        <div class="fixed bottom-20 left-0 right-0 p-4 bg-white/80 backdrop-blur-md border-t border-gray-200 z-20"> 
+            <div class="max-w-xl mx-auto flex gap-3">
+                 <a href="{{ route('dashboard') }}" class="flex-1 px-4 py-3.5 text-center font-bold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors">
+                    Back
+                </a>
+                <button onclick="document.querySelector('form[action=\'{{ route('profile.update') }}\']').submit()" class="flex-[2] px-4 py-3.5 text-center font-bold text-white bg-birawa-600 rounded-xl shadow-lg shadow-birawa-500/30 hover:bg-birawa-700 transition-all">
+                    Save Changes
+                </button>
             </div>
         </div>
     </div>

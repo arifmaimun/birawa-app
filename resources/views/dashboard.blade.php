@@ -121,10 +121,10 @@
                                         {{ substr($visit->patient->name, 0, 1) }}
                                     </div>
                                     <div class="min-w-0">
-                                        <p class="text-xs text-slate-500 font-medium truncate">{{ $visit->patient->owners->first()->name ?? 'No Owner' }}</p>
+                                        <p class="text-xs text-slate-500 font-medium truncate">{{ $visit->patient->client->name ?? 'No Owner' }}</p>
                                         <div class="flex items-center gap-1 text-slate-400">
                                             <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                                            <p class="text-[10px] truncate">{{ $visit->patient->owners->first()->address ?? 'No address' }}</p>
+                                            <p class="text-[10px] truncate">{{ $visit->patient->client->address ?? 'No address' }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -135,49 +135,31 @@
             @endif
         </div>
 
-        <!-- SOS Floating Button -->
-        <div x-data="{ 
-            sending: false,
-            sendSOS() {
-                if (this.sending) return;
-                this.sending = true;
-                
-                if (!navigator.geolocation) {
-                    alert('Geolocation is not supported by your browser');
-                    this.sending = false;
-                    return;
-                }
-
-                navigator.geolocation.getCurrentPosition((position) => {
-                    const lat = position.coords.latitude;
-                    const lng = position.coords.longitude;
-                    const phone = '{{ Auth::user()->doctorProfile->emergency_contact_number ?? '' }}';
-                    
-                    if (!phone) {
-                        alert('Please set your Emergency Contact Number in Profile settings first!');
-                        window.location.href = '{{ route('profile.edit') }}';
-                        return;
-                    }
-
-                    const text = `SOS! Saya butuh bantuan segera. Lokasi saya: https://maps.google.com/?q=${lat},${lng}`;
-                    const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
-                    
-                    window.open(url, '_blank');
-                    this.sending = false;
-                }, (error) => {
-                    alert('Unable to retrieve your location');
-                    this.sending = false;
-                });
-            }
-        }" class="fixed bottom-6 right-6 z-50">
-            <button @click="sendSOS()" class="w-14 h-14 bg-red-600 rounded-full shadow-lg shadow-red-600/30 flex items-center justify-center text-white hover:bg-red-700 active:scale-95 transition-all animate-pulse">
-                <span x-show="!sending" class="font-bold text-xs">SOS</span>
-                <svg x-show="sending" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-            </button>
+        <!-- Recent Patients -->
+        <div class="mt-6">
+            <h3 class="font-bold text-slate-800 text-lg mb-4">Recent Patients</h3>
+            <div class="space-y-3">
+                @foreach($recentPatients as $patient)
+                    <div class="flex items-center justify-between bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 font-bold">
+                                {{ substr($patient->name, 0, 1) }}
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-800">{{ $patient->name }}</h4>
+                                <p class="text-xs text-slate-500">{{ $patient->client->name ?? 'No Client' }}</p>
+                            </div>
+                        </div>
+                        <a href="{{ route('patients.show', $patient) }}" class="p-2 text-slate-400 hover:text-birawa-600 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </a>
+                    </div>
+                @endforeach
+            </div>
         </div>
+
+        <!-- SOS Floating Button -->
+        <x-sos-button />
 
         <!-- Low Stock Alert -->
         @if($lowStockItems->isNotEmpty())
