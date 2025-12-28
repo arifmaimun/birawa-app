@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PatientController extends Controller
 {
@@ -15,12 +16,28 @@ class PatientController extends Controller
     {
         $search = $request->input('search');
 
+        // SCOPED: Only show patients that have been visited by the current doctor
+        // or have medical records with the current doctor.
+        // Also include patients created by the doctor (if we had that field, but we don't).
+        // So we stick to Visits and Medical Records.
+        $user = Auth::user();
+        
         $patients = Patient::with('owners')
+            ->where(function($q) use ($user) {
+                $q->whereHas('visits', function($v) use ($user) {
+                    $v->where('user_id', $user->id);
+                })
+                ->orWhereHas('medicalRecords', function($m) use ($user) {
+                    $m->where('doctor_id', $user->id);
+                });
+            })
             ->when($search, function ($query) use ($search) {
-                $query->where('name', 'like', "%{$search}%")
-                    ->orWhereHas('owners', function ($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%");
-                    });
+                $query->where(function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhereHas('owners', function ($o) use ($search) {
+                          $o->where('name', 'like', "%{$search}%");
+                      });
+                });
             })
             ->latest()
             ->paginate(10);

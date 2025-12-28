@@ -18,6 +18,7 @@ class VisitController extends Controller
         $search = $request->input('search');
         
         $visits = Visit::with(['patient.owners', 'user', 'invoice', 'medicalRecords'])
+            ->where('user_id', Auth::id()) // SCOPED: Only show visits for the logged-in doctor
             ->when($search, function ($query) use ($search) {
                 $query->whereHas('patient', function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%");
@@ -36,10 +37,22 @@ class VisitController extends Controller
      */
     public function create(Request $request)
     {
-        $patients = Patient::with('owners')->orderBy('name')->get();
+        // SCOPED: Only show patients linked to the doctor
+        $user = Auth::user();
+        $patients = Patient::with('owners')
+            ->where(function($q) use ($user) {
+                $q->whereHas('visits', function($v) use ($user) {
+                    $v->where('user_id', $user->id);
+                })
+                ->orWhereHas('medicalRecords', function($m) use ($user) {
+                    $m->where('doctor_id', $user->id);
+                });
+            })
+            ->orderBy('name')
+            ->get();
+            
         $selectedPatientId = $request->query('patient_id');
-        // For simplicity, we assign the current user (doctor/admin) to the visit
-        // In a real app, you might want to select a doctor
+
         return view('visits.create', compact('patients', 'selectedPatientId'));
     }
 
@@ -94,6 +107,11 @@ class VisitController extends Controller
      */
     public function updateStatus(Request $request, Visit $visit)
     {
+        // SCOPED: Ensure the visit belongs to the current user
+        if ($visit->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $request->validate([
             'status' => 'required|in:scheduled,otw,arrived,completed,cancelled',
         ]);
@@ -124,6 +142,9 @@ class VisitController extends Controller
      */
     public function show(Visit $visit)
     {
+        if ($visit->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
         return view('visits.show', compact('visit'));
     }
 
@@ -132,7 +153,23 @@ class VisitController extends Controller
      */
     public function edit(Visit $visit)
     {
-        $patients = Patient::with('owners')->orderBy('name')->get();
+        if ($visit->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        $user = Auth::user();
+        $patients = Patient::with('owners')
+            ->where(function($q) use ($user) {
+                $q->whereHas('visits', function($v) use ($user) {
+                    $v->where('user_id', $user->id);
+                })
+                ->orWhereHas('medicalRecords', function($m) use ($user) {
+                    $m->where('doctor_id', $user->id);
+                });
+            })
+            ->orderBy('name')
+            ->get();
+            
         return view('visits.edit', compact('visit', 'patients'));
     }
 
@@ -141,12 +178,16 @@ class VisitController extends Controller
      */
     public function update(Request $request, Visit $visit)
     {
+        if ($visit->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $request->validate([
             'patient_id' => 'required|exists:patients,id',
             'scheduled_at' => 'required|date',
             'complaint' => 'nullable|string',
             'transport_fee' => 'nullable|numeric|min:0',
-            'status' => 'required|in:scheduled,completed,cancelled',
+            'status' => 'required|in:scheduled,otw,arrived,completed,cancelled',
         ]);
 
         $visit->update($request->all());
@@ -160,6 +201,10 @@ class VisitController extends Controller
      */
     public function destroy(Visit $visit)
     {
+        if ($visit->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $visit->delete();
 
         return redirect()->route('visits.index')

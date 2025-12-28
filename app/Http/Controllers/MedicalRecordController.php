@@ -31,7 +31,9 @@ class MedicalRecordController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $inventories = Auth::user()->inventories()->orderBy('item_name')->get();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $inventories = $user->inventories()->orderBy('item_name')->get();
         $diagnoses = Diagnosis::orderBy('category')->orderBy('name')->get();
         
         // Fetch Medical History
