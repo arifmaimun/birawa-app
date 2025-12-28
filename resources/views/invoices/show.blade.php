@@ -75,6 +75,14 @@
                         @else
                             <span class="ml-2 px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-red-100 text-red-800">UNPAID</span>
                         @endif
+                        
+                        <div class="mt-4">
+                            <label class="block text-xs font-medium text-gray-500 uppercase">Public Share Link (Valid 48h)</label>
+                            <div class="flex items-center mt-1">
+                                <input type="text" readonly value="{{ route('invoices.public', $invoice->access_token) }}" class="text-sm text-gray-600 bg-gray-100 border border-gray-300 rounded p-2 w-64 mr-2" onclick="this.select()">
+                                <a href="{{ route('invoices.public', $invoice->access_token) }}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm">Open</a>
+                            </div>
+                        </div>
                     </div>
                     <div class="flex space-x-4">
                         <button onclick="window.print()" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">Print</button>

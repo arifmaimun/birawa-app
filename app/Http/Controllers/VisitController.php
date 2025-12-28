@@ -153,4 +153,38 @@ class VisitController extends Controller
         return redirect()->route('visits.index')
             ->with('success', 'Visit deleted successfully.');
     }
+
+    public function calendarEvents(Request $request)
+    {
+        $start = $request->query('start');
+        $end = $request->query('end');
+
+        $visits = Visit::where('user_id', Auth::id())
+            ->whereBetween('scheduled_at', [$start, $end])
+            ->with('patient.owners')
+            ->get();
+
+        $events = $visits->map(function ($visit) {
+            $color = match($visit->status) {
+                'completed' => '#10B981', // green
+                'cancelled' => '#EF4444', // red
+                'in_progress' => '#3B82F6', // blue
+                default => '#6B7280', // gray
+            };
+            
+            $patientName = $visit->patient->name ?? 'Unknown';
+            $ownerName = $visit->patient->owners->first()->name ?? 'No Owner';
+
+            return [
+                'id' => $visit->id,
+                'title' => "$patientName ($ownerName)",
+                'start' => $visit->scheduled_at,
+                'url' => route('visits.show', $visit->id),
+                'backgroundColor' => $color,
+                'borderColor' => $color,
+            ];
+        });
+
+        return response()->json($events);
+    }
 }

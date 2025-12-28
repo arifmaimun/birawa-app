@@ -19,6 +19,10 @@ Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'authenticate'])->name('login.authenticate');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// Public Routes (No Auth Required)
+Route::get('/r/{token}', [App\Http\Controllers\ReferralController::class, 'showPublic'])->name('referrals.public');
+Route::get('/i/{token}', [App\Http\Controllers\InvoiceController::class, 'showPublic'])->name('invoices.public');
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
@@ -32,9 +36,13 @@ Route::middleware(['auth'])->group(function () {
     // Template Management
     Route::resource('consent-templates', App\Http\Controllers\ConsentTemplateController::class);
 
+    // Referrals
+    Route::resource('referrals', App\Http\Controllers\ReferralController::class);
+
     Route::resource('owners', OwnerController::class);
     Route::resource('patients', PatientController::class);
     
+    Route::get('visits/calendar-events', [VisitController::class, 'calendarEvents'])->name('visits.calendar-events');
     Route::resource('visits', VisitController::class);
     Route::patch('/visits/{visit}/status', [VisitController::class, 'updateStatus'])->name('visits.update-status');
 

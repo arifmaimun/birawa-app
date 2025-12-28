@@ -26,7 +26,27 @@ class InvoiceController extends Controller
         if ($invoice->visit->user_id !== Auth::id()) {
             abort(403);
         }
+
+        // Auto-generate access token if missing (for backward compatibility)
+        if (empty($invoice->access_token)) {
+            $invoice->update(['access_token' => (string) Str::uuid()]);
+        }
+
         return view('invoices.show', compact('invoice'));
+    }
+
+    public function showPublic($token)
+    {
+        $invoice = Invoice::where('access_token', $token)->with(['visit.patient.owners', 'invoiceItems'])->firstOrFail();
+
+        // Check 48-hour security rule
+        // Assuming created_at is the start time.
+        if ($invoice->created_at->addHours(48)->isPast()) {
+             // Redirect to login if expired, as per requirements
+             return redirect()->route('login')->with('error', 'This invoice link has expired. Please log in.');
+        }
+
+        return view('invoices.public_show', compact('invoice'));
     }
 
     public function createFromVisit(Visit $visit)
@@ -48,6 +68,7 @@ class InvoiceController extends Controller
                 'invoice_number' => 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(4)),
                 'total_amount' => 0, // Will update later
                 'payment_status' => 'unpaid',
+                'access_token' => (string) Str::uuid(),
             ]);
 
             $total = 0;

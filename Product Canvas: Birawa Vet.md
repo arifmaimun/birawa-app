@@ -12,27 +12,57 @@ Deskripsi & Value
 
 Prioritas
 
-Doctor-Managed Calendar
+Smart Shift Management
 
-Dokter membuat, mengedit, dan mengatur slot waktu kunjungan sendiri (Bukan ditentukan Admin). Tampilan kalender harian/mingguan.
-
-🔥 Critical
-
-Manual Booking Entry
-
-Dokter menginput data janji temu baru (No HP Client + Jadwal) secara manual saat ada request via telp/chat pribadi.
+Dokter bisa memblokir waktu kerja utama mereka. Cth: "Set Available hanya Senin-Jumat jam 18:00 - 21:00 & Sabtu Full Day". Mencegah bentrok jadwal dengan pekerjaan utama.
 
 🔥 Critical
 
-GPS Distance Calculator
+Time Blocking / Break Slots
 
-Saat dokter input alamat klien, sistem tetap menghitung jarak otomatis untuk menentukan surcharge biaya transport di invoice.
+Fitur untuk memblokir slot waktu spesifik di dalam jam kerja (cth: Blok jam 12.00-13.00 untuk "Makan Siang" atau "Perjalanan").
+
+🔥 Critical
+
+Availability Status (On/Off)
+
+Pengaturan status manual pada profil dokter. Saat diset "Off/Busy", status di Digital Business Card berubah menjadi "Tutup".
+
+🔥 Critical
+
+Dynamic Starting Point
+
+Dokter bisa mengatur titik awal keberangkatan: "Dari Rumah" atau "Dari Kantor" sebagai catatan operasional pribadi.
+
+🔥 Critical
+
+Interactive Visit Calendar
+
+Dashboard utama penjadwalan dengan tampilan Bulan, Minggu, dan Hari. Mendukung fitur Drag-and-Drop dan Kode Warna.
+
+🔥 Critical
+
+Doctor Safety (SOS Check-in)
+
+Dokter menginput Kontak Darurat di profil. Saat visit, tombol SOS akan langsung membuka chat WA ke nomor tersebut. Dokter kemudian mengirimkan Live Location secara manual via WA sebagai tindakan pengamanan.
+
+High
+
+Scoped Booking Entry
+
+Saat membuat jadwal baru, dokter memilih: "Buat Client Baru" atau "Cari Client Lama".
+
+🔥 Critical
+
+Manual Distance Input
+
+Dokter mengecek rute sendiri dan input Jarak (KM) manual untuk hitung transport.
 
 🔥 Critical
 
 Personal Visit Tracker
 
-Dokter menandai status kunjungannya sendiri ("OTW", "Sampai", "Selesai") untuk catatan pribadi dan notifikasi ke klien.
+Dokter menandai status kunjungannya sendiri ("OTW", "Sampai", "Selesai").
 
 High
 
@@ -52,33 +82,45 @@ Input SOAP dengan kolom terpisah antara Tindakan/Treatment (Visible to Client) d
 
 🔥 Critical
 
-Inventory Usage Selector
+Multi-Template Digital Consent
 
-Di bawah form resep, terdapat List/Checklist Barang dari Tas Dokter. Dokter tinggal pilih item & masukkan qty (cth: [v] Spuit 3ml (1), [v] Biodin (2ml)). Stok otomatis berkurang saat EMR disimpan.
+Dokter bisa membuat Banyak Template Persetujuan (cth: "Persetujuan Operasi", "Persetujuan Rawat Inap", "Tindakan Gigi"). Saat tindakan, pilih template yang relevan -> Klien tanda tangan di layar -> Export PDF -> Kirim WA.
+
+🔥 Critical
+
+Smart Diagnosis & Prognosis
+
+Input Diagnosa & Prognosa menggunakan Creatable Dropdown pribadi dokter.
+
+🔥 Critical
+
+Precise Usage Selector (ML/Tablet)
+
+Dokter memilih obat dan memasukkan dosis spesifik (mendukung desimal).
 
 🔥 Critical
 
 Offline Mode Capability
 
-Input data medis tetap bisa dilakukan dan tersimpan lokal meski sinyal di rumah klien buruk (Sync otomatis saat online).
+Input data medis tetap bisa dilakukan dan tersimpan lokal meski sinyal buruk.
 
 🔥 Critical
 
 Digital Referral Letter (Auto-Secure)
 
-Surat rujukan (Link/PDF) ke Klinik lain. Akses publik (Guest) berlaku 48 jam. Lewat dari itu, Client wajib login untuk melihat surat rujukan demi keamanan data.
+Surat rujukan (Link/PDF) ke Klinik lain. Akses publik 48 jam.
 
 High
 
 Peer Access Request
 
-Riwayat medis dari dokter lain TERKUNCI (Blur/Hidden) secara default. Dokter baru bisa klik tombol "Minta Akses" untuk melihat detailnya.
+Riwayat medis dari dokter lain TERKUNCI (Blur/Hidden) secara default.
 
 🔥 Critical
 
 Approval Notification System
 
-Dokter lama menerima notifikasi (WA/In-App) ada permintaan akses. Dokter lama bisa Approve (Buka data) atau Deny (Tolak).
+Dokter lama menerima notifikasi permintaan akses data.
 
 🔥 Critical
 
@@ -88,9 +130,9 @@ Cek riwayat vaksin saat kunjungan untuk menawarkan vaksin booster sekalian di te
 
 High
 
-💊 3. Modul Inventori (Personal Stock)
+💊 3. Modul Inventori (Advanced Multi-UOM)
 
-Fokus: Manajemen stok obat pribadi yang dibawa dokter.
+Fokus: Manajemen stok obat presisi dengan konversi satuan otomatis.
 
 Fitur
 
@@ -98,21 +140,33 @@ Deskripsi & Value
 
 Prioritas
 
-Personal Mobile Stock
+Multi-Level UOM Hierarchy
 
-Stok obat melekat pada akun Dokter masing-masing. Dokter mengatur stok masuk/keluar tasnya sendiri.
+Mendukung 3 level satuan: Beli (Box), Kemasan (Vial), Eceran (ml/tab).
 
 🔥 Critical
 
-Direct Deduction Logic
+Auto-Conversion Logic
 
-Stok berkurang berdasarkan Item yang Dipilih di Selector EMR, BUKAN berdasarkan parsing teks resep. Ini memastikan akurasi 100% tanpa error typo.
+Stok fisik di database selalu dicatat dalam Satuan Dasar (Base Unit).
+
+🔥 Critical
+
+Flexible Dispensing (Split Unit)
+
+Saat pemakaian, dokter bisa memilih satuan (Jual 1 Botol atau 2 ml).
+
+🔥 Critical
+
+Smart Restock (Auto-Expense)
+
+Saat restock, sistem menanyakan harga beli -> Catat ke OPEX otomatis.
 
 🔥 Critical
 
 Restock Alert
 
-Notifikasi ke dokter jika stok obat pribadinya menipis.
+Notifikasi stok menipis berdasarkan Satuan Dasar.
 
 High
 
@@ -128,31 +182,37 @@ Prioritas
 
 Personalized Service Menu
 
-Dokter mengatur sendiri Daftar Layanan & Harga di pengaturan profilnya (cth: Jasa Visit=50rb, Suntik Scabies=75rb). Saat membuat invoice, dokter tinggal pilih dari menu ini.
+Dokter mengatur sendiri Daftar Layanan & Harga.
+
+🔥 Critical
+
+Manual Free-Text Invoice
+
+Opsi input manual sepenuhnya (Ketik Item & Harga bebas).
 
 🔥 Critical
 
 Web-Based Invoice (Auto-Secure)
 
-Generasi URL invoice unik berdasarkan item jasa yang dipilih dokter + obat (opsional). Akses publik 48 jam, selebihnya wajib login.
+Generasi URL invoice unik. Akses publik 48 jam.
 
 🔥 Critical
 
 Partner Bank Details
 
-Invoice otomatis menampilkan Rekening Pribadi Dokter (sesuai settingan profil dokter), bukan rekening pusat.
+Invoice otomatis menampilkan Rekening Pribadi Dokter.
 
 🔥 Critical
 
 Manual Payment Confirmation
 
-Dokter memiliki kontrol penuh tombol "Mark as Paid" setelah mengecek mutasi rekeningnya sendiri.
+Dokter memiliki kontrol penuh tombol "Mark as Paid".
 
 🔥 Critical
 
-📱 5. Modul Klien & Onboarding (Doctor-Led)
+📱 5. Modul Klien & Engagement (Doctor-Led CRM)
 
-Fokus: Client didaftarkan oleh Dokter, mencegah duplikasi data.
+Fokus: Membangun hubungan personal jangka panjang dengan klien.
 
 Fitur
 
@@ -160,33 +220,51 @@ Deskripsi & Value
 
 Prioritas
 
-Smart Deduplication (Cek No HP)
+Smart Engagement Notification
 
-Saat dokter input No HP baru, sistem cek database. Jika Sudah Ada, dokter langsung "Link" ke akun tersebut tanpa perlu registrasi ulang.
+Sistem "mencolek" dokter dengan notifikasi In-App: "Dok, sudah 3 hari sejak Mochi sakit, tanyakan kabarnya yuk!" atau "Jadwal kontrol Bimbim besok."
 
 🔥 Critical
 
-Shared Pet Ownership (Co-Owner)
+Multi-Type Reminder Action
 
-Mendukung relasi Many-to-Many: Satu hewan bisa terhubung ke akun Suami & Istri sekaligus. Keduanya bisa melihat update medis yang sama.
+Dari notifikasi, dokter diarahkan ke menu kirim WA dengan pilihan template: Vaksin, Jadwal Kontrol, atau Wellness Check (Menanyakan kabar/kondisi).
 
-High
+🔥 Critical
+
+Check Phone Button (Deduplikasi)
+
+Tombol cek nomor HP untuk mencegah duplikasi data.
+
+🔥 Critical
+
+Comprehensive Client Profiling
+
+Form registrasi lengkap (CRM standard).
+
+🔥 Critical
+
+Comprehensive Pet Profiling
+
+Pencatatan detail hewan lengkap.
+
+🔥 Critical
 
 Doctor-Initiated Onboarding
 
-Alur pendaftaran: Dokter input No HP -> Sistem buat Akun Sementara -> Dokter kirim Link Aktivasi via WA.
+Dokter input data, sistem buat akun sementara.
 
 🔥 Critical
 
 Smart WA Link Generator
 
-Tombol wa.me yang otomatis berisi teks: "Halo, silakan lengkapi data hewan kakak & buat password akun di link ini: {onboard_link}".
+Tombol wa.me otomatis berisi teks undangan.
 
 🔥 Critical
 
 Portal Client (Single ID)
 
-Satu akun Client bisa terhubung ke banyak dokter, namun Client hanya perlu satu login untuk melihat riwayat dari semua dokter.
+Satu akun Client terhubung ke banyak dokter.
 
 🔥 Critical
 
@@ -196,9 +274,9 @@ Client bisa lihat diagnosa & tindakan, tapi TIDAK BISA lihat detail nama obat.
 
 🔥 Critical
 
-⚙️ 6. Manajemen Admin (Private Access)
+⚙️ 6. Manajemen Admin, Konfigurasi & Super User
 
-Fokus: Manajemen User (Dokter) dan Kepatuhan.
+Fokus: Manajemen User, Fleksibilitas Data, dan Kontrol Database.
 
 Fitur
 
@@ -206,72 +284,240 @@ Deskripsi & Value
 
 Prioritas
 
+Super User Database UI
+
+GUI khusus Super Admin untuk edit data mentah database.
+
+🔥 Critical
+
+Database Change Audit Log
+
+Log audit wajib untuk setiap perubahan data via UI Super User.
+
+🔥 Critical
+
+Scoped Master Data (Private Dropdowns)
+
+Data dropdown bersifat PRIBADI per dokter.
+
+🔥 Critical
+
+On-the-fly Creation
+
+Dokter bisa mengetik opsi baru langsung di form.
+
+🔥 Critical
+
 Private Partner Invite
 
-Tidak ada halaman "Sign Up" untuk Dokter. Akun dokter dibuatkan manual oleh Admin (Invite Only).
+Akun dokter dibuatkan manual oleh Admin.
 
 🔥 Critical
 
 Strictly Scoped Medical Access
 
-Isolasi data ketat. Riwayat medis bersifat eksklusif milik pembuatnya, kecuali diberikan izin via fitur Peer Access Request.
+Isolasi data ketat.
 
 🔥 Critical
 
 Admin Override
 
-Admin bisa mereset password Dokter/Client jika diminta bantuan.
+Admin bisa mereset password Dokter/Client.
 
 High
 
-Platform Monitoring
+💰 7. Modul Keuangan & Aset (Financial Health)
 
-Admin memantau aktivitas transaksi global (sekadar untuk audit/royalti jika ada), tanpa campur tangan operasional harian.
+Fokus: Menghitung profitabilitas praktik mandiri (OPEX & CAPEX).
+
+Fitur
+
+Deskripsi & Value
+
+Prioritas
+
+OPEX Tracker
+
+Pencatatan biaya rutin harian (Bensin, Obat, Makan).
+
+🔥 Critical
+
+CAPEX & Asset Tracker
+
+Pencatatan pembelian aset/alat jangka panjang.
+
+High
+
+Financial Dashboard
+
+Grafik Laba/Rugi & Ringkasan Aset.
+
+🔥 Critical
+
+Cost per Visit Analysis
+
+Analisis rata-rata biaya operasional per kunjungan.
 
 Medium
 
-Catatan Teknis (Alur Baru)
+👤 8. Modul Profil & Pengaturan Akun
 
-Logika Pengurangan Stok (Inventory Selector):
+Fokus: Identitas profesional dan branding praktik mandiri.
 
-Di Database, relasi stok bukan ke medical_records.recipe_text, tapi ke tabel baru medical_usage_logs.
+Fitur
 
-Saat dokter simpan EMR:
+Deskripsi & Value
 
-Simpan teks SOAP (untuk arsip bacaan).
+Prioritas
 
-Loop array selected_inventory_items.
+Template Library Manager
 
-Kurangi stok di doctor_inventory sesuai ID dan Qty.
+Menu khusus untuk membuat, mengedit, dan menghapus berbagai jenis template teks (Pesan WA, Informed Consent). Dokter bisa punya banyak versi untuk setiap kategori.
 
-Catat penggunaan di medical_usage_logs.
+🔥 Critical
 
-Logika Custom POS & Invoice:
+Emergency & Safety Settings
 
-Tabel doctor_service_catalog: Kolom doctor_id, service_name, price.
+Kolom input Nomor Kontak Darurat (Keluarga/Kerabat) untuk fitur tombol SOS Check-in.
 
-Fitur Setting: Dokter bisa CRUD (Create, Read, Update, Delete) daftar tarif mereka sendiri.
+High
 
-Invoice Builder: Dropdown "Tambah Item" di halaman invoice hanya menampilkan item dari doctor_service_catalog milik dokter yang sedang login + item Obat (jika ingin ditagihkan terpisah).
+Work-Life Balance Settings
 
-Relasi Database (Many-to-Many Pet Ownership):
+Pengaturan alamat Rumah & Kantor untuk Dynamic Starting Point.
 
-Tabel pets: Menyimpan data hewan (Nama, Ras, Tgl Lahir).
+🔥 Critical
 
-Tabel users: Menyimpan data client (No HP, Password).
+Professional Profile Management
 
-Tabel Pivot pet_owners: Penghubung yang berisi pet_id, user_id, dan is_primary (Boolean).
+Kelola data SIP/STR (Opsional).
 
-Logika "Peer Access Request" (Skenario Multi-Dokter):
+🔥 Critical
 
-Tampilan List: Riwayat diurutkan berdasarkan waktu (terbaru paling atas). Semua riwayat dari dokter lain (A, B, C) ditampilkan seragam: 🔒 Riwayat Medis Terkunci (Tanpa Tanggal, Tanpa Nama Dokter).
+Practice Branding Settings
 
-Routing Permintaan: Jika Dokter Baru klik gembok baris ke-1 (milik Dokter A), notif kirim ke Dokter A.
+Upload Logo & Nama Praktik (Opsional).
 
-Logika Invoice (Akses & Rekening):
+🔥 Critical
 
-Rekening: Menggunakan data bank_account dari tabel doctors (bukan global settings).
+Account Security
 
-Public Access (Guest): Jika invoice_created_at < 48 jam, halaman invoice bisa dibuka siapa saja yang punya link.
+Ubah Password & Email.
 
-Secure Access (Login Required): Jika invoice_created_at > 48 jam, pengunjung di-redirect ke halaman login.
+High
+
+Digital Business Card
+
+Profil publik sederhana & QR Code.
+
+Medium
+
+🎨 9. Panduan Desain & UX (Look & Feel)
+
+Fokus: Tampilan antarmuka yang efisien, mudah dibaca, dan membangun kepercayaan.
+
+Prinsip
+
+Deskripsi & Implementasi
+
+Clean (Bersih)
+
+Minimalis & Putih: Gunakan latar belakang putih/terang dominan.
+
+Compact (Padat)
+
+Mobile-Optimized Density: Informasi padat namun terbaca.
+
+Smart Inputs
+
+Type-to-Add Dropdowns: Gunakan input dengan sugesti.
+
+🔄 10. Alur Kerja Utama (User Flow)
+
+Skenario langkah demi langkah penggunaan aplikasi.
+
+Flow A: Setup Awal & Profiling
+
+Undangan Admin: Admin membuat akun dasar -> Dokter login.
+
+Lengkapi Profil (Opsional): Upload Foto, SIP, Rekening, Alamat Rumah/Kantor.
+
+Setup Library Template:
+
+Buat Template Consent: "Bedah", "Rawat Inap".
+
+Buat Template WA: "Pengingat Vaksin", "Tanya Kabar Pasca Obat".
+
+Setup Jadwal (Shift): Atur ketersediaan.
+
+Flow B: Terima Order Sepulang Kerja (Dynamic Start)
+
+Booking Masuk: Klien minta visit jam 19:00.
+
+Cek Rute: Dokter mengecek Google Maps dari Kantor ke lokasi Klien.
+
+Input Jarak: Dokter memasukkan 5 KM ke aplikasi.
+
+Kalkulasi: Sistem menghitung: 5 km x Tarif (cth: Rp 5.000) = Rp 25.000 biaya transport.
+
+Visit (SOS Check): Saat sampai di lokasi asing, Dokter klik tombol SOS. Aplikasi membuka WA Keluarga -> Dokter kirim Live Location.
+
+Flow C: Siklus Kunjungan & Pemakaian (Split Unit)
+
+Pemeriksaan (EMR): Input SOAP.
+
+Consent (Digital):
+
+Dokter pilih dari Library: "Template Bedah Minor".
+
+Klien tanda tangan di tablet.
+
+Dokter tanda tangan.
+
+Klik "Export PDF" -> Kirim ke WA Klien.
+
+Input Resep: Pilih Obat -> Satuan Tablet -> Jumlah 5 -> Stok berkurang 5.
+
+Invoice (Flexible Mode): Generate Link -> Klien Bayar -> Profit terhitung.
+
+Flow D: Engagement Pasca Kunjungan (H+3)
+
+Notifikasi Masuk: "Dok, tanyakan kabar Kucing Mochi (H+3 Pasca Sakit)."
+
+Aksi Dokter: Klik Notif -> Pilih Template WA "Wellness Check".
+
+Kirim: Aplikasi membuka WA dengan teks: "Halo Kak, gimana kondisi Mochi hari ini? Apakah makannya sudah lahap?"
+
+Catatan Teknis (Data Structure Updates)
+
+Tabel doctors (Profile Lengkap):
+
+home_address_coordinates, office_address_coordinates
+
+current_base_selection, shift_settings
+
+emergency_contact_number (Varchar - for SOS)
+
+Tabel consent_templates (Library):
+
+id, doctor_id, title (e.g., "Bedah"), body_content.
+
+Tabel message_templates (Library):
+
+id, doctor_id, type (ENUM: 'vaccine', 'control', 'wellness'), title, content_pattern (e.g., "Halo {owner}, gimana kabar {pet}?").
+
+Tabel engagement_tasks (Smart Notif):
+
+id, doctor_id, pet_id, task_type (Wellness/Control/Vaccine), due_date, status (Pending/Sent/Dismissed).
+
+Tabel medical_consents (New):
+
+medical_record_id (FK)
+
+consent_body_snapshot (Text - text at signing time)
+
+client_signature_path, doctor_signature_path
+
+pdf_path (Optional, if generated server-side)
+
+Tabel doctor_inventory_items, invoice_items, expenses, audit_logs: (Sama seperti sebelumnya).
