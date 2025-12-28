@@ -12,7 +12,23 @@ class Client extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['user_id', 'name', 'address', 'phone'];
+    protected $fillable = [
+        'user_id', 'name', 'address', 'phone',
+        'first_name', 'last_name',
+        'is_business', 'business_name', 'contact_person',
+        'id_type', 'id_number', 'gender', 'occupation',
+        'dob', 'ethnicity', 'religion', 'marital_status'
+    ];
+    
+    protected $casts = [
+        'is_business' => 'boolean',
+        'dob' => 'date',
+    ];
+
+    public function addresses(): HasMany
+    {
+        return $this->hasMany(ClientAddress::class);
+    }
 
     public function patients(): HasMany
     {

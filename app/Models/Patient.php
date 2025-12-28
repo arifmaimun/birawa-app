@@ -12,7 +12,7 @@ class Patient extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['client_id', 'name', 'species', 'breed', 'gender', 'dob'];
+    protected $fillable = ['client_id', 'name', 'species', 'breed', 'gender', 'dob', 'is_sterile'];
 
     public function client(): BelongsTo
     {

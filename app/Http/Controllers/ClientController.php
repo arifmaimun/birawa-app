@@ -37,7 +37,13 @@ class ClientController extends Controller
      */
     public function create()
     {
-        return view('clients.create');
+        $idTypes = \App\Models\Client::distinct()->whereNotNull('id_type')->pluck('id_type');
+        $ethnicities = \App\Models\Client::distinct()->whereNotNull('ethnicity')->pluck('ethnicity');
+        
+        $parkingTypes = \App\Models\ClientAddress::distinct()->whereNotNull('parking_type')->pluck('parking_type');
+        $addressTypes = \App\Models\ClientAddress::distinct()->whereNotNull('address_type')->pluck('address_type');
+
+        return view('clients.create', compact('idTypes', 'ethnicities', 'parkingTypes', 'addressTypes'));
     }
 
     /**
@@ -46,30 +52,64 @@ class ClientController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            // Client Section
-            'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:20', // Check uniqueness manually if needed, or rely on User uniqueness
+            // Client Basic
+            'is_business' => 'boolean',
+            'business_name' => 'required_if:is_business,1|nullable|string|max:255',
+            'contact_person' => 'required_if:is_business,1|nullable|string|max:255',
+            'first_name' => 'nullable|string|max:255',
+            'last_name' => 'required_unless:is_business,1|nullable|string|max:255',
+            'phone' => 'required|string|max:20',
             'email' => 'nullable|email|max:255',
-            'address' => 'nullable|string',
+            
+            // Client Details
+            'id_type' => 'nullable|string|max:50',
+            'id_number' => 'nullable|string|max:50',
+            'gender' => 'nullable|string|in:Laki-laki,Perempuan',
+            'occupation' => 'nullable|string|max:100',
+            'dob' => 'nullable|date',
+            'ethnicity' => 'nullable|string|max:50',
+            'religion' => 'nullable|string|max:50',
+            'marital_status' => 'nullable|string|max:50',
+
+            // Addresses
+            'addresses' => 'required|array|min:1',
+            'addresses.*.street' => 'required|string',
+            'addresses.*.city' => 'nullable|string',
+            'addresses.*.province' => 'nullable|string',
+            'addresses.*.postal_code' => 'nullable|string',
+            'addresses.*.country' => 'nullable|string',
+            'addresses.*.parking_type' => 'nullable|string',
+            'addresses.*.address_type' => 'nullable|string',
             
             // Patient Section
             'patient_name' => 'required|string|max:255',
             'species' => 'required|string|max:255',
             'breed' => 'nullable|string|max:255',
-            'dob' => 'nullable|date',
-            'gender' => 'required|in:jantan,betina',
+            'patient_dob' => 'nullable|date',
+            'patient_gender' => 'required|in:Jantan,Betina',
             'is_sterile' => 'boolean',
         ]);
 
         DB::transaction(function () use ($request) {
+            // Determine Display Name
+            if ($request->is_business) {
+                $displayName = $request->business_name;
+            } else {
+                $displayName = trim(($request->first_name ?? '') . ' ' . $request->last_name);
+            }
+
+            // Primary Address (for legacy field)
+            $primaryAddress = $request->addresses[0]['street'] ?? '';
+            if (isset($request->addresses[0]['city'])) {
+                $primaryAddress .= ', ' . $request->addresses[0]['city'];
+            }
+
             // 1. Create User (for Login)
-            // Check if user exists by phone to avoid duplicates? 
-            // For now, strict uniqueness on User table.
             $user = User::create([
-                'name' => $request->name,
+                'name' => $displayName,
                 'phone' => $request->phone,
                 'email' => $request->email ?? $request->phone . '@birawa.vet',
-                'address' => $request->address,
+                'address' => $primaryAddress,
                 'role' => 'client',
                 'password' => Hash::make('password'), // Default password
             ]);
@@ -77,24 +117,49 @@ class ClientController extends Controller
             // 2. Create Client (Domain Record)
             $client = Client::create([
                 'user_id' => $user->id,
-                'name' => $request->name,
+                'name' => $displayName,
                 'phone' => $request->phone,
-                'address' => $request->address,
+                'address' => $primaryAddress, // Legacy field
+                
+                // Extended Fields
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'is_business' => $request->is_business,
+                'business_name' => $request->business_name,
+                'contact_person' => $request->contact_person,
+                'id_type' => $request->id_type,
+                'id_number' => $request->id_number,
+                'gender' => $request->gender,
+                'occupation' => $request->occupation,
+                'dob' => $request->dob,
+                'ethnicity' => $request->ethnicity,
+                'religion' => $request->religion,
+                'marital_status' => $request->marital_status,
             ]);
 
-            // 3. Create Patient
+            // 3. Create Addresses
+            foreach ($request->addresses as $addr) {
+                $client->addresses()->create([
+                    'street' => $addr['street'],
+                    'additional_info' => $addr['additional_info'] ?? null,
+                    'city' => $addr['city'] ?? null,
+                    'province' => $addr['province'] ?? null,
+                    'postal_code' => $addr['postal_code'] ?? null,
+                    'country' => $addr['country'] ?? 'Indonesia',
+                    'parking_type' => $addr['parking_type'] ?? null,
+                    'address_type' => $addr['address_type'] ?? null,
+                ]);
+            }
+
+            // 4. Create Patient
             Patient::create([
                 'client_id' => $client->id,
                 'name' => $request->patient_name,
                 'species' => $request->species,
                 'breed' => $request->breed,
-                'dob' => $request->dob,
-                'gender' => $request->gender,
-                // 'is_sterile' => $request->is_sterile ?? false, // Assuming is_sterile column exists or we add it? 
-                // The instruction mentioned "Sterile" in UI, but didn't explicitly ask for migration column.
-                // I will skip adding column to schema for now as it wasn't in "Database Optimization" list, 
-                // but I'll leave the field in validation. 
-                // Wait, if I validate it but don't save it, it's fine.
+                'dob' => $request->patient_dob,
+                'gender' => $request->patient_gender,
+                'is_sterile' => $request->is_sterile,
             ]);
         });
 

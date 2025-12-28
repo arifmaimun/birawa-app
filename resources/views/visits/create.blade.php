@@ -25,8 +25,9 @@
                 patients: {{ \Illuminate\Support\Js::from($patients->map(fn($p) => [
                     'id' => $p->id, 
                     'name' => $p->name, 
-                    'owner' => $p->owner->name ?? 'No Owner',
-                    'display' => $p->name . ' (' . ($p->owner->name ?? 'No Owner') . ')'
+                    'owner' => $p->client->name ?? 'No Owner',
+                    'address' => $p->client->address ?? '',
+                    'display' => $p->name . ' (' . ($p->client->name ?? 'No Owner') . ')'
                 ])) }},
                 
                 init() {
@@ -44,6 +45,12 @@
                         return p.name.toLowerCase().includes(this.search.toLowerCase()) || 
                                p.owner.toLowerCase().includes(this.search.toLowerCase());
                     });
+                },
+                
+                get selectedPatientAddress() {
+                    if (!this.selectedId) return '';
+                    let p = this.patients.find(p => p.id == this.selectedId);
+                    return p ? p.address : '';
                 },
 
                 selectPatient(patient) {
@@ -102,8 +109,8 @@
                     <!-- Empty State -->
                     <div x-show="open && filteredPatients.length === 0" class="absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-xl shadow-xl p-4 text-center">
                         <p class="text-sm text-gray-500 mb-2">Pasien tidak ditemukan.</p>
-                        <a href="{{ route('patients.create') }}" class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-birawa-600 bg-birawa-50 rounded-lg hover:bg-birawa-100 transition-colors">
-                            + Tambah Pasien Baru
+                        <a href="{{ route('clients.create') }}" class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-birawa-600 bg-birawa-50 rounded-lg hover:bg-birawa-100 transition-colors">
+                            + Tambah Client Baru
                         </a>
                     </div>
                 </div>
@@ -152,11 +159,8 @@
 
             <!-- Fixed Bottom Action Bar -->
             <div class="fixed bottom-20 left-0 right-0 p-4 bg-white/80 backdrop-blur-md border-t border-gray-200 z-20"> <!-- bottom-20 to sit above nav -->
-                <div class="max-w-xl mx-auto flex gap-3">
-                    <a href="{{ route('visits.index') }}" class="flex-1 px-4 py-3.5 text-center font-bold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors">
-                        Batal
-                    </a>
-                    <button type="submit" class="flex-[2] px-4 py-3.5 text-center font-bold text-white bg-gradient-to-r from-birawa-600 to-birawa-500 rounded-xl shadow-lg shadow-birawa-500/30 hover:shadow-birawa-500/50 transform active:scale-[0.98] transition-all">
+                <div class="max-w-xl mx-auto">
+                    <button type="submit" class="w-full px-4 py-3.5 text-center font-bold text-white bg-gradient-to-r from-birawa-600 to-birawa-500 rounded-xl shadow-lg shadow-birawa-500/30 hover:shadow-birawa-500/50 transform active:scale-[0.98] transition-all">
                         Buat Jadwal
                     </button>
                 </div>
