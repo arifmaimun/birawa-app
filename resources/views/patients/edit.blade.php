@@ -20,7 +20,7 @@
                                 <select name="owner_id" id="owner_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-birawa-500 focus:ring focus:ring-birawa-500 focus:ring-opacity-50" required>
                                     <option value="">Select Owner</option>
                                     @foreach($owners as $owner)
-                                        <option value="{{ $owner->id }}" {{ (old('owner_id', $patient->owner_id) == $owner->id) ? 'selected' : '' }}>
+                                        <option value="{{ $owner->id }}" {{ (old('owner_id', $patient->owners->first()->id ?? '') == $owner->id) ? 'selected' : '' }}>
                                             {{ $owner->name }}
                                         </option>
                                     @endforeach

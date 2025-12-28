@@ -4,6 +4,45 @@
         <a href="{{ route('visits.index') }}" class="text-blue-500 hover:text-blue-700">Kembali ke Daftar</a>
     </div>
 
+    @php
+        $doctorProfile = Auth::user()->doctorProfile;
+        $hasEmergencyContact = $doctorProfile && $doctorProfile->emergency_contact_number;
+        $sosMessage = "SOS! Saya dalam bahaya saat visit (ID: " . $visit->id . "). Hubungi saya segera!";
+        $sosLink = $hasEmergencyContact ? "https://wa.me/{$doctorProfile->emergency_contact_number}?text=" . urlencode($sosMessage) : '#';
+    @endphp
+
+    @if($hasEmergencyContact && in_array($visit->status, ['otw', 'arrived']))
+        <div class="mb-6 bg-red-100 border-l-4 border-red-500 p-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <svg class="h-6 w-6 text-red-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                <div>
+                    <h3 class="text-red-800 font-bold">Emergency / Darurat?</h3>
+                    <p class="text-sm text-red-700">Tekan tombol SOS untuk mengirim pesan darurat ke kontak keluarga.</p>
+                </div>
+            </div>
+            <a href="{{ $sosLink }}" target="_blank" id="sos-btn" class="bg-red-600 hover:bg-red-800 text-white font-bold py-3 px-6 rounded-full shadow-lg flex items-center">
+                <span class="mr-2">🆘</span> SOS CHECK-IN
+            </a>
+        </div>
+        
+        <script>
+            // Update SOS link with location
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var lat = position.coords.latitude;
+                    var long = position.coords.longitude;
+                    var mapLink = " Lokasi: https://maps.google.com/?q=" + lat + "," + long;
+                    var btn = document.getElementById('sos-btn');
+                    if(btn) {
+                        btn.href = btn.href + encodeURIComponent(mapLink);
+                    }
+                });
+            }
+        </script>
+    @endif
+
     <div class="bg-white rounded-lg shadow overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200">
             <h2 class="text-xl font-semibold text-gray-800">Informasi Kunjungan</h2>
@@ -34,7 +73,11 @@
                 <div>
                     <dt class="text-sm font-medium text-gray-500">Pemilik</dt>
                     <dd class="mt-1 text-lg text-gray-900">
-                        <a href="{{ route('owners.show', $visit->patient->owner) }}" class="text-blue-600 hover:text-blue-800">{{ $visit->patient->owner->name }}</a>
+                        @if($visit->patient->owners->first())
+                        <a href="{{ route('owners.show', $visit->patient->owners->first()) }}" class="text-blue-600 hover:text-blue-800">{{ $visit->patient->owners->first()->name }}</a>
+                        @else
+                        -
+                        @endif
                     </dd>
                 </div>
                 <div class="col-span-1 md:col-span-2">

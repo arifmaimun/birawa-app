@@ -48,4 +48,26 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function doctorProfile()
+    {
+        return $this->hasOne(DoctorProfile::class);
+    }
+
+    public function serviceCatalogs()
+    {
+        return $this->hasMany(DoctorServiceCatalog::class);
+    }
+
+    public function inventories()
+    {
+        return $this->hasMany(DoctorInventory::class);
+    }
+
+    public function pets()
+    {
+        return $this->belongsToMany(Patient::class, 'pet_owners')
+                    ->withPivot('is_primary')
+                    ->withTimestamps();
+    }
 }

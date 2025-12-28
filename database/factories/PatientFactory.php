@@ -18,7 +18,7 @@ class PatientFactory extends Factory
     public function definition(): array
     {
         return [
-            'owner_id' => Owner::factory(),
+            // 'owner_id' => Owner::factory(), // Refactored to Many-to-Many with User
             'name' => fake()->firstName(),
             'species' => fake()->randomElement(['Dog', 'Cat', 'Bird', 'Rabbit']),
             'breed' => fake()->word(),

@@ -11,10 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->enum('role', ['superadmin', 'veterinarian'])->default('veterinarian');
-            $table->string('phone')->nullable();
-            $table->text('address')->nullable();
+        Schema::table('invoice_items', function (Blueprint $table) {
+            $table->decimal('quantity', 10, 2)->change();
         });
     }
 
@@ -23,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['role', 'phone', 'address']);
+        Schema::table('invoice_items', function (Blueprint $table) {
+            $table->integer('quantity')->change();
         });
     }
 };

@@ -29,19 +29,60 @@
                         <div class="text-xs text-gray-500">{{ $visit->patient->species }}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <a href="{{ route('owners.show', $visit->patient->owner) }}" class="text-sm text-blue-600 hover:text-blue-900">{{ $visit->patient->owner->name }}</a>
+                        @if($visit->patient->owners->first())
+                        <a href="{{ route('owners.show', $visit->patient->owners->first()) }}" class="text-sm text-blue-600 hover:text-blue-900">{{ $visit->patient->owners->first()->name }}</a>
+                        @else
+                        <span class="text-sm text-gray-500">No Owner</span>
+                        @endif
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                            {{ $visit->status === 'completed' ? 'bg-green-100 text-green-800' : 
-                               ($visit->status === 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800') }}">
-                            {{ ucfirst($visit->status) }}
-                        </span>
+                        <div class="flex flex-col space-y-1">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {{ $visit->status === 'completed' ? 'bg-green-100 text-green-800' : 
+                                   ($visit->status === 'cancelled' ? 'bg-red-100 text-red-800' : 
+                                   ($visit->status === 'otw' ? 'bg-blue-100 text-blue-800' : 
+                                   ($visit->status === 'arrived' ? 'bg-purple-100 text-purple-800' : 'bg-yellow-100 text-yellow-800'))) }}">
+                                {{ ucfirst($visit->status) }}
+                            </span>
+                            
+                            @if($visit->status !== 'completed' && $visit->status !== 'cancelled')
+                                <div class="flex space-x-1 mt-1">
+                                    <form action="{{ route('visits.update-status', $visit) }}" method="POST">
+                                        @csrf @method('PATCH')
+                                        <input type="hidden" name="status" value="otw">
+                                        <button type="submit" class="text-xs text-blue-600 hover:underline" {{ $visit->status === 'otw' ? 'disabled' : '' }}>OTW</button>
+                                    </form>
+                                    <span class="text-gray-300">|</span>
+                                    <form action="{{ route('visits.update-status', $visit) }}" method="POST">
+                                        @csrf @method('PATCH')
+                                        <input type="hidden" name="status" value="arrived">
+                                        <button type="submit" class="text-xs text-purple-600 hover:underline" {{ $visit->status === 'arrived' ? 'disabled' : '' }}>Arrived</button>
+                                    </form>
+                                </div>
+                            @endif
+                        </div>
                     </td>
                     <td class="px-6 py-4">
                         <div class="text-sm text-gray-500">{{ Str::limit($visit->complaint, 30) }}</div>
+                        @if($visit->medicalRecords->count() > 0)
+                            <a href="{{ route('medical-records.show', $visit->medicalRecords->first()) }}" class="block mt-1 text-xs text-green-600 font-bold hover:underline">
+                                ✓ Medical Record
+                            </a>
+                        @else
+                            <a href="{{ route('medical-records.create', $visit) }}" class="block mt-1 text-xs text-indigo-600 hover:underline">
+                                + Add Record
+                            </a>
+                        @endif
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        @if($visit->invoice)
+                            <a href="{{ route('invoices.show', $visit->invoice) }}" class="text-green-600 hover:text-green-900 mr-3 font-bold">Invoice</a>
+                        @else
+                            <form action="{{ route('invoices.createFromVisit', $visit) }}" method="POST" class="inline-block mr-3">
+                                @csrf
+                                <button type="submit" class="text-orange-600 hover:text-orange-900 font-semibold" onclick="return confirm('Generate invoice for this visit?')">Generate Invoice</button>
+                            </form>
+                        @endif
                         <a href="{{ route('visits.show', $visit) }}" class="text-blue-600 hover:text-blue-900 mr-3">Lihat</a>
                         <a href="{{ route('visits.edit', $visit) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
                         <form action="{{ route('visits.destroy', $visit) }}" method="POST" class="inline-block" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?');">

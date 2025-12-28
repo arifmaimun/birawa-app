@@ -15,7 +15,7 @@ class VisitController extends Controller
      */
     public function index()
     {
-        $visits = Visit::with(['patient.owner', 'user'])->latest('scheduled_at')->paginate(10);
+        $visits = Visit::with(['patient.owners', 'user', 'invoice', 'medicalRecords'])->latest('scheduled_at')->paginate(10);
         return view('visits.index', compact('visits'));
     }
 
@@ -24,7 +24,7 @@ class VisitController extends Controller
      */
     public function create(Request $request)
     {
-        $patients = Patient::with('owner')->orderBy('name')->get();
+        $patients = Patient::with('owners')->orderBy('name')->get();
         $selectedPatientId = $request->query('patient_id');
         // For simplicity, we assign the current user (doctor/admin) to the visit
         // In a real app, you might want to select a doctor
@@ -40,20 +40,71 @@ class VisitController extends Controller
             'patient_id' => 'required|exists:patients,id',
             'scheduled_at' => 'required|date',
             'complaint' => 'nullable|string',
-            'transport_fee' => 'nullable|numeric|min:0',
-            'status' => 'required|in:scheduled,completed,cancelled',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
         ]);
 
-        // Automatically assign current user if not provided (though we don't have user selection in UI yet)
         $data = $request->all();
-        if (!isset($data['user_id'])) {
-            $data['user_id'] = Auth::id() ?? User::first()->id; // Fallback for dev if no auth
+        $data['user_id'] = Auth::id();
+        $data['status'] = 'scheduled'; // Default status
+
+        // Calculate distance if coordinates are provided
+        $doctorProfile = Auth::user()->doctorProfile;
+        if ($doctorProfile && $request->filled('latitude') && $request->filled('longitude') && $doctorProfile->latitude && $doctorProfile->longitude) {
+            $distance = $this->calculateDistance(
+                $doctorProfile->latitude,
+                $doctorProfile->longitude,
+                $request->latitude,
+                $request->longitude
+            );
+            
+            $data['distance_km'] = $distance;
+
+            // Check Service Radius
+            if ($doctorProfile->service_radius_km > 0 && $distance > $doctorProfile->service_radius_km) {
+                return back()->withErrors(['address' => 'Location is outside of service radius (' . number_format($distance, 1) . ' km).']);
+            }
+            
+            // Auto-calculate transport fee
+            // Formula: Base Fee + (Distance * Rate per KM)
+            $transportFee = $doctorProfile->base_transport_fee + ($distance * $doctorProfile->transport_fee_per_km);
+            $data['transport_fee'] = round($transportFee, -2); // Round to nearest 100
         }
 
         Visit::create($data);
 
         return redirect()->route('visits.index')
             ->with('success', 'Visit scheduled successfully.');
+    }
+
+    /**
+     * Update visit status.
+     */
+    public function updateStatus(Request $request, Visit $visit)
+    {
+        $request->validate([
+            'status' => 'required|in:scheduled,otw,arrived,completed,cancelled',
+        ]);
+
+        $visit->update(['status' => $request->status]);
+
+        return back()->with('success', 'Visit status updated to ' . ucfirst($request->status));
+    }
+
+    private function calculateDistance($lat1, $lon1, $lat2, $lon2)
+    {
+        $earthRadius = 6371; // km
+
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLon = deg2rad($lon2 - $lon1);
+
+        $a = sin($dLat / 2) * sin($dLat / 2) +
+             cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+             sin($dLon / 2) * sin($dLon / 2);
+
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        return $earthRadius * $c;
     }
 
     /**
@@ -69,7 +120,7 @@ class VisitController extends Controller
      */
     public function edit(Visit $visit)
     {
-        $patients = Patient::with('owner')->orderBy('name')->get();
+        $patients = Patient::with('owners')->orderBy('name')->get();
         return view('visits.edit', compact('visit', 'patients'));
     }
 

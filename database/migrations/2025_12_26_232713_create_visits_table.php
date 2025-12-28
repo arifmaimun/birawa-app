@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('patient_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->datetime('scheduled_at');
-            $table->enum('status', ['scheduled', 'completed', 'cancelled'])->default('scheduled');
+            $table->enum('status', ['scheduled', 'otw', 'arrived', 'completed', 'cancelled'])->default('scheduled');
             $table->text('complaint')->nullable();
             $table->decimal('transport_fee', 10, 2)->nullable();
             $table->timestamps();

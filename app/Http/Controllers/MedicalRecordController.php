@@ -1,0 +1,180 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\MedicalRecord;
+use App\Models\MedicalUsageLog;
+use App\Models\DoctorInventory;
+use App\Models\InventoryTransaction;
+use App\Models\AccessRequest;
+use App\Models\Visit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+
+use App\Models\Diagnosis;
+
+class MedicalRecordController extends Controller
+{
+    public function create(Visit $visit)
+    {
+        // Ensure the visit belongs to the doctor or doctor has access
+        if ($visit->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $inventories = Auth::user()->inventories()->orderBy('item_name')->get();
+        $diagnoses = Diagnosis::orderBy('category')->orderBy('name')->get();
+        
+        // Fetch Medical History
+        $medicalHistory = MedicalRecord::where('patient_id', $visit->patient_id)
+            ->where('id', '!=', $visit->id) // Exclude current if somehow it existed, though we are creating new
+            ->with(['doctor', 'diagnoses'])
+            ->latest()
+            ->take(5)
+            ->get();
+
+        return view('medical_records.create', compact('visit', 'inventories', 'diagnoses', 'medicalHistory'));
+    }
+
+    public function store(Request $request, Visit $visit)
+    {
+        $request->validate([
+            'subjective' => 'required|string',
+            'objective' => 'required|string',
+            'assessment' => 'nullable|string', // Made nullable as we encourage using diagnosis dropdown
+            'diagnoses' => 'nullable|array',
+            'diagnoses.*' => 'exists:diagnoses,id',
+            'plan_treatment' => 'required|string',
+            'plan_recipe' => 'nullable|string',
+            'inventory_items' => 'nullable|array',
+            'inventory_items.*.id' => 'exists:doctor_inventories,id',
+            'inventory_items.*.qty' => 'numeric|min:0',
+        ]);
+
+        DB::transaction(function () use ($request, $visit) {
+            // Auto-generate assessment text from selected diagnoses if assessment is empty
+            $assessmentText = $request->assessment;
+            if (empty($assessmentText) && $request->has('diagnoses')) {
+                $selectedDiagnoses = Diagnosis::whereIn('id', $request->diagnoses)->pluck('name')->toArray();
+                $assessmentText = implode(', ', $selectedDiagnoses);
+            }
+
+            $record = MedicalRecord::create([
+                'visit_id' => $visit->id,
+                'doctor_id' => Auth::id(),
+                'patient_id' => $visit->patient_id,
+                'subjective' => $request->subjective,
+                'objective' => $request->objective,
+                'assessment' => $assessmentText ?? 'N/A', // Fallback
+                'plan_treatment' => $request->plan_treatment,
+                'plan_recipe' => $request->plan_recipe,
+                'is_locked' => true,
+            ]);
+
+            // Attach Diagnoses
+            if ($request->has('diagnoses')) {
+                $record->diagnoses()->attach($request->diagnoses);
+            }
+
+            if ($request->has('inventory_items')) {
+                foreach ($request->inventory_items as $item) {
+                    if ($item['qty'] > 0) {
+                        $inventory = DoctorInventory::find($item['id']);
+                        
+                        // Check if inventory belongs to doctor
+                        if ($inventory->user_id !== Auth::id()) {
+                            continue; 
+                        }
+
+                        // Deduct stock
+                        if ($inventory->stock_qty >= $item['qty']) {
+                            $inventory->decrement('stock_qty', $item['qty']);
+                            
+                            // Log usage in MedicalUsageLog (Medical Context)
+                            MedicalUsageLog::create([
+                                'medical_record_id' => $record->id,
+                                'doctor_inventory_id' => $inventory->id,
+                                'quantity_used' => $item['qty'],
+                            ]);
+
+                            // Log transaction in InventoryTransaction (Inventory Context)
+                            InventoryTransaction::create([
+                                'doctor_inventory_id' => $inventory->id,
+                                'type' => 'OUT',
+                                'quantity_change' => -$item['qty'],
+                                'notes' => "Used in Medical Record #{$record->id} for Patient {$visit->patient->name}",
+                            ]);
+
+                        } else {
+                            // Throwing error to rollback transaction
+                            throw new \Exception("Insufficient stock for item: {$inventory->item_name}. Available: {$inventory->stock_qty}, Requested: {$item['qty']}");
+                        }
+                    }
+                }
+            }
+            
+            // Update visit status to completed
+            $visit->update(['status' => 'completed']);
+        });
+
+        return redirect()->route('visits.show', $visit->id)->with('success', 'Medical Record saved successfully.');
+    }
+
+    public function show(MedicalRecord $medicalRecord)
+    {
+        $user = Auth::user();
+
+        // 1. If user is the creator (doctor), grant access
+        if ($medicalRecord->doctor_id === $user->id) {
+            return view('medical_records.show', compact('medicalRecord'));
+        }
+
+        // 2. If user has been granted access
+        if ($medicalRecord->hasAccessGranted($user->id)) {
+            return view('medical_records.show', compact('medicalRecord'));
+        }
+
+        // 3. Otherwise, show locked view with Request Access button
+        // Check if there is a pending request
+        $pendingRequest = AccessRequest::where('target_medical_record_id', $medicalRecord->id)
+            ->where('requester_doctor_id', $user->id)
+            ->where('status', 'pending')
+            ->first();
+
+        return view('medical_records.locked', compact('medicalRecord', 'pendingRequest'));
+    }
+
+    public function requestAccess(Request $request, MedicalRecord $medicalRecord)
+    {
+        $existing = AccessRequest::where('target_medical_record_id', $medicalRecord->id)
+            ->where('requester_doctor_id', Auth::id())
+            ->first();
+
+        if ($existing && $existing->status === 'approved') {
+            return redirect()->route('medical-records.show', $medicalRecord->id);
+        }
+
+        if (!$existing) {
+            AccessRequest::create([
+                'requester_doctor_id' => Auth::id(),
+                'target_medical_record_id' => $medicalRecord->id,
+                'owner_doctor_id' => $medicalRecord->doctor_id,
+                'status' => 'pending',
+            ]);
+        }
+
+        return back()->with('success', 'Access request sent to the doctor.');
+    }
+    
+    public function approveAccess(AccessRequest $accessRequest)
+    {
+        if ($accessRequest->owner_doctor_id !== Auth::id()) {
+            abort(403);
+        }
+        
+        $accessRequest->update(['status' => 'approved']);
+        
+        return back()->with('success', 'Access granted.');
+    }
+}

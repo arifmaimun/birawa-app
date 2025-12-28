@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Patient;
-use App\Models\Owner;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class PatientController extends Controller
@@ -13,7 +13,7 @@ class PatientController extends Controller
      */
     public function index()
     {
-        $patients = Patient::with('owner')->latest()->paginate(10);
+        $patients = Patient::with('owners')->latest()->paginate(10);
         return view('patients.index', compact('patients'));
     }
 
@@ -22,7 +22,8 @@ class PatientController extends Controller
      */
     public function create(Request $request)
     {
-        $owners = Owner::orderBy('name')->get();
+        // Fetch users who are clients
+        $owners = User::where('role', 'client')->orderBy('name')->get();
         $selectedOwnerId = $request->query('owner_id');
         return view('patients.create', compact('owners', 'selectedOwnerId'));
     }
@@ -33,7 +34,7 @@ class PatientController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'owner_id' => 'required|exists:owners,id',
+            'owner_id' => 'required|exists:users,id',
             'name' => 'required|string|max:255',
             'species' => 'required|string|max:100',
             'breed' => 'nullable|string|max:100',
@@ -41,7 +42,10 @@ class PatientController extends Controller
             'dob' => 'nullable|date',
         ]);
 
-        Patient::create($request->all());
+        $patient = Patient::create($request->except('owner_id'));
+        
+        // Attach the selected owner as primary
+        $patient->owners()->attach($request->owner_id, ['is_primary' => true]);
 
         return redirect()->route('patients.index')
             ->with('success', 'Patient created successfully.');
@@ -60,7 +64,7 @@ class PatientController extends Controller
      */
     public function edit(Patient $patient)
     {
-        $owners = Owner::orderBy('name')->get();
+        $owners = User::where('role', 'client')->orderBy('name')->get();
         return view('patients.edit', compact('patient', 'owners'));
     }
 
@@ -70,7 +74,7 @@ class PatientController extends Controller
     public function update(Request $request, Patient $patient)
     {
         $request->validate([
-            'owner_id' => 'required|exists:owners,id',
+            'owner_id' => 'required|exists:users,id',
             'name' => 'required|string|max:255',
             'species' => 'required|string|max:100',
             'breed' => 'nullable|string|max:100',
@@ -78,7 +82,12 @@ class PatientController extends Controller
             'dob' => 'nullable|date',
         ]);
 
-        $patient->update($request->all());
+        $patient->update($request->except('owner_id'));
+
+        // Sync owners (assuming single owner selection in UI for now, effectively replacing primary owner)
+        // In a real multi-owner UI, we would handle multiple IDs.
+        // For now, we update the relationship to the selected user.
+        $patient->owners()->sync([$request->owner_id => ['is_primary' => true]]);
 
         return redirect()->route('patients.index')
             ->with('success', 'Patient updated successfully.');

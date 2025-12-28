@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
         // Create 1 Superadmin
         User::factory()->create([
             'name' => 'Drh. Arif',
-            'email' => 'arif@example.com',
+            'email' => 'admin@birawa.vet',
             'role' => 'superadmin',
             'phone' => '08123456789',
             'address' => 'Jakarta',
@@ -36,7 +36,18 @@ class DatabaseSeeder extends Seeder
         // Create 20 Products
         \App\Models\Product::factory(20)->create();
 
-        // Create 10 Owners and 10 Patients (Patients will create Owners via factory)
-        \App\Models\Patient::factory(10)->create();
+        // Create 5 Clients (Users)
+        $clients = User::factory(5)->create(['role' => 'client']);
+
+        // Create 10 Patients and attach to random clients
+        $patients = \App\Models\Patient::factory(10)->create();
+
+        foreach ($patients as $patient) {
+            // Attach to 1 or 2 random clients
+            $randomClients = $clients->random(rand(1, 2));
+            foreach ($randomClients as $client) {
+                $patient->owners()->attach($client->id, ['is_primary' => true]); // Simplified
+            }
+        }
     }
 }

@@ -13,7 +13,7 @@
                     <option value="">Pilih Pasien</option>
                     @foreach($patients as $patient)
                         <option value="{{ $patient->id }}" {{ (old('patient_id') == $patient->id || (isset($selectedPatientId) && $selectedPatientId == $patient->id)) ? 'selected' : '' }}>
-                            {{ $patient->name }} ({{ $patient->species }}) - Pemilik: {{ $patient->owner->name }}
+                            {{ $patient->name }} ({{ $patient->species }}) - Pemilik: {{ $patient->owners->first()->name ?? '-' }}
                         </option>
                     @endforeach
                 </select>

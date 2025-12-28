@@ -49,9 +49,13 @@
                                     <div class="text-sm font-bold text-gray-900">{{ $patient->name }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <a href="{{ route('owners.show', $patient->owner) }}" class="text-sm text-birawa-600 hover:text-birawa-900 font-medium">
-                                        {{ $patient->owner->name }}
+                                    @if($patient->owners->first())
+                                    <a href="{{ route('owners.show', $patient->owners->first()) }}" class="text-sm text-birawa-600 hover:text-birawa-900 font-medium">
+                                        {{ $patient->owners->first()->name }}
                                     </a>
+                                    @else
+                                    <span class="text-sm text-gray-500">No Owner</span>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center space-x-2">

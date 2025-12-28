@@ -17,7 +17,11 @@
                 <div>
                     <dt class="text-sm font-medium text-gray-500">Pemilik</dt>
                     <dd class="mt-1 text-lg text-gray-900">
-                        <a href="{{ route('owners.show', $patient->owner) }}" class="text-blue-600 hover:text-blue-800">{{ $patient->owner->name }}</a>
+                        @if($patient->owners->first())
+                        <a href="{{ route('owners.show', $patient->owners->first()) }}" class="text-blue-600 hover:text-blue-800">{{ $patient->owners->first()->name }}</a>
+                        @else
+                        -
+                        @endif
                     </dd>
                 </div>
                 <div>
