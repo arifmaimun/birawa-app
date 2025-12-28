@@ -46,9 +46,10 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('visits', VisitController::class);
     Route::patch('/visits/{visit}/status', [VisitController::class, 'updateStatus'])->name('visits.update-status');
 
-    Route::resource('products', ProductController::class);
+    Route::resource('products', ProductController::class)->middleware('role:admin,owner');
 
     // Medical Records
+    Route::post('/diagnoses', [App\Http\Controllers\DiagnosisController::class, 'store'])->name('diagnoses.store');
     Route::get('/visits/{visit}/medical-record/create', [MedicalRecordController::class, 'create'])->name('medical-records.create');
     Route::post('/visits/{visit}/medical-record', [MedicalRecordController::class, 'store'])->name('medical-records.store');
     Route::get('/medical-records/{medicalRecord}', [MedicalRecordController::class, 'show'])->name('medical-records.show');

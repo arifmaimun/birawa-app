@@ -12,4 +12,14 @@ class Diagnosis extends Model
     {
         return $this->belongsToMany(MedicalRecord::class);
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function scopeForUser($query, $userId)
+    {
+        return $query->whereNull('user_id')->orWhere('user_id', $userId);
+    }
 }

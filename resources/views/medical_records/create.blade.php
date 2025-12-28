@@ -92,8 +92,15 @@
                                 required>{{ old('objective') }}</textarea>
                         </div>
                         
-                        <div class="col-span-2">
-                            <label for="diagnoses" class="block text-sm font-bold text-slate-700 mb-2">Smart Diagnosis (Pilih satu atau lebih)</label>
+                        <div class="col-span-2" x-data="diagnosisManager()">
+                            <div class="flex justify-between items-center mb-2">
+                                <label for="diagnoses" class="block text-sm font-bold text-slate-700">Smart Diagnosis (Pilih satu atau lebih)</label>
+                                <button type="button" @click="showModal = true" class="text-xs font-bold text-birawa-600 hover:text-birawa-700 flex items-center gap-1 bg-birawa-50 px-2 py-1 rounded-lg hover:bg-birawa-100 transition-colors">
+                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                                    Add New Diagnosis
+                                </button>
+                            </div>
+                            
                             <select name="diagnoses[]" id="diagnoses" multiple 
                                 class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 text-sm shadow-sm transition-colors h-48">
                                 @foreach($diagnoses->groupBy('category') as $category => $items)
@@ -110,7 +117,101 @@
                                 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                 Hold Ctrl (Windows) or Cmd (Mac) to select multiple
                             </p>
+
+                            <!-- Modal -->
+                            <div x-cloak x-show="showModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                                    <div x-show="showModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-slate-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="showModal = false"></div>
+
+                                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+                                    <div x-show="showModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                                        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                                            <h3 class="text-lg leading-6 font-medium text-slate-900 mb-4" id="modal-title">Add New Diagnosis</h3>
+                                            <div class="space-y-4">
+                                                <div>
+                                                    <label class="block text-sm font-medium text-slate-700">Code</label>
+                                                    <input type="text" x-model="form.code" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-birawa-500 focus:ring-birawa-500 sm:text-sm">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-sm font-medium text-slate-700">Name</label>
+                                                    <input type="text" x-model="form.name" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-birawa-500 focus:ring-birawa-500 sm:text-sm">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-sm font-medium text-slate-700">Category</label>
+                                                    <input type="text" x-model="form.category" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-birawa-500 focus:ring-birawa-500 sm:text-sm" placeholder="e.g. Dental, Skin, General">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="bg-slate-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                                            <button type="button" @click="saveDiagnosis()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-birawa-600 text-base font-medium text-white hover:bg-birawa-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-birawa-500 sm:ml-3 sm:w-auto sm:text-sm">
+                                                Save
+                                            </button>
+                                            <button type="button" @click="showModal = false" class="mt-3 w-full inline-flex justify-center rounded-md border border-slate-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-birawa-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
+                        <script>
+                        function diagnosisManager() {
+                            return {
+                                showModal: false,
+                                form: {
+                                    code: '',
+                                    name: '',
+                                    category: ''
+                                },
+                                saveDiagnosis() {
+                                    if(!this.form.code || !this.form.name || !this.form.category) {
+                                        alert('Please fill all fields');
+                                        return;
+                                    }
+                                    
+                                    fetch('{{ route("diagnoses.store") }}', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                        },
+                                        body: JSON.stringify(this.form)
+                                    })
+                                    .then(response => {
+                                        if(!response.ok) return response.json().then(json => { throw new Error(json.message || 'Failed to save') });
+                                        return response.json();
+                                    })
+                                    .then(data => {
+                                        // Add to select
+                                        const select = document.getElementById('diagnoses');
+                                        const option = new Option(data.code + ' - ' + data.name, data.id, true, true);
+                                        option.className = "py-1 px-2 text-slate-600 bg-white";
+                                        
+                                        // Find or create optgroup
+                                        let optgroup = Array.from(select.getElementsByTagName('optgroup'))
+                                            .find(g => g.label === data.category);
+                                        
+                                        if (!optgroup) {
+                                            optgroup = document.createElement('optgroup');
+                                            optgroup.label = data.category;
+                                            optgroup.className = "font-bold text-slate-800 bg-slate-50";
+                                            select.appendChild(optgroup);
+                                        }
+                                        
+                                        optgroup.appendChild(option);
+                                        
+                                        this.showModal = false;
+                                        this.form = { code: '', name: '', category: '' };
+                                    })
+                                    .catch(error => {
+                                        alert('Error saving diagnosis: ' + error.message);
+                                    });
+                                }
+                            }
+                        }
+                        </script>
 
                         <div class="col-span-2">
                             <label for="assessment" class="block text-sm font-bold text-slate-700 mb-2">Additional Assessment Notes (Optional)</label>

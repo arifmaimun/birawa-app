@@ -1,5 +1,13 @@
 <div x-data="{ 
     sending: false,
+    show: false,
+    init() {
+        // Delay display by 3 seconds
+        setTimeout(() => this.show = true, 3000);
+    },
+    dismiss() {
+        this.show = false;
+    },
     sendSOS() {
         if (this.sending) return;
         this.sending = true;
@@ -32,7 +40,23 @@
             this.sending = false;
         });
     }
-}" class="fixed bottom-6 right-6 z-50">
+}" 
+x-show="show"
+x-transition:enter="transition ease-out duration-300"
+x-transition:enter-start="opacity-0 translate-y-10"
+x-transition:enter-end="opacity-100 translate-y-0"
+x-transition:leave="transition ease-in duration-200"
+x-transition:leave-start="opacity-100 translate-y-0"
+x-transition:leave-end="opacity-0 translate-y-10"
+style="display: none;"
+{{ $attributes->merge(['class' => 'fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2']) }}>
+
+    <!-- Dismiss Button -->
+    <button @click="dismiss()" class="bg-slate-800/80 text-white rounded-full p-1 w-6 h-6 flex items-center justify-center text-xs hover:bg-slate-900 shadow-sm backdrop-blur-sm mb-1">
+        &times;
+    </button>
+
+    <!-- Main SOS Button -->
     <button @click="sendSOS()" class="w-16 h-16 bg-red-600 rounded-full shadow-lg shadow-red-600/30 flex items-center justify-center text-white hover:bg-red-700 active:scale-95 transition-all animate-pulse" title="Emergency SOS">
         <span x-show="!sending" class="font-bold text-lg">SOS</span>
         <svg x-show="sending" class="animate-spin h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style="display: none;">

@@ -34,6 +34,13 @@
     <!-- Top Header (Sticky) -->
     <header class="fixed top-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-100 px-4 h-16 flex items-center justify-between shadow-sm transition-all duration-300">
         <div class="flex items-center gap-3">
+             @if(!request()->routeIs('dashboard'))
+                <a href="{{ url()->previous() }}" class="mr-1 p-2 -ml-2 text-slate-500 hover:text-slate-800 rounded-full hover:bg-slate-100 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                </a>
+             @endif
              <div class="w-9 h-9 bg-gradient-to-br from-birawa-500 to-birawa-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-birawa-sm">
                 B
              </div>

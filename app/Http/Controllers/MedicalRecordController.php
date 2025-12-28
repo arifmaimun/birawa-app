@@ -34,7 +34,7 @@ class MedicalRecordController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
         $inventories = $user->inventories()->orderBy('item_name')->get();
-        $diagnoses = Diagnosis::orderBy('category')->orderBy('name')->get();
+        $diagnoses = Diagnosis::forUser($user->id)->orderBy('category')->orderBy('name')->get();
         
         // Fetch Medical History
         $medicalHistory = MedicalRecord::where('patient_id', $visit->patient_id)
