@@ -35,6 +35,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Template Management
     Route::resource('consent-templates', App\Http\Controllers\ConsentTemplateController::class);
+    Route::resource('message-templates', App\Http\Controllers\MessageTemplateController::class);
 
     // Referrals
     Route::resource('referrals', App\Http\Controllers\ReferralController::class);
@@ -44,6 +45,8 @@ Route::middleware(['auth'])->group(function () {
     
     Route::get('visits/calendar-events', [VisitController::class, 'calendarEvents'])->name('visits.calendar-events');
     Route::get('visits/calendar', [VisitController::class, 'calendar'])->name('visits.calendar');
+    Route::post('visits/{visit}/start-trip', [VisitController::class, 'startTrip'])->name('visits.start-trip');
+    Route::post('visits/{visit}/end-trip', [VisitController::class, 'endTrip'])->name('visits.end-trip');
     Route::resource('visits', VisitController::class);
     Route::patch('/visits/{visit}/status', [VisitController::class, 'updateStatus'])->name('visits.update-status');
 
@@ -51,6 +54,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('visit-statuses', App\Http\Controllers\VisitStatusController::class);
     Route::resource('vital-sign-settings', App\Http\Controllers\VitalSignSettingController::class);
 
+    
+    Route::get('products/check-sku', [ProductController::class, 'checkSku'])->name('products.check-sku');
     Route::resource('products', ProductController::class);
 
     // Medical Records
@@ -67,9 +72,25 @@ Route::middleware(['auth'])->group(function () {
 
     // Inventory
     Route::get('inventory/items/search', [\App\Http\Controllers\DoctorInventoryController::class, 'searchItems'])->name('inventory.items.search');
+    Route::get('inventory/expiry-report', [\App\Http\Controllers\DoctorInventoryController::class, 'expiryReport'])->name('inventory.expiry-report');
+    Route::get('inventory/transactions', [\App\Http\Controllers\InventoryTransactionController::class, 'index'])->name('inventory.transactions.index');
     Route::resource('inventory', \App\Http\Controllers\DoctorInventoryController::class);
     Route::get('inventory/{doctorInventory}/restock', [\App\Http\Controllers\DoctorInventoryController::class, 'restockForm'])->name('inventory.restock');
     Route::post('inventory/{doctorInventory}/restock', [\App\Http\Controllers\DoctorInventoryController::class, 'restock'])->name('inventory.restock.store');
+
+    // Inventory Transfers
+    Route::resource('inventory-transfers', \App\Http\Controllers\InventoryTransferController::class);
+    Route::patch('inventory-transfers/{inventoryTransfer}/approve', [\App\Http\Controllers\InventoryTransferController::class, 'approve'])->name('inventory-transfers.approve');
+    Route::patch('inventory-transfers/{inventoryTransfer}/reject', [\App\Http\Controllers\InventoryTransferController::class, 'reject'])->name('inventory-transfers.reject');
+
+    // Stock Opname
+    Route::resource('stock-opnames', \App\Http\Controllers\StockOpnameController::class);
+    Route::post('stock-opnames/{stockOpname}/complete', [\App\Http\Controllers\StockOpnameController::class, 'complete'])->name('stock-opnames.complete');
+    Route::get('stock-opnames/{stockOpname}/export', [\App\Http\Controllers\StockOpnameController::class, 'export'])->name('stock-opnames.export');
+    Route::post('stock-opnames/{stockOpname}/items/{item}', [\App\Http\Controllers\StockOpnameController::class, 'updateItem'])->name('stock-opnames.items.update');
+
+    // Services
+    Route::resource('services', \App\Http\Controllers\DoctorServiceController::class);
 
     // Expenses
     Route::resource('expenses', \App\Http\Controllers\ExpenseController::class);

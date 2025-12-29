@@ -12,7 +12,8 @@ class PatientController extends Controller
     public function index()
     {
         $patients = Patient::with('client')->latest()->paginate(10);
-        return view('patients.index', compact('patients'));
+        $clients = Client::orderBy('name')->get(); // Needed for Create Modal
+        return view('patients.index', compact('patients', 'clients'));
     }
 
     public function create()
@@ -42,9 +43,14 @@ class PatientController extends Controller
         return view('patients.show', compact('patient'));
     }
 
-    public function edit(Patient $patient)
+    public function edit(Request $request, Patient $patient)
     {
         $clients = Client::orderBy('name')->get();
+        
+        if ($request->ajax()) {
+            return view('patients.partials.edit-form', compact('patient', 'clients'))->render();
+        }
+
         return view('patients.edit', compact('patient', 'clients'));
     }
 

@@ -12,7 +12,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::latest()->paginate(10);
+        $products = Product::where('type', 'barang')->latest()->paginate(10);
         return view('products.index', compact('products'));
     }
 
@@ -68,6 +68,7 @@ class ProductController extends Controller
         $request->validate([
             'sku' => 'required|string|max:50|unique:products,sku,' . $product->id,
             'name' => 'required|string|max:255',
+            'category' => 'nullable|string|max:50',
             'type' => 'required|in:barang,jasa',
             'cost' => 'required|numeric|min:0',
             'price' => 'required|numeric|min:0',

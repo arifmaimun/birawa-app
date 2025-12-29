@@ -57,6 +57,22 @@
                                        required min="0" placeholder="0">
                             </div>
                         </div>
+
+                        <!-- Batch Number -->
+                        <div>
+                            <label for="batch_number" class="block text-sm font-bold text-slate-700 mb-2">Batch Number</label>
+                            <input type="text" name="batch_number" id="batch_number" 
+                                   class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 placeholder-slate-400 transition-colors shadow-sm"
+                                   required placeholder="e.g. BATCH-001">
+                        </div>
+
+                        <!-- Expiry Date -->
+                        <div>
+                            <label for="expiry_date" class="block text-sm font-bold text-slate-700 mb-2">Expiry Date</label>
+                            <input type="date" name="expiry_date" id="expiry_date" 
+                                   class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 placeholder-slate-400 transition-colors shadow-sm"
+                                   required>
+                        </div>
                     </div>
 
                     <!-- Summary Card -->

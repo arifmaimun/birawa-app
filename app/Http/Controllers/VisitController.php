@@ -6,8 +6,10 @@ use App\Models\Visit;
 use App\Models\Patient;
 use App\Models\User;
 use App\Models\VisitStatus;
+use App\Models\MessageTemplate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class VisitController extends Controller
 {
@@ -121,10 +123,11 @@ class VisitController extends Controller
         }
 
         $request->validate([
-            'status' => 'required|in:scheduled,otw,arrived,completed,cancelled',
+            'status' => 'required|exists:visit_statuses,slug',
         ]);
 
-        $visit->update(['status' => $request->status]);
+        $status = VisitStatus::where('slug', $request->status)->firstOrFail();
+        $visit->update(['visit_status_id' => $status->id]);
 
         return back()->with('success', 'Visit status updated to ' . ucfirst($request->status));
     }
@@ -221,30 +224,155 @@ class VisitController extends Controller
 
     public function calendarEvents(Request $request)
     {
-        $start = $request->query('start');
-        $end = $request->query('end');
+        try {
+            $start = $request->query('start');
+            $end = $request->query('end');
 
-        $visits = Visit::where('user_id', Auth::id())
-            ->whereBetween('scheduled_at', [$start, $end])
-            ->with(['patient.client', 'visitStatus'])
-            ->get();
+            $visits = Visit::where('user_id', Auth::id())
+                ->whereBetween('scheduled_at', [$start, $end])
+                ->with(['patient.client', 'visitStatus'])
+                ->get();
 
-        $events = $visits->map(function ($visit) {
-            $color = $visit->visitStatus->color ?? '#6B7280';
-            
-            $patientName = $visit->patient->name ?? 'Unknown';
-            $clientName = $visit->patient->client->name ?? 'No Client';
+            $events = $visits->map(function ($visit) {
+                $color = $visit->visitStatus->color ?? '#6B7280';
+                
+                $patientName = $visit->patient->name ?? 'Unknown';
+                $clientName = $visit->patient->client->name ?? 'No Client';
 
-            return [
-                'id' => $visit->id,
-                'title' => "$patientName ($clientName)",
-                'start' => $visit->scheduled_at,
-                'url' => route('visits.show', $visit->id),
-                'backgroundColor' => $color,
-                'borderColor' => $color,
-            ];
-        });
+                return [
+                    'id' => $visit->id,
+                    'title' => "$patientName ($clientName)",
+                    'start' => $visit->scheduled_at,
+                    'url' => route('visits.show', $visit->id),
+                    'backgroundColor' => $color,
+                    'borderColor' => $color,
+                ];
+            });
 
-        return response()->json($events);
+            return response()->json($events);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Calendar Events Error: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to fetch events'], 500);
+        }
+    }
+
+    public function startTrip(Request $request, Visit $visit)
+    {
+        if ($visit->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'estimated_hours' => 'nullable|numeric|min:0',
+        ]);
+
+        $departureTime = Carbon::now();
+        $visit->departure_time = $departureTime;
+        
+        if ($request->estimated_hours) {
+            $minutes = $request->estimated_hours * 60;
+            $visit->estimated_travel_minutes = $minutes;
+        }
+        
+        // Update status to 'otw' if possible
+        $otwStatus = VisitStatus::where('slug', 'otw')->orWhere('slug', 'on-the-way')->first();
+        if ($otwStatus) {
+            $visit->visit_status_id = $otwStatus->id;
+            // $visit->status = 'otw'; // Legacy fallback removed
+        }
+
+        $visit->save();
+
+        // Check for message template
+        $template = MessageTemplate::where('doctor_id', Auth::id())
+            ->where('trigger_event', 'on_departure')
+            ->first();
+
+        $whatsappUrl = null;
+        if ($template && $visit->patient->client && $visit->patient->client->phone) {
+            $message = $this->formatMessage($template->content_pattern, $visit);
+            $phone = $this->formatPhoneNumber($visit->patient->client->phone);
+            $whatsappUrl = "https://wa.me/{$phone}?text=" . urlencode($message);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Perjalanan dimulai.',
+            'whatsapp_url' => $whatsappUrl
+        ]);
+    }
+
+    public function endTrip(Request $request, Visit $visit)
+    {
+        if ($visit->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $arrivalTime = Carbon::now();
+        $visit->arrival_time = $arrivalTime;
+        
+        if ($visit->departure_time) {
+            $start = Carbon::parse($visit->departure_time);
+            $visit->actual_travel_minutes = $start->diffInMinutes($arrivalTime);
+        }
+        
+        // Update status to 'arrived'
+        $arrivedStatus = VisitStatus::where('slug', 'arrived')->first();
+        if ($arrivedStatus) {
+            $visit->visit_status_id = $arrivedStatus->id;
+            // $visit->status = 'arrived'; // Legacy fallback removed
+        }
+
+        $visit->save();
+
+        // Check for message template
+        $template = MessageTemplate::where('doctor_id', Auth::id())
+            ->where('trigger_event', 'on_arrival')
+            ->first();
+
+        $whatsappUrl = null;
+        if ($template && $visit->patient->client && $visit->patient->client->phone) {
+            $message = $this->formatMessage($template->content_pattern, $visit);
+            $phone = $this->formatPhoneNumber($visit->patient->client->phone);
+            $whatsappUrl = "https://wa.me/{$phone}?text=" . urlencode($message);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sampai di lokasi.',
+            'whatsapp_url' => $whatsappUrl,
+            'duration_report' => $visit->actual_travel_minutes ? "Total perjalanan: {$visit->actual_travel_minutes} menit." : null
+        ]);
+    }
+
+    private function formatMessage($pattern, $visit)
+    {
+        $replacements = [
+            '{owner_name}' => $visit->patient->client->name ?? 'Owner',
+            '{doctor_name}' => $visit->user->name ?? 'Dokter',
+            '{patient_name}' => $visit->patient->name ?? 'Hewan',
+            '{address}' => $visit->patient->client->address ?? '',
+        ];
+        
+        if (strpos($pattern, '{eta}') !== false) {
+            if ($visit->departure_time && $visit->estimated_travel_minutes) {
+                $eta = Carbon::parse($visit->departure_time)->addMinutes($visit->estimated_travel_minutes)->format('H:i');
+                $replacements['{eta}'] = $eta;
+            } else {
+                $replacements['{eta}'] = '(belum ada estimasi)';
+            }
+        }
+
+        return str_replace(array_keys($replacements), array_values($replacements), $pattern);
+    }
+    
+    private function formatPhoneNumber($phone)
+    {
+        // Simple formatter: replace 08 with 628, remove non-digits
+        $phone = preg_replace('/[^0-9]/', '', $phone);
+        if (str_starts_with($phone, '08')) {
+            $phone = '62' . substr($phone, 1);
+        }
+        return $phone;
     }
 }

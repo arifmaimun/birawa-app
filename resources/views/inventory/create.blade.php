@@ -21,12 +21,21 @@
                             <x-input-error :messages="$errors->get('item_name')" class="mt-2" />
                         </div>
 
+                        <!-- Category -->
+                        <div>
+                            <label for="category" class="block text-sm font-bold text-slate-700 mb-2">Category</label>
+                            <input type="text" id="category" name="category" 
+                                   class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 placeholder-slate-400 transition-colors shadow-sm"
+                                   value="{{ old('category') }}" placeholder="e.g. Medicine, Consumable">
+                            <x-input-error :messages="$errors->get('category')" class="mt-2" />
+                        </div>
+
                         <!-- SKU -->
                         <div>
-                            <label for="sku" class="block text-sm font-bold text-slate-700 mb-2">SKU <span class="text-slate-400 font-normal">(Optional)</span></label>
+                            <label for="sku" class="block text-sm font-bold text-slate-700 mb-2">SKU <span class="text-slate-400 font-normal">(Auto-generated if empty)</span></label>
                             <input type="text" id="sku" name="sku" 
                                    class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 placeholder-slate-400 transition-colors shadow-sm"
-                                   value="{{ old('sku') }}" placeholder="e.g. MED-001">
+                                   value="{{ old('sku') }}" placeholder="Leave empty to auto-generate">
                             <x-input-error :messages="$errors->get('sku')" class="mt-2" />
                         </div>
 

@@ -10,7 +10,7 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['sku', 'name', 'type', 'cost', 'price', 'stock'];
+    protected $fillable = ['sku', 'name', 'category', 'type', 'cost', 'price', 'stock'];
 
     public function invoiceItems(): HasMany
     {

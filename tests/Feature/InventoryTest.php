@@ -63,6 +63,8 @@ class InventoryTest extends TestCase
         $response = $this->post(route('inventory.restock.store', $item), [
             'quantity_purchase_unit' => 2,
             'cost_per_purchase_unit' => 12000,
+            'batch_number' => 'BATCH-TEST-001',
+            'expiry_date' => now()->addYear()->format('Y-m-d'),
         ]);
 
         $response->assertRedirect(route('inventory.index'));
@@ -87,6 +89,14 @@ class InventoryTest extends TestCase
             'doctor_inventory_id' => $item->id,
             'type' => 'IN',
             'quantity_change' => 20, // 2 boxes * 10
+            'notes' => 'Restock via purchase. Batch: BATCH-TEST-001',
+        ]);
+
+        // Check Batch Record
+        $this->assertDatabaseHas('doctor_inventory_batches', [
+            'doctor_inventory_id' => $item->id,
+            'batch_number' => 'BATCH-TEST-001',
+            'quantity' => 20,
         ]);
     }
 }

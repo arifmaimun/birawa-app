@@ -43,6 +43,11 @@ class InventoryService
                 'quantity_change' => -1 * $quantityInUnits,
                 'notes' => "Used {$quantity} {$unitType} (calculated as {$quantityInUnits} base units)",
             ]);
+            
+            // Check threshold
+            if ($inventory->stock_qty <= $inventory->alert_threshold) {
+                $inventory->user->notify(new \App\Notifications\LowStockAlert($inventory));
+            }
         });
     }
 

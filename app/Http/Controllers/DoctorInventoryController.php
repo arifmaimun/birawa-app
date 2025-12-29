@@ -39,6 +39,18 @@ class DoctorInventoryController extends Controller
         return response()->json($items);
     }
 
+    public function expiryReport(Request $request)
+    {
+        $batches = \App\Models\DoctorInventoryBatch::whereHas('inventory', function($q) {
+                $q->where('user_id', Auth::id());
+            })
+            ->where('quantity', '>', 0)
+            ->orderBy('expiry_date', 'asc')
+            ->paginate(20);
+
+        return view('inventory.expiry-report', compact('batches'));
+    }
+
     public function create()
     {
         return view('inventory.create');
@@ -48,17 +60,43 @@ class DoctorInventoryController extends Controller
     {
         $request->validate([
             'item_name' => 'required|string|max:255',
-            'sku' => 'nullable|string|max:100',
+            'category' => 'nullable|string|max:100',
+            'sku' => 'nullable|string|max:100|unique:doctor_inventories,sku',
             'base_unit' => 'required|string',
             'purchase_unit' => 'required|string',
             'conversion_ratio' => 'required|integer|min:1',
             'min_stock_alert' => 'required|integer|min:0',
         ]);
 
+        $sku = $request->sku;
+        if (empty($sku)) {
+            // Auto-generate SKU: [Kategori]-[Tanggal]-[Sequence]
+            // Default category to 'GEN' if empty
+            $cat = strtoupper(substr($request->category ?? 'GEN', 0, 3));
+            $date = now()->format('Ymd');
+            
+            // Find last sequence for this category and date
+            $prefix = "{$cat}-{$date}-";
+            $lastItem = DoctorInventory::where('user_id', Auth::id())
+                ->where('sku', 'like', "{$prefix}%")
+                ->orderByDesc('sku')
+                ->first();
+            
+            $sequence = 1;
+            if ($lastItem) {
+                $parts = explode('-', $lastItem->sku);
+                $lastSeq = end($parts);
+                $sequence = intval($lastSeq) + 1;
+            }
+            
+            $sku = "{$prefix}" . str_pad($sequence, 3, '0', STR_PAD_LEFT);
+        }
+
         DoctorInventory::create([
             'user_id' => Auth::id(),
             'item_name' => $request->item_name,
-            'sku' => $request->sku,
+            'category' => $request->category,
+            'sku' => $sku,
             'base_unit' => $request->base_unit,
             'purchase_unit' => $request->purchase_unit,
             'conversion_ratio' => $request->conversion_ratio,
@@ -87,7 +125,8 @@ class DoctorInventoryController extends Controller
 
         $request->validate([
             'item_name' => 'required|string|max:255',
-            'sku' => 'nullable|string|max:100',
+            'category' => 'nullable|string|max:100',
+            'sku' => 'nullable|string|max:100|unique:doctor_inventories,sku,' . $doctorInventory->id,
             'base_unit' => 'required|string',
             'purchase_unit' => 'required|string',
             'conversion_ratio' => 'required|integer|min:1',
@@ -116,6 +155,8 @@ class DoctorInventoryController extends Controller
         $request->validate([
             'quantity_purchase_unit' => 'required|numeric|min:0.1',
             'cost_per_purchase_unit' => 'required|numeric|min:0',
+            'batch_number' => 'required|string|max:100',
+            'expiry_date' => 'required|date|after:today',
         ]);
 
         DB::transaction(function () use ($request, $doctorInventory) {
@@ -149,7 +190,15 @@ class DoctorInventoryController extends Controller
                 'type' => 'IN',
                 'quantity_change' => $qtyBase,
                 'related_expense_id' => $expense->id,
-                'notes' => "Restock via purchase",
+                'notes' => "Restock via purchase. Batch: {$request->batch_number}",
+            ]);
+
+            // Create Batch Record
+            \App\Models\DoctorInventoryBatch::create([
+                'doctor_inventory_id' => $doctorInventory->id,
+                'batch_number' => $request->batch_number,
+                'expiry_date' => $request->expiry_date,
+                'quantity' => $qtyBase,
             ]);
 
             // Update Inventory
@@ -219,6 +268,10 @@ class DoctorInventoryController extends Controller
             $doctorInventory->update([
                 'stock_qty' => $actualStock,
             ]);
+
+            if ($actualStock <= $doctorInventory->alert_threshold) {
+                $doctorInventory->user->notify(new \App\Notifications\LowStockAlert($doctorInventory));
+            }
         });
 
         return redirect()->route('inventory.index')->with('success', 'Stock adjustment successful.');

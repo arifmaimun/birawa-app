@@ -1,3 +1,5 @@
+@props(['header' => null, 'hideHeader' => false, 'hideNav' => false])
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
@@ -14,6 +16,7 @@
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @stack('styles')
     
     <!-- PWA -->
     <link rel="manifest" href="{{ asset('manifest.json') }}">
@@ -168,6 +171,7 @@
             </div>
         </div>
     </nav>
+    @endunless
     
     <!-- Global SOS Button -->
     <x-sos-button class="fixed bottom-24 right-4 z-30" />

@@ -138,7 +138,10 @@ class MedicalRecordController extends Controller
             }
             
             // Update visit status to completed
-            $visit->update(['status' => 'completed']);
+            $completedStatus = \App\Models\VisitStatus::where('slug', 'completed')->first();
+            if ($completedStatus) {
+                $visit->update(['visit_status_id' => $completedStatus->id]);
+            }
         });
 
         return redirect()->route('visits.show', $visit->id)->with('success', 'Medical Record saved successfully.');

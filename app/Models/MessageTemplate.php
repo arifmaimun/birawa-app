@@ -9,7 +9,7 @@ class MessageTemplate extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['doctor_id', 'type', 'title', 'content_pattern'];
+    protected $fillable = ['doctor_id', 'type', 'title', 'content_pattern', 'trigger_event'];
 
     public function doctor()
     {

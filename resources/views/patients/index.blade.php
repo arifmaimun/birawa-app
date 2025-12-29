@@ -4,12 +4,16 @@
             <h2 class="font-semibold text-xl text-slate-800 leading-tight">
                 {{ __('Patient Management') }}
             </h2>
-            <a href="{{ route('patients.create') }}" class="inline-flex justify-center items-center px-4 py-2 bg-birawa-600 border border-transparent rounded-xl font-semibold text-sm text-white hover:bg-birawa-700 active:bg-birawa-800 focus:outline-none focus:ring-2 focus:ring-birawa-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-sm">
+            <button
+                x-data=""
+                x-on:click.prevent="$dispatch('open-modal', 'create-patient-modal')"
+                class="inline-flex justify-center items-center px-4 py-2 bg-birawa-600 border border-transparent rounded-xl font-semibold text-sm text-white hover:bg-birawa-700 active:bg-birawa-800 focus:outline-none focus:ring-2 focus:ring-birawa-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-sm"
+            >
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                 </svg>
                 Add New Patient
-            </a>
+            </button>
         </div>
     </x-slot>
 
@@ -99,12 +103,12 @@
 
                         <!-- Actions -->
                         <div class="grid grid-cols-2 gap-2 mt-2 pt-3 border-t border-slate-100">
-                            <a href="{{ route('patients.edit', $patient) }}" class="flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-birawa-600 bg-birawa-50 rounded-lg hover:bg-birawa-100 transition-colors">
+                            <button type="button" x-data="" x-on:click="$dispatch('open-edit-modal', { url: '{{ route('patients.edit', $patient) }}' })" class="flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-birawa-600 bg-birawa-50 rounded-lg hover:bg-birawa-100 transition-colors w-full">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                 </svg>
                                 Edit
-                            </a>
+                            </button>
                             <form action="{{ route('patients.destroy', $patient) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this patient?');" class="w-full">
                                 @csrf
                                 @method('DELETE')
@@ -127,12 +131,16 @@
                         <h3 class="text-lg font-medium text-slate-900">No patients found</h3>
                         <p class="mt-1 text-slate-500">Try adjusting your search or add a new patient.</p>
                         <div class="mt-6">
-                            <a href="{{ route('patients.create') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-xl text-white bg-birawa-600 hover:bg-birawa-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-birawa-500">
+                             <button
+                                x-data=""
+                                x-on:click.prevent="$dispatch('open-modal', 'create-patient-modal')"
+                                class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-xl text-white bg-birawa-600 hover:bg-birawa-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-birawa-500"
+                            >
                                 <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                                 </svg>
                                 Add New Patient
-                            </a>
+                            </button>
                         </div>
                     </div>
                 @endforelse
@@ -146,4 +154,68 @@
             @endif
         </div>
     </div>
+
+    <!-- Edit Patient Modal -->
+    <x-modal id="edit-patient-modal" title="Edit Data Pasien" maxWidth="xl">
+        <div x-data="{
+            isLoading: true,
+            html: '',
+            init() {
+                this.$watch('show', value => {
+                    if (!value) {
+                        setTimeout(() => {
+                            this.html = '';
+                            this.isLoading = true;
+                        }, 300); // Wait for transition
+                    }
+                })
+            },
+            loadForm(url) {
+                this.isLoading = true;
+                this.html = '';
+                fetch(url, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    this.html = html;
+                    this.isLoading = false;
+                })
+                .catch(error => {
+                    console.error('Error loading form:', error);
+                    this.html = '<p class=\'text-red-500 p-4\'>Failed to load form. Please try again.</p>';
+                    this.isLoading = false;
+                });
+            }
+        }"
+        @open-edit-modal.window="loadForm($event.detail.url); $dispatch('open-modal', 'edit-patient-modal')"
+        >
+            <div x-show="isLoading" class="p-8 flex justify-center items-center flex-col">
+                <svg class="animate-spin h-8 w-8 text-birawa-600 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="text-sm text-gray-500">Memuat data pasien...</span>
+            </div>
+            <div x-show="!isLoading" x-html="html"></div>
+        </div>
+    </x-modal>
+
+    <!-- Create Patient Modal -->
+    <x-modal id="create-patient-modal" title="Tambah Pasien Baru" maxWidth="xl">
+        <form action="{{ route('patients.store') }}" method="POST" class="p-1">
+            @csrf
+            
+            @include('patients.form-fields', ['clients' => $clients ?? collect(), 'patient' => null])
+            
+            <div class="mt-6 flex justify-end gap-3">
+                <button type="button" x-on:click="$dispatch('close-modal', 'create-patient-modal')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium">
+                    Batal
+                </button>
+                <button type="submit" class="px-4 py-2 bg-birawa-600 text-white rounded-lg hover:bg-birawa-700 transition-colors font-bold shadow-lg shadow-birawa-500/30">
+                    Simpan Pasien
+                </button>
+            </div>
+        </form>
+    </x-modal>
 </x-app-layout>

@@ -8,17 +8,60 @@
 
         <div class="bg-white rounded-3xl shadow-lg border border-slate-100 overflow-hidden">
             <div class="p-8">
-                <form action="{{ route('products.store') }}" method="POST">
+                <form action="{{ route('products.store') }}" method="POST" x-data="productForm()">
                     @csrf
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                        <!-- SKU -->
-                        <div>
-                            <label for="sku" class="block text-sm font-bold text-slate-700 mb-2">SKU</label>
-                            <input type="text" name="sku" id="sku" value="{{ old('sku') }}" 
+                        <!-- Category -->
+                        <div class="md:col-span-2">
+                            <label for="category" class="block text-sm font-bold text-slate-700 mb-2">Category</label>
+                            <input type="text" name="category" id="category" x-model="category"
                                    class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 placeholder-slate-400 transition-colors shadow-sm"
-                                   required placeholder="e.g. PRD-001">
-                            <x-input-error :messages="$errors->get('sku')" class="mt-2" />
+                                   placeholder="e.g. VAKSIN, MAKANAN">
+                            <p class="text-xs text-slate-500 mt-1">Used for auto-generating SKU prefix.</p>
+                            <x-input-error :messages="$errors->get('category')" class="mt-2" />
+                        </div>
+
+                        <!-- SKU -->
+                        <div class="md:col-span-2 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <label class="block text-sm font-bold text-slate-700 mb-4">SKU Generation</label>
+                            
+                            <div class="flex items-center gap-6 mb-4">
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="sku_mode" value="auto" x-model="skuMode" class="text-birawa-600 focus:ring-birawa-500">
+                                    <span class="text-sm font-medium text-slate-700">Auto-generated</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="sku_mode" value="manual" x-model="skuMode" class="text-birawa-600 focus:ring-birawa-500">
+                                    <span class="text-sm font-medium text-slate-700">Manual Input</span>
+                                </label>
+                            </div>
+
+                            <div x-show="skuMode === 'auto'" class="text-sm text-slate-600">
+                                <p>Format: <span class="font-mono font-bold text-birawa-600" x-text="generatePreview()"></span></p>
+                                <p class="text-xs text-slate-500 mt-1">Sequence number will be assigned automatically.</p>
+                            </div>
+
+                            <div x-show="skuMode === 'manual'">
+                                <label for="sku" class="block text-sm font-bold text-slate-700 mb-2">Manual SKU</label>
+                                <div class="relative">
+                                    <input type="text" name="sku" id="sku" x-model="sku" @input.debounce.500ms="checkSku()"
+                                           class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 placeholder-slate-400 transition-colors shadow-sm"
+                                           :class="{'border-red-500 focus:border-red-500': skuError, 'border-green-500 focus:border-green-500': skuValid}"
+                                           placeholder="e.g. PRD-001">
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                        <span x-show="checkingSku" class="text-slate-400 text-xs">Checking...</span>
+                                        <span x-show="skuValid && !checkingSku" class="text-green-500">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                        </span>
+                                        <span x-show="skuError && !checkingSku" class="text-red-500">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <p x-show="skuError" class="text-xs text-red-500 mt-1" x-text="skuErrorMessage"></p>
+                                <x-input-error :messages="$errors->get('sku')" class="mt-2" />
+                            </div>
                         </div>
 
                         <!-- Name -->
@@ -30,16 +73,8 @@
                             <x-input-error :messages="$errors->get('name')" class="mt-2" />
                         </div>
 
-                        <!-- Type -->
-                        <div>
-                            <label for="type" class="block text-sm font-bold text-slate-700 mb-2">Type</label>
-                            <select name="type" id="type" class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 shadow-sm transition-colors cursor-pointer" required>
-                                <option value="">Select Type</option>
-                                <option value="barang" {{ old('type') == 'barang' ? 'selected' : '' }}>Barang (Goods)</option>
-                                <option value="jasa" {{ old('type') == 'jasa' ? 'selected' : '' }}>Jasa (Service)</option>
-                            </select>
-                            <x-input-error :messages="$errors->get('type')" class="mt-2" />
-                        </div>
+                        <!-- Type (Hidden, default to barang) -->
+                        <input type="hidden" name="type" value="barang">
 
                         <!-- Stock -->
                         <div>

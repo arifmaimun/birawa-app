@@ -13,6 +13,15 @@
                     @method('PUT')
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <!-- Category -->
+                        <div class="md:col-span-2">
+                            <label for="category" class="block text-sm font-bold text-slate-700 mb-2">Category</label>
+                            <input type="text" name="category" id="category" value="{{ old('category', $product->category) }}"
+                                   class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 placeholder-slate-400 transition-colors shadow-sm"
+                                   placeholder="e.g. VAKSIN, MAKANAN">
+                            <x-input-error :messages="$errors->get('category')" class="mt-2" />
+                        </div>
+
                         <!-- SKU -->
                         <div>
                             <label for="sku" class="block text-sm font-bold text-slate-700 mb-2">SKU</label>
@@ -31,16 +40,8 @@
                             <x-input-error :messages="$errors->get('name')" class="mt-2" />
                         </div>
 
-                        <!-- Type -->
-                        <div>
-                            <label for="type" class="block text-sm font-bold text-slate-700 mb-2">Type</label>
-                            <select name="type" id="type" class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 shadow-sm transition-colors cursor-pointer" required>
-                                <option value="">Select Type</option>
-                                <option value="barang" {{ old('type', $product->type) == 'barang' ? 'selected' : '' }}>Barang (Goods)</option>
-                                <option value="jasa" {{ old('type', $product->type) == 'jasa' ? 'selected' : '' }}>Jasa (Service)</option>
-                            </select>
-                            <x-input-error :messages="$errors->get('type')" class="mt-2" />
-                        </div>
+                        <!-- Type (Hidden, default to barang) -->
+                        <input type="hidden" name="type" value="barang">
 
                         <!-- Stock -->
                         <div>
