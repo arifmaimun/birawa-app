@@ -1,24 +1,42 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <h2 class="font-semibold text-xl text-slate-800 leading-tight">
+    <!-- Breadcrumb -->
+    <x-breadcrumb :items="[
+        ['label' => 'Home', 'route' => route('dashboard')],
+        ['label' => 'Patients']
+    ]" />
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
+            <h1 class="font-bold text-2xl text-slate-800 leading-tight">
                 {{ __('Patient Management') }}
-            </h2>
+            </h1>
             <button
                 x-data=""
                 x-on:click.prevent="$dispatch('open-modal', 'create-patient-modal')"
-                class="inline-flex justify-center items-center px-4 py-2 bg-birawa-600 border border-transparent rounded-xl font-semibold text-sm text-white hover:bg-birawa-700 active:bg-birawa-800 focus:outline-none focus:ring-2 focus:ring-birawa-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-sm"
+                class="inline-flex justify-center items-center px-4 py-2 bg-birawa-600 border border-transparent rounded-xl font-bold text-sm text-white hover:bg-birawa-700 active:bg-birawa-800 focus:outline-none focus:ring-2 focus:ring-birawa-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-lg shadow-birawa-500/30"
             >
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                 </svg>
-                Add New Patient
+                Tambah Pasien
             </button>
         </div>
-    </x-slot>
 
-    <div class="py-6">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <!-- Mobile Floating Action Button (FAB) -->
+        <div class="fixed bottom-24 right-4 z-40 md:hidden">
+            <button 
+                x-data=""
+                x-on:click.prevent="$dispatch('open-modal', 'create-patient-modal')"
+                class="flex items-center justify-center w-14 h-14 bg-birawa-600 text-white rounded-full shadow-lg hover:bg-birawa-700 focus:outline-none focus:ring-4 focus:ring-birawa-500 focus:ring-opacity-50 transition-transform transform hover:scale-105 active:scale-95"
+                aria-label="Add New Patient"
+            >
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+            </button>
+        </div>
+
+        <div class="space-y-6">
             
             <!-- Search -->
             <div class="relative">
@@ -203,19 +221,34 @@
 
     <!-- Create Patient Modal -->
     <x-modal id="create-patient-modal" title="Tambah Pasien Baru" maxWidth="xl">
-        <form action="{{ route('patients.store') }}" method="POST" class="p-1">
+        <form action="{{ route('patients.store') }}" method="POST" class="p-1" x-data="patientForm()" @submit="isSubmitting = true">
             @csrf
             
-            @include('patients.form-fields', ['clients' => $clients ?? collect(), 'patient' => null])
+            <x-patients.form-fields 
+                :clients="$clients ?? collect()" 
+                :withCard="false"
+            />
             
             <div class="mt-6 flex justify-end gap-3">
                 <button type="button" x-on:click="$dispatch('close-modal', 'create-patient-modal')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium">
                     Batal
                 </button>
-                <button type="submit" class="px-4 py-2 bg-birawa-600 text-white rounded-lg hover:bg-birawa-700 transition-colors font-bold shadow-lg shadow-birawa-500/30">
-                    Simpan Pasien
+                <button type="submit" 
+                    :disabled="isSubmitting"
+                    :class="{'opacity-75 cursor-not-allowed': isSubmitting}"
+                    class="px-4 py-2 bg-birawa-600 text-white rounded-lg hover:bg-birawa-700 transition-colors font-bold shadow-lg shadow-birawa-500/30 flex items-center gap-2">
+                    <span x-show="isSubmitting" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+                    <span x-text="isSubmitting ? 'Menyimpan...' : 'Simpan Pasien'"></span>
                 </button>
             </div>
         </form>
     </x-modal>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('patientForm', () => ({
+                isSubmitting: false,
+            }));
+        });
+    </script>
 </x-app-layout>

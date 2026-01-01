@@ -8,17 +8,42 @@
 
         <div class="bg-white rounded-3xl shadow-lg border border-slate-100 overflow-hidden">
             <div class="p-8">
-                <form action="{{ route('products.store') }}" method="POST" x-data="productForm()">
+                <form action="{{ route('products.store') }}" method="POST" x-data="productForm()" @submit="isSubmitting = true">
                     @csrf
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <!-- Product Type Toggle -->
+                        <div class="md:col-span-2 mb-4">
+                            <label class="block text-sm font-bold text-slate-700 mb-2">Item Type</label>
+                            <div class="flex p-1 bg-slate-100 rounded-xl w-fit">
+                                <button type="button" @click="type = 'goods'"
+                                    :class="{'bg-white text-birawa-600 shadow-sm': type === 'goods', 'text-slate-500 hover:text-slate-700': type !== 'goods'}"
+                                    class="px-6 py-2 text-sm font-bold rounded-lg transition-all">
+                                    Product (Barang)
+                                </button>
+                                <button type="button" @click="type = 'service'"
+                                    :class="{'bg-white text-birawa-600 shadow-sm': type === 'service', 'text-slate-500 hover:text-slate-700': type !== 'service'}"
+                                    class="px-6 py-2 text-sm font-bold rounded-lg transition-all">
+                                    Service (Jasa)
+                                </button>
+                            </div>
+                            <input type="hidden" name="type" x-model="type">
+                        </div>
+
                         <!-- Category -->
                         <div class="md:col-span-2">
                             <label for="category" class="block text-sm font-bold text-slate-700 mb-2">Category</label>
-                            <input type="text" name="category" id="category" x-model="category"
-                                   class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 placeholder-slate-400 transition-colors shadow-sm"
-                                   placeholder="e.g. VAKSIN, MAKANAN">
-                            <p class="text-xs text-slate-500 mt-1">Used for auto-generating SKU prefix.</p>
+                            <div class="relative">
+                                <input type="text" name="category" id="category" x-model="category" list="category-list"
+                                    class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 placeholder-slate-400 transition-colors shadow-sm"
+                                    placeholder="Select or type new category...">
+                                <datalist id="category-list">
+                                    @foreach($categories ?? [] as $cat)
+                                        <option value="{{ $cat }}"></option>
+                                    @endforeach
+                                </datalist>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-1">Used for grouping and SKU prefix.</p>
                             <x-input-error :messages="$errors->get('category')" class="mt-2" />
                         </div>
 
@@ -39,7 +64,7 @@
 
                             <div x-show="skuMode === 'auto'" class="text-sm text-slate-600">
                                 <p>Format: <span class="font-mono font-bold text-birawa-600" x-text="generatePreview()"></span></p>
-                                <p class="text-xs text-slate-500 mt-1">Sequence number will be assigned automatically.</p>
+                                <p class="text-xs text-slate-500 mt-1">Sequence number will be assigned automatically based on category.</p>
                             </div>
 
                             <div x-show="skuMode === 'manual'">
@@ -66,24 +91,22 @@
 
                         <!-- Name -->
                         <div>
-                            <label for="name" class="block text-sm font-bold text-slate-700 mb-2">Product Name</label>
+                            <label for="name" class="block text-sm font-bold text-slate-700 mb-2">Product/Service Name</label>
                             <input type="text" name="name" id="name" value="{{ old('name') }}" 
                                    class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 placeholder-slate-400 transition-colors shadow-sm"
                                    required placeholder="e.g. Vaccination Service">
                             <x-input-error :messages="$errors->get('name')" class="mt-2" />
                         </div>
 
-                        <!-- Type (Hidden, default to barang) -->
-                        <input type="hidden" name="type" value="barang">
-
                         <!-- Stock -->
-                        <div>
+                        <div x-show="type === 'goods'">
                             <label for="stock" class="block text-sm font-bold text-slate-700 mb-2">Stock</label>
                             <input type="number" name="stock" id="stock" value="{{ old('stock', 0) }}" min="0" 
-                                   class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 placeholder-slate-400 transition-colors shadow-sm"
-                                   required>
-                            <p class="text-xs text-slate-500 mt-1">For services, set to 0 or leave as is.</p>
+                                   class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 placeholder-slate-400 transition-colors shadow-sm">
                             <x-input-error :messages="$errors->get('stock')" class="mt-2" />
+                        </div>
+                        <div x-show="type === 'service'">
+                             <input type="hidden" name="stock" value="0">
                         </div>
 
                         <!-- Cost (Harga Beli) -->
@@ -120,12 +143,82 @@
                         <a href="{{ route('products.index') }}" class="text-sm font-bold text-slate-500 hover:text-slate-800 transition-colors">
                             Cancel
                         </a>
-                        <button type="submit" class="px-6 py-2.5 bg-birawa-600 text-white text-sm font-bold rounded-xl shadow-lg hover:bg-birawa-700 focus:ring-4 focus:ring-birawa-100 transition-all active:scale-95">
-                            Save Product
+                        <button type="submit" 
+                            :disabled="isSubmitting"
+                            :class="{'opacity-75 cursor-not-allowed': isSubmitting}"
+                            class="px-6 py-2.5 bg-birawa-600 text-white text-sm font-bold rounded-xl shadow-lg hover:bg-birawa-700 focus:ring-4 focus:ring-birawa-100 transition-all active:scale-95 flex items-center gap-2">
+                            <span x-show="isSubmitting" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+                            <span x-text="isSubmitting ? 'Saving...' : 'Save Product'"></span>
                         </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+
+    @push('scripts')
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('productForm', () => ({
+                isSubmitting: false,
+                type: 'goods',
+                category: '',
+                skuMode: 'auto',
+                sku: '',
+                checkingSku: false,
+                skuValid: false,
+                skuError: false,
+                skuErrorMessage: '',
+
+                generatePreview() {
+                    let prefix = '';
+                    if (this.category) {
+                        prefix = this.category.substring(0, 3).toUpperCase().replace(/[^A-Z]/g, '');
+                    }
+                    
+                    if (prefix.length < 3) {
+                        if (!this.category) {
+                             prefix = this.type === 'goods' ? 'PRD' : 'SVC';
+                        } else {
+                             prefix = prefix.padEnd(3, 'X');
+                        }
+                    }
+                    
+                    return `${prefix}-XXXX`;
+                },
+
+                checkSku() {
+                    if (this.sku.length < 3) {
+                        this.skuValid = false;
+                        this.skuError = false;
+                        this.skuErrorMessage = '';
+                        return;
+                    }
+
+                    this.checkingSku = true;
+                    this.skuValid = false;
+                    this.skuError = false;
+
+                    fetch(`{{ route('products.check-sku') }}?sku=${this.sku}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            this.checkingSku = false;
+                            if (data.exists) {
+                                this.skuError = true;
+                                this.skuErrorMessage = 'SKU already exists.';
+                            } else {
+                                this.skuValid = true;
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error checking SKU:', error);
+                            this.checkingSku = false;
+                            this.skuError = true;
+                            this.skuErrorMessage = 'Error validating SKU.';
+                        });
+                }
+            }));
+        });
+    </script>
+    @endpush
 </x-app-layout>

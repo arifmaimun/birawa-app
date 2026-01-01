@@ -2,7 +2,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-slate-800">Consent Templates</h2>
-            <a href="{{ route('templates.consent.create') }}" class="bg-birawa-500 text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-birawa-600 transition-colors shadow-sm flex items-center gap-2">
+            <a href="{{ route('consent-templates.create') }}" class="bg-birawa-500 text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-birawa-600 transition-colors shadow-sm flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
@@ -19,7 +19,7 @@
                 </div>
                 <h3 class="text-lg font-bold text-slate-800 mb-2">No Templates Found</h3>
                 <p class="text-slate-500 mb-6">Create your first consent form template to get started.</p>
-                <a href="{{ route('templates.consent.create') }}" class="inline-flex items-center gap-2 text-birawa-600 font-bold hover:text-birawa-700">
+                <a href="{{ route('consent-templates.create') }}" class="inline-flex items-center gap-2 text-birawa-600 font-bold hover:text-birawa-700">
                     <span>Create Template</span>
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -38,12 +38,12 @@
                                     </svg>
                                 </div>
                                 <div class="flex items-center gap-2">
-                                    <a href="{{ route('templates.consent.edit', $template) }}" class="p-2 text-slate-400 hover:text-birawa-600 hover:bg-birawa-50 rounded-lg transition-colors">
+                                    <a href="{{ route('consent-templates.edit', $template) }}" class="p-2 text-slate-400 hover:text-birawa-600 hover:bg-birawa-50 rounded-lg transition-colors">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                         </svg>
                                     </a>
-                                    <form action="{{ route('templates.consent.destroy', $template) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this template?');">
+                                    <form action="{{ route('consent-templates.destroy', $template) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this template?');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">

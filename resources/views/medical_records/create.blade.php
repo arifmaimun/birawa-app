@@ -306,7 +306,10 @@
                                             <div class="col-span-8">
                                                 <label class="flex items-center gap-3 cursor-pointer">
                                                     <div class="flex-1">
-                                                        <p class="font-bold text-slate-700 text-sm">{{ $item->item_name }}</p>
+                                                        <div class="flex justify-between items-start">
+                                                            <p class="font-bold text-slate-700 text-sm">{{ $item->item_name }}</p>
+                                                            <span class="text-[10px] uppercase font-bold text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100">{{ $item->storageLocation->name ?? 'Unknown' }}</span>
+                                                        </div>
                                                         <p class="text-xs text-slate-400">Stock: {{ $item->stock_qty }} {{ $item->base_unit ?? $item->unit }}</p>
                                                     </div>
                                                 </label>
@@ -321,6 +324,44 @@
                                 @else
                                     <div class="text-center py-4 text-slate-400">
                                         <p class="text-sm">No inventory items found. Please add items to your personal inventory first.</p>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Services Usage Section -->
+                    <div class="mb-8 pt-6 border-t border-slate-100">
+                        <h3 class="text-lg font-bold text-slate-800 mb-4">Services Performed</h3>
+                        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                            <div class="space-y-3" id="service-list">
+                                @if(isset($services) && $services->count() > 0)
+                                    <div class="grid grid-cols-12 gap-4 items-center px-2 mb-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                                        <div class="col-span-8">Service Name</div>
+                                        <div class="col-span-4">Quantity</div>
+                                    </div>
+                                    @foreach($services as $index => $service)
+                                        <div class="grid grid-cols-12 gap-4 items-center bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
+                                            <div class="col-span-8">
+                                                <label class="flex items-center gap-3 cursor-pointer">
+                                                    <div class="flex-1">
+                                                        <div class="flex justify-between items-start">
+                                                            <p class="font-bold text-slate-700 text-sm">{{ $service->service_name }}</p>
+                                                        </div>
+                                                        <p class="text-xs text-slate-400">Price: Rp {{ number_format($service->price, 0, ',', '.') }}</p>
+                                                    </div>
+                                                </label>
+                                                <input type="hidden" name="service_items[{{ $index }}][id]" value="{{ $service->id }}">
+                                            </div>
+                                            <div class="col-span-4">
+                                                <input type="number" name="service_items[{{ $index }}][qty]" min="0" step="1" value="0" 
+                                                    class="w-full rounded-lg border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 text-sm font-bold text-slate-700">
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @else
+                                    <div class="text-center py-4 text-slate-400">
+                                        <p class="text-sm">No services found. Please add services to your catalog first.</p>
                                     </div>
                                 @endif
                             </div>

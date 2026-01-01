@@ -39,7 +39,7 @@
                         </div>
                         <div>
                             <h4 class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-                                <span class="w-6 h-6 rounded-full bg-birawa-100 text-birawa-600 flex items-center justify-center text-[10px]">O</span>
+                                <span class="w-6 h-6 rounded-full bg-birawa-100 text-birawa-600 flex items-center justify-center text-xs">O</span>
                                 Objective
                             </h4>
                             <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-slate-700 leading-relaxed text-sm">
@@ -48,7 +48,7 @@
                         </div>
                         <div>
                             <h4 class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-                                <span class="w-6 h-6 rounded-full bg-birawa-100 text-birawa-600 flex items-center justify-center text-[10px]">A</span>
+                                <span class="w-6 h-6 rounded-full bg-birawa-100 text-birawa-600 flex items-center justify-center text-xs">A</span>
                                 Assessment
                             </h4>
                             <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-slate-700 leading-relaxed text-sm">
@@ -61,7 +61,7 @@
                     <div class="space-y-8">
                         <div>
                             <h4 class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-                                <span class="w-6 h-6 rounded-full bg-birawa-100 text-birawa-600 flex items-center justify-center text-[10px]">P</span>
+                                <span class="w-6 h-6 rounded-full bg-birawa-100 text-birawa-600 flex items-center justify-center text-xs">P</span>
                                 Plan (Treatment)
                             </h4>
                             <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-slate-700 leading-relaxed text-sm">

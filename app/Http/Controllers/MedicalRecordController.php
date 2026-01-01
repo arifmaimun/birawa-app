@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Diagnosis;
 use App\Models\VitalSign;
 use App\Models\VitalSignSetting;
+use App\Models\DoctorServiceCatalog;
 use App\Services\InventoryService;
 
 class MedicalRecordController extends Controller
@@ -35,7 +36,8 @@ class MedicalRecordController extends Controller
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        $inventories = $user->inventories()->orderBy('item_name')->get();
+        $inventories = $user->inventories()->with('storageLocation')->orderBy('item_name')->get();
+        $services = DoctorServiceCatalog::where('user_id', $user->id)->orderBy('service_name')->get();
         $diagnoses = Diagnosis::forUser($user->id)->orderBy('category')->orderBy('name')->get();
         
         // Fetch Medical History
@@ -50,7 +52,7 @@ class MedicalRecordController extends Controller
             ->where('is_active', true)
             ->get();
 
-        return view('medical_records.create', compact('visit', 'inventories', 'diagnoses', 'medicalHistory', 'vitalSignSettings'));
+        return view('medical_records.create', compact('visit', 'inventories', 'services', 'diagnoses', 'medicalHistory', 'vitalSignSettings'));
     }
 
     public function store(Request $request, Visit $visit)
@@ -66,6 +68,9 @@ class MedicalRecordController extends Controller
             'inventory_items' => 'nullable|array',
             'inventory_items.*.id' => 'exists:doctor_inventories,id',
             'inventory_items.*.qty' => 'numeric|min:0',
+            'service_items' => 'nullable|array',
+            'service_items.*.id' => 'exists:doctor_service_catalogs,id',
+            'service_items.*.qty' => 'numeric|min:0',
         ]);
 
         DB::transaction(function () use ($request, $visit) {
@@ -133,6 +138,18 @@ class MedicalRecordController extends Controller
                             // Throwing error to rollback transaction
                             throw new \Exception("Inventory Error: " . $e->getMessage());
                         }
+                    }
+                }
+            }
+
+            if ($request->has('service_items')) {
+                foreach ($request->service_items as $service) {
+                    if (($service['qty'] ?? 0) > 0) {
+                        MedicalUsageLog::create([
+                            'medical_record_id' => $record->id,
+                            'doctor_service_catalog_id' => $service['id'],
+                            'quantity_used' => $service['qty'],
+                        ]);
                     }
                 }
             }

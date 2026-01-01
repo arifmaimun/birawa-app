@@ -5,25 +5,56 @@ namespace App\Http\Controllers;
 use App\Models\DoctorInventory;
 use App\Models\Expense;
 use App\Models\InventoryTransaction;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class DoctorInventoryController extends Controller
 {
     public function index(Request $request)
     {
         $search = $request->input('search');
+        $locationId = $request->input('location_id');
+
+        // Get user's locations
+        $locations = \App\Models\StorageLocation::where('user_id', Auth::id())->get();
+        
+        // If no locations exist (shouldn't happen due to migration), create default
+        if ($locations->isEmpty()) {
+            $defaultLocation = \App\Models\StorageLocation::create([
+                'user_id' => Auth::id(),
+                'name' => 'Main Warehouse',
+                'type' => 'warehouse',
+                'is_default' => true,
+            ]);
+            $locations = collect([$defaultLocation]);
+        }
+
+        // Determine active location
+        $activeLocation = null;
+        if ($locationId) {
+            $activeLocation = $locations->firstWhere('id', $locationId);
+        }
+        
+        if (!$activeLocation) {
+            $activeLocation = $locations->firstWhere('is_default', true) ?? $locations->first();
+        }
 
         $items = DoctorInventory::where('user_id', Auth::id())
+            ->where('storage_location_id', $activeLocation->id)
             ->when($search, function ($query) use ($search) {
-                $query->where('item_name', 'like', "%{$search}%")
+                $query->where(function($q) use ($search) {
+                    $q->where('item_name', 'like', "%{$search}%")
                       ->orWhere('sku', 'like', "%{$search}%");
+                });
             })
             ->orderBy('item_name')
             ->paginate(10);
             
-        return view('inventory.index', compact('items', 'search'));
+        return view('inventory.index', compact('items', 'search', 'locations', 'activeLocation'));
     }
 
     public function searchItems(Request $request)
@@ -53,59 +84,98 @@ class DoctorInventoryController extends Controller
 
     public function create()
     {
-        return view('inventory.create');
+        $products = Product::orderBy('name')->get(); // For selection
+        return view('inventory.create', compact('products'));
     }
 
     public function store(Request $request)
     {
+        $locationId = $request->storage_location_id;
+        
+        // Find default location if not specified
+        if (!$locationId) {
+             $defaultLocation = \App\Models\StorageLocation::where('user_id', Auth::id())
+                ->where('is_default', true)
+                ->first();
+             if (!$defaultLocation) {
+                 $defaultLocation = \App\Models\StorageLocation::create([
+                    'user_id' => Auth::id(),
+                    'name' => 'Main Warehouse',
+                    'type' => 'warehouse',
+                    'is_default' => true,
+                 ]);
+             }
+             $locationId = $defaultLocation->id;
+        }
+
         $request->validate([
-            'item_name' => 'required|string|max:255',
+            'product_id' => 'nullable|exists:products,id',
+            'item_name' => 'required_without:product_id|string|max:255',
             'category' => 'nullable|string|max:100',
-            'sku' => 'nullable|string|max:100|unique:doctor_inventories,sku',
             'base_unit' => 'required|string',
             'purchase_unit' => 'required|string',
             'conversion_ratio' => 'required|integer|min:1',
             'min_stock_alert' => 'required|integer|min:0',
         ]);
 
+        $productId = $request->product_id;
         $sku = $request->sku;
-        if (empty($sku)) {
-            // Auto-generate SKU: [Kategori]-[Tanggal]-[Sequence]
-            // Default category to 'GEN' if empty
-            $cat = strtoupper(substr($request->category ?? 'GEN', 0, 3));
-            $date = now()->format('Ymd');
-            
-            // Find last sequence for this category and date
-            $prefix = "{$cat}-{$date}-";
-            $lastItem = DoctorInventory::where('user_id', Auth::id())
-                ->where('sku', 'like', "{$prefix}%")
-                ->orderByDesc('sku')
+        $itemName = $request->item_name;
+
+        // If existing product selected, use its details
+        if ($productId) {
+            $product = Product::find($productId);
+            $itemName = $product->name;
+            $sku = $product->sku;
+            // Check if user already has this item in this location
+            $existing = DoctorInventory::where('user_id', Auth::id())
+                ->where('storage_location_id', $locationId)
+                ->where('product_id', $productId)
                 ->first();
             
-            $sequence = 1;
-            if ($lastItem) {
-                $parts = explode('-', $lastItem->sku);
-                $lastSeq = end($parts);
-                $sequence = intval($lastSeq) + 1;
+            if ($existing) {
+                return redirect()->route('inventory.index', ['location_id' => $locationId])
+                    ->with('error', 'Item already exists in this location.');
+            }
+        } else {
+            // New Product Creation Logic
+            if (empty($sku)) {
+                // Auto-generate SKU
+                $cat = strtoupper(substr($request->category ?? 'GEN', 0, 3));
+                $sku = $cat . '-' . now()->format('ymd') . '-' . Str::random(4);
             }
             
-            $sku = "{$prefix}" . str_pad($sequence, 3, '0', STR_PAD_LEFT);
+            // Create Product first
+            $product = Product::create([
+                'name' => $itemName,
+                'sku' => $sku,
+                'category' => $request->category ?? 'General',
+                'type' => 'goods',
+                'cost' => 0, // Will be updated via purchases
+                'price' => $request->selling_price ?? 0,
+                'stock' => 0,
+            ]);
+            $productId = $product->id;
         }
 
         DoctorInventory::create([
             'user_id' => Auth::id(),
-            'item_name' => $request->item_name,
-            'category' => $request->category,
+            'storage_location_id' => $locationId,
+            'product_id' => $productId,
+            'item_name' => $itemName,
+            'category' => $request->category ?? ($product->category ?? 'General'),
             'sku' => $sku,
             'base_unit' => $request->base_unit,
             'purchase_unit' => $request->purchase_unit,
             'conversion_ratio' => $request->conversion_ratio,
-            'unit' => $request->base_unit, // Fallback/Legacy
+            'unit' => $request->base_unit,
             'stock_qty' => 0,
             'alert_threshold' => $request->min_stock_alert,
+            'selling_price' => $request->selling_price ?? $product->price,
+            'is_sold' => $request->has('is_sold'),
         ]);
 
-        return redirect()->route('inventory.index')->with('success', 'Item added successfully.');
+        return redirect()->route('inventory.index', ['location_id' => $locationId])->with('success', 'Item added successfully.');
     }
 
     public function edit(DoctorInventory $doctorInventory)
@@ -123,19 +193,35 @@ class DoctorInventoryController extends Controller
             abort(403);
         }
 
+        $locationId = $doctorInventory->storage_location_id;
+
         $request->validate([
             'item_name' => 'required|string|max:255',
             'category' => 'nullable|string|max:100',
-            'sku' => 'nullable|string|max:100|unique:doctor_inventories,sku,' . $doctorInventory->id,
+            'sku' => ['nullable', 'string', 'max:100', 
+                 Rule::unique('doctor_inventories')->ignore($doctorInventory->id)->where(function ($query) use ($locationId) {
+                     return $query->where('storage_location_id', $locationId);
+                 })
+            ],
             'base_unit' => 'required|string',
             'purchase_unit' => 'required|string',
             'conversion_ratio' => 'required|integer|min:1',
             'alert_threshold' => 'required|integer|min:0',
         ]);
 
-        $doctorInventory->update($request->all());
+        $doctorInventory->update([
+            'item_name' => $request->item_name,
+            'category' => $request->category,
+            'sku' => $request->sku,
+            'base_unit' => $request->base_unit,
+            'purchase_unit' => $request->purchase_unit,
+            'conversion_ratio' => $request->conversion_ratio,
+            'alert_threshold' => $request->alert_threshold,
+            'selling_price' => $request->selling_price ?? 0,
+            'is_sold' => $request->has('is_sold'),
+        ]);
 
-        return redirect()->route('inventory.index')->with('success', 'Item updated successfully.');
+        return redirect()->route('inventory.index', ['location_id' => $locationId])->with('success', 'Item updated successfully.');
     }
 
     public function restockForm(DoctorInventory $doctorInventory)

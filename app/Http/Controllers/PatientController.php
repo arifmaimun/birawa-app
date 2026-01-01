@@ -29,7 +29,8 @@ class PatientController extends Controller
             'species' => 'required|string|max:255',
             'breed' => 'nullable|string|max:255',
             'dob' => 'nullable|date',
-            'gender' => 'required|string|in:jantan,betina',
+            'gender' => 'required|string|in:Jantan,Betina,Tidak Diketahui',
+            'is_sterile' => 'nullable|in:0,1',
             'client_id' => 'required|exists:clients,id',
         ]);
 
@@ -61,7 +62,8 @@ class PatientController extends Controller
             'species' => 'required|string|max:255',
             'breed' => 'nullable|string|max:255',
             'dob' => 'nullable|date',
-            'gender' => 'required|string|in:jantan,betina',
+            'gender' => 'required|string|in:Jantan,Betina,Tidak Diketahui',
+            'is_sterile' => 'nullable|in:0,1',
             'client_id' => 'required|exists:clients,id',
         ]);
 

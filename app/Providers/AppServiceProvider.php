@@ -21,5 +21,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Paginator::defaultView('vendor.pagination.simple-tailwind');
+
+        \App\Models\DoctorInventory::observe(\App\Observers\AuditObserver::class);
+        \App\Models\InventoryTransfer::observe(\App\Observers\AuditObserver::class);
+        \App\Models\Product::observe(\App\Observers\AuditObserver::class);
+        \App\Models\DoctorInventoryBatch::observe(\App\Observers\AuditObserver::class);
     }
 }

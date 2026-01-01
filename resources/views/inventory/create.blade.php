@@ -10,14 +10,70 @@
             <div class="p-8">
                 <form action="{{ route('inventory.store') }}" method="POST">
                     @csrf
+                    <input type="hidden" name="storage_location_id" value="{{ request('storage_location_id') }}">
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                        <!-- Item Name -->
-                        <div class="col-span-1 md:col-span-2">
-                            <label for="item_name" class="block text-sm font-bold text-slate-700 mb-2">Item Name</label>
-                            <input type="text" id="item_name" name="item_name" 
-                                   class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 placeholder-slate-400 transition-colors shadow-sm"
-                                   value="{{ old('item_name') }}" required autofocus placeholder="e.g. Amoxicillin 500mg">
+                        <!-- Item Name & Search -->
+                        <div class="col-span-1 md:col-span-2" x-data="{
+                            search: '',
+                            open: false,
+                            selected: null,
+                            products: {{ $products->map(fn($p) => ['id' => $p->id, 'name' => $p->name, 'sku' => $p->sku, 'category' => $p->category, 'price' => $p->price])->toJson() }},
+                            
+                            init() {
+                                this.search = '{{ old('item_name') }}';
+                            },
+                            
+                            get filteredProducts() {
+                                if (this.search === '') return [];
+                                return this.products.filter(p => {
+                                    return p.name.toLowerCase().includes(this.search.toLowerCase()) || 
+                                           p.sku.toLowerCase().includes(this.search.toLowerCase());
+                                });
+                            },
+                            
+                            select(product) {
+                                this.selected = product;
+                                this.search = product.name;
+                                this.open = false;
+                                
+                                // Populate other fields
+                                document.getElementById('sku').value = product.sku;
+                                document.getElementById('category').value = product.category;
+                                document.getElementById('selling_price').value = product.price;
+                                document.getElementById('product_id').value = product.id;
+                            }
+                        }" @click.away="open = false">
+
+                            <label for="item_name" class="block text-sm font-bold text-slate-700 mb-2">Item Name (or Search Catalog)</label>
+                            <div class="relative">
+                                <input type="hidden" name="product_id" id="product_id" :value="selected ? selected.id : ''">
+                                <input type="text" id="item_name" name="item_name" 
+                                       x-model="search"
+                                       @input="open = true; selected = null; document.getElementById('product_id').value = '';"
+                                       @focus="open = true"
+                                       class="w-full rounded-xl border-slate-200 focus:border-birawa-500 focus:ring-birawa-500 placeholder-slate-400 transition-colors shadow-sm"
+                                       placeholder="Start typing to search catalog or enter new name..." required autocomplete="off">
+                                
+                                <!-- Dropdown -->
+                                <div x-show="open && filteredProducts.length > 0" 
+                                     class="absolute z-50 w-full mt-1 bg-white rounded-xl shadow-lg border border-slate-100 max-h-60 overflow-auto"
+                                     style="display: none;">
+                                    <template x-for="product in filteredProducts" :key="product.id">
+                                        <div @click="select(product)" class="px-4 py-3 hover:bg-birawa-50 cursor-pointer border-b border-slate-50 last:border-0">
+                                            <div class="flex justify-between items-center">
+                                                <div>
+                                                    <p class="text-sm font-bold text-slate-800" x-text="product.name"></p>
+                                                    <p class="text-xs text-slate-500" x-text="product.sku"></p>
+                                                </div>
+                                                <span class="text-xs font-bold text-birawa-600 bg-birawa-50 px-2 py-1 rounded-lg" x-text="'Select'"></span>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                            <p class="mt-1.5 text-xs text-slate-500" x-show="!selected">Creating a new item will automatically add it to the global Product Catalog.</p>
+                            <p class="mt-1.5 text-xs text-birawa-600 font-bold" x-show="selected">Linked to existing Product in Catalog.</p>
                             <x-input-error :messages="$errors->get('item_name')" class="mt-2" />
                         </div>
 
@@ -52,6 +108,16 @@
                             </div>
                             <p class="text-xs text-slate-500 mt-1">Leave 0 to auto-calculate (Cost + 20%)</p>
                             <x-input-error :messages="$errors->get('selling_price')" class="mt-2" />
+
+                            <!-- Is Sold -->
+                            <div class="flex items-center mt-4">
+                                <input type="checkbox" id="is_sold" name="is_sold" value="1" 
+                                       class="w-5 h-5 rounded border-slate-300 text-birawa-600 focus:ring-birawa-500"
+                                       {{ old('is_sold', true) ? 'checked' : '' }}>
+                                <label for="is_sold" class="ml-3 block text-sm font-bold text-slate-700">
+                                    Sellable Item <span class="text-slate-400 font-normal block text-xs mt-0.5">Include this item in invoices when used</span>
+                                </label>
+                            </div>
                         </div>
 
                         <!-- Base Unit -->

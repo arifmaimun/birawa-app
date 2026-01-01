@@ -51,7 +51,7 @@
         </div>
 
         <!-- Action Grid -->
-        <div class="grid grid-cols-4 gap-4">
+        <div class="grid grid-cols-3 sm:grid-cols-4 md:flex md:justify-start md:gap-8 gap-4">
             <a href="{{ route('visits.create') }}" class="group flex flex-col items-center gap-2">
                 <div class="w-16 h-16 rounded-2xl bg-birawa-50 border border-birawa-100 flex items-center justify-center text-birawa-600 shadow-sm group-active:scale-95 transition-all group-hover:bg-birawa-100 group-hover:shadow-md">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
@@ -157,9 +157,6 @@
                 @endforeach
             </div>
         </div>
-
-        <!-- SOS Floating Button -->
-        <x-sos-button />
 
         <!-- Low Stock Alert -->
         @if($lowStockItems->isNotEmpty())

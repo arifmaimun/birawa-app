@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Client;
 use App\Models\Patient;
 use App\Models\User;
+use App\Models\FormOption;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -37,13 +38,18 @@ class ClientController extends Controller
      */
     public function create()
     {
-        $idTypes = \App\Models\Client::distinct()->whereNotNull('id_type')->pluck('id_type');
-        $ethnicities = \App\Models\Client::distinct()->whereNotNull('ethnicity')->pluck('ethnicity');
+        $idTypes = FormOption::category('id_type')->pluck('value');
+        if ($idTypes->isEmpty()) {
+            $idTypes = collect(['KTP', 'Passport', 'SIM', 'KITAS']);
+        }
         
-        $parkingTypes = \App\Models\ClientAddress::distinct()->whereNotNull('parking_type')->pluck('parking_type');
-        $addressTypes = \App\Models\ClientAddress::distinct()->whereNotNull('address_type')->pluck('address_type');
+        $ethnicities = FormOption::category('ethnicity')->pluck('value');
+        $religions = FormOption::category('religion')->pluck('value');
+        $maritalStatuses = FormOption::category('marital_status')->pluck('value');
+        $addressTypes = FormOption::category('location_type')->pluck('value');
+        $parkingTypes = FormOption::category('parking_type')->pluck('value');
 
-        return view('clients.create', compact('idTypes', 'ethnicities', 'parkingTypes', 'addressTypes'));
+        return view('clients.create', compact('idTypes', 'ethnicities', 'religions', 'maritalStatuses', 'addressTypes', 'parkingTypes'));
     }
 
     /**
@@ -74,6 +80,7 @@ class ClientController extends Controller
             // Addresses
             'addresses' => 'required|array|min:1',
             'addresses.*.street' => 'required|string',
+            'addresses.*.additional_info' => 'nullable|string',
             'addresses.*.city' => 'nullable|string',
             'addresses.*.province' => 'nullable|string',
             'addresses.*.postal_code' => 'nullable|string',
@@ -83,14 +90,20 @@ class ClientController extends Controller
             
             // Patient Section
             'patient_name' => 'required|string|max:255',
-            'species' => 'required|string|max:255',
-            'breed' => 'nullable|string|max:255',
+            'patient_species' => 'required|string|max:255',
+            'patient_breed' => 'nullable|string|max:255',
             'patient_dob' => 'nullable|date',
             'patient_gender' => 'required|in:Jantan,Betina,Tidak Diketahui',
-            'is_sterile' => 'nullable|in:0,1',
+            'patient_is_sterile' => 'nullable|in:0,1',
         ]);
 
-        DB::transaction(function () use ($request) {
+        $newPatient = DB::transaction(function () use ($request) {
+            // Ensure Options Exist (Dynamic CRUD)
+            $this->ensureOptionExists('id_type', $request->id_type);
+            $this->ensureOptionExists('ethnicity', $request->ethnicity);
+            $this->ensureOptionExists('religion', $request->religion);
+            $this->ensureOptionExists('marital_status', $request->marital_status);
+
             // Determine Display Name
             if ($request->is_business) {
                 $displayName = $request->business_name;
@@ -152,16 +165,23 @@ class ClientController extends Controller
             }
 
             // 4. Create Patient
-            Patient::create([
+            $patient = Patient::create([
                 'client_id' => $client->id,
                 'name' => $request->patient_name,
-                'species' => $request->species,
-                'breed' => $request->breed,
+                'species' => $request->patient_species,
+                'breed' => $request->patient_breed,
                 'dob' => $request->patient_dob,
                 'gender' => $request->patient_gender,
-                'is_sterile' => $request->is_sterile,
+                'is_sterile' => $request->patient_is_sterile,
             ]);
+            
+            return $patient;
         });
+
+        if ($request->input('return_to') === 'visits.create') {
+            return redirect()->route('visits.create', ['patient_id' => $newPatient->id])
+                ->with('success', 'Client and Patient created successfully. Please continue creating visit.');
+        }
 
         return redirect()->route('clients.index')
             ->with('success', 'Client and Patient created successfully.');
@@ -221,5 +241,22 @@ class ClientController extends Controller
         
         return redirect()->route('clients.index')
             ->with('success', 'Client deleted successfully.');
+    }
+
+    /**
+     * Ensure a form option exists in the database.
+     */
+    private function ensureOptionExists($category, $value)
+    {
+        if (empty($value) || $value === 'custom') {
+            return;
+        }
+
+        // Check if value already exists (case insensitive check usually preferred, but strict here for now)
+        // Using firstOrCreate to ensure atomic-ish check
+        FormOption::firstOrCreate(
+            ['category' => $category, 'value' => $value],
+            ['is_active' => true]
+        );
     }
 }

@@ -1,16 +1,5 @@
 <x-app-layout>
-    <!-- Top Navigation Bar -->
-    <div class="sticky top-0 z-30 flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200 shadow-sm">
-        <a href="{{ route('visits.index') }}" class="p-2 -ml-2 text-gray-600 rounded-full hover:bg-gray-100">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-        </a>
-        <h1 class="text-lg font-bold text-gray-800">Booking Baru</h1>
-        <div class="w-8"></div> <!-- Spacer for centering -->
-    </div>
-
-    <div class="max-w-xl px-4 py-6 mx-auto pb-28"> <!-- Added padding bottom for fixed button -->
+    <div class="max-w-xl px-4 py-6 mx-auto"> <!-- Added padding bottom for fixed button removed -->
         <form action="{{ route('visits.store') }}" method="POST">
             @csrf
             
@@ -99,71 +88,55 @@
                                         <div class="font-medium text-gray-800 group-hover:text-blue-700" x-text="patient.name"></div>
                                         <div class="text-xs text-gray-500 group-hover:text-blue-600" x-text="'Owner: ' + patient.owner"></div>
                                     </div>
-                                    <!-- Checkmark icon if selected -->
                                     <svg x-show="selectedId == patient.id" class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                 </div>
                             </div>
                         </template>
                     </div>
-
-                    <!-- Empty State -->
-                    <div x-show="open && filteredPatients.length === 0" class="absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-xl shadow-xl p-4 text-center">
-                        <p class="text-sm text-gray-500 mb-2">Pasien tidak ditemukan.</p>
-                        <a href="{{ route('clients.create') }}" class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-birawa-600 bg-birawa-50 rounded-lg hover:bg-birawa-100 transition-colors">
-                            + Tambah Client Baru
+                    
+                    <!-- No Results -->
+                    <div x-show="open && filteredPatients.length === 0" class="absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-xl shadow-xl p-4 text-center text-gray-500">
+                        <p class="mb-2">Tidak ada pasien ditemukan.</p>
+                        <a href="{{ route('clients.create', ['return_to' => 'visits.create']) }}" class="inline-block px-4 py-2 bg-birawa-600 text-white text-sm font-bold rounded-lg hover:bg-birawa-700 transition-colors">
+                            + Tambah Klien Baru
                         </a>
                     </div>
-                </div>
-                
-                <!-- Helper text / Validation feedback -->
-                <p x-show="search.length > 0 && !selectedId" class="mt-2 text-xs text-amber-600 flex items-center animate-pulse">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                    Silakan klik nama pasien dari daftar untuk memilih.
-                </p>
-                <p x-show="!search && !selectedId" class="mt-2 text-xs text-gray-500">
-                    Ketik nama hewan atau nama pemilik untuk mencari.
-                </p>
-            </div>
 
-            <!-- Section: Schedule -->
-            <div class="p-5 mb-6 bg-white border border-gray-100 shadow-sm rounded-2xl">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="flex items-center justify-center w-8 h-8 text-blue-600 bg-blue-100 rounded-full">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                </div>
+
+                <!-- Selected Patient Address Preview -->
+                <div x-show="selectedId" class="mt-3 p-3 bg-blue-50 text-blue-800 rounded-lg text-sm border border-blue-100 flex items-start gap-2">
+                    <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <div>
+                        <span class="font-bold">Alamat:</span> <span x-text="selectedPatientAddress || 'Alamat tidak tersedia'"></span>
                     </div>
-                    <h2 class="text-sm font-bold text-gray-800">Waktu Kunjungan</h2>
-                </div>
-                
-                <div class="relative">
-                    <input type="datetime-local" name="scheduled_at" id="scheduled_at" 
-                        class="block w-full px-4 py-3 text-gray-700 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-birawa-500 focus:border-birawa-500 transition-colors"
-                        value="{{ now()->format('Y-m-d\TH:i') }}" required>
                 </div>
             </div>
 
-            <!-- Section: Details -->
-            <div class="p-5 mb-6 bg-white border border-gray-100 shadow-sm rounded-2xl">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="flex items-center justify-center w-8 h-8 text-orange-600 bg-orange-100 rounded-full">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    </div>
-                    <h2 class="text-sm font-bold text-gray-800">Detail Keluhan</h2>
+            <!-- Section: Date & Time -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block mb-2 text-sm font-semibold text-gray-700">Tanggal</label>
+                    <input type="date" name="scheduled_date" value="{{ date('Y-m-d') }}" class="block w-full px-4 py-3 text-gray-700 bg-white border border-gray-300 rounded-xl focus:ring-birawa-500 focus:border-birawa-500 shadow-sm" required>
                 </div>
-
-                <div class="mb-4">
-                    <textarea name="complaint" id="complaint" rows="4" 
-                        class="block w-full px-4 py-3 text-gray-700 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-birawa-500 focus:border-birawa-500 transition-colors"
-                        placeholder="Jelaskan kondisi hewan, gejala, atau alasan kunjungan..."></textarea>
+                <div>
+                    <label class="block mb-2 text-sm font-semibold text-gray-700">Jam</label>
+                    <input type="time" name="scheduled_time" value="{{ date('H:i') }}" class="block w-full px-4 py-3 text-gray-700 bg-white border border-gray-300 rounded-xl focus:ring-birawa-500 focus:border-birawa-500 shadow-sm" required>
                 </div>
             </div>
 
-            <!-- Fixed Bottom Action Bar -->
-            <div class="fixed bottom-20 left-0 right-0 p-4 bg-white/80 backdrop-blur-md border-t border-gray-200 z-20"> <!-- bottom-20 to sit above nav -->
-                <div class="max-w-xl mx-auto">
-                    <button type="submit" class="w-full px-4 py-3.5 text-center font-bold text-white bg-gradient-to-r from-birawa-600 to-birawa-500 rounded-xl shadow-lg shadow-birawa-500/30 hover:shadow-birawa-500/50 transform active:scale-[0.98] transition-all">
-                        Buat Jadwal
-                    </button>
-                </div>
+            <!-- Section: Notes -->
+            <div class="mb-6">
+                <label class="block mb-2 text-sm font-semibold text-gray-700">Catatan (Keluhan/Tujuan)</label>
+                <textarea name="notes" rows="4" class="block w-full px-4 py-3 text-gray-700 bg-white border border-gray-300 rounded-xl focus:ring-birawa-500 focus:border-birawa-500 shadow-sm" placeholder="Contoh: Vaksinasi tahunan, atau Kucing muntah-muntah..."></textarea>
+            </div>
+
+            <!-- Submit Button (Static) -->
+            <div class="mt-8 flex flex-col md:flex-row justify-end items-center gap-4">
+                <button type="submit" class="w-full md:w-auto md:min-w-[200px] px-6 py-3 font-bold text-white bg-birawa-600 rounded-xl hover:bg-birawa-700 transition-colors flex justify-center items-center gap-2 min-h-[44px]">
+                    <span>Buat Jadwal Kunjungan</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
             </div>
         </form>
     </div>

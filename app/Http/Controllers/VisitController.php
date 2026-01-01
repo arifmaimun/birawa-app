@@ -45,21 +45,25 @@ class VisitController extends Controller
      */
     public function create(Request $request)
     {
-        // SCOPED: Only show patients linked to the doctor
         $user = Auth::user();
+        $selectedPatientId = $request->query('patient_id');
+
+        // SCOPED: Only show patients linked to the doctor OR the specifically selected patient
         $patients = Patient::with('client')
-            ->where(function($q) use ($user) {
+            ->where(function($q) use ($user, $selectedPatientId) {
                 $q->whereHas('visits', function($v) use ($user) {
                     $v->where('user_id', $user->id);
                 })
                 ->orWhereHas('medicalRecords', function($m) use ($user) {
                     $m->where('doctor_id', $user->id);
                 });
+                
+                if ($selectedPatientId) {
+                    $q->orWhere('id', $selectedPatientId);
+                }
             })
             ->orderBy('name')
             ->get();
-            
-        $selectedPatientId = $request->query('patient_id');
 
         return view('visits.create', compact('patients', 'selectedPatientId'));
     }

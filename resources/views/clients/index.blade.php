@@ -1,20 +1,23 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <h2 class="font-semibold text-xl text-slate-800 leading-tight">
+    <!-- Breadcrumb -->
+    <x-breadcrumb :items="[
+        ['label' => 'Home', 'route' => route('dashboard')],
+        ['label' => 'Clients']
+    ]" />
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <!-- Header & Search -->
+        <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
+            <h1 class="font-bold text-2xl text-slate-800 leading-tight">
                 {{ __('Client Management') }}
-            </h2>
-            <a href="{{ route('clients.create') }}" class="inline-flex justify-center items-center px-4 py-2 bg-birawa-600 border border-transparent rounded-xl font-semibold text-sm text-white hover:bg-birawa-700 active:bg-birawa-800 focus:outline-none focus:ring-2 focus:ring-birawa-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-sm">
+            </h1>
+            <a href="{{ route('clients.create') }}" class="inline-flex justify-center items-center px-4 py-2 bg-birawa-600 border border-transparent rounded-xl font-bold text-sm text-white hover:bg-birawa-700 active:bg-birawa-800 focus:outline-none focus:ring-2 focus:ring-birawa-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-lg shadow-birawa-500/30">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                 </svg>
-                Add New Client
+                Tambah Klien
             </a>
         </div>
-    </x-slot>
-
-    <div class="py-6">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
             
             <!-- Search -->
             <div class="relative">

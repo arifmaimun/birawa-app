@@ -1,8 +1,14 @@
 <x-app-layout>
-    <div class="mb-6 flex justify-between items-center">
-        <h1 class="text-3xl font-bold text-gray-800">Detail Pasien</h1>
-        <a href="{{ route('patients.index') }}" class="text-blue-500 hover:text-blue-700">Kembali ke Daftar</a>
-    </div>
+    <x-breadcrumb :items="[
+        ['label' => 'Home', 'route' => route('dashboard')],
+        ['label' => 'Pasien', 'route' => route('patients.index')],
+        ['label' => $patient->name]
+    ]" />
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="mb-6 flex justify-between items-center">
+            <h1 class="text-3xl font-bold text-gray-800">Detail Pasien</h1>
+        </div>
 
     <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
         <div class="px-6 py-4 border-b border-gray-200">
@@ -97,5 +103,6 @@
             Belum ada riwayat kunjungan.
         </div>
         @endif
+    </div>
     </div>
 </x-app-layout>

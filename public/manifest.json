@@ -1,11 +1,12 @@
 {
-    "name": "Laravel Package Tutorial",
-    "short_name": "LPT",
-    "start_url": "/index.php",
-    "background_color": "#6777ef",
-    "description": "Tutorial of Laravel Package",
-    "display": "fullscreen",
-    "theme_color": "#6777ef",
+    "name": "Birawa App",
+    "short_name": "Birawa",
+    "start_url": "/",
+    "background_color": "#ffffff",
+    "description": "Medical Inventory and Clinic Management System",
+    "display": "standalone",
+    "theme_color": "#0f172a",
+    "orientation": "portrait",
     "icons": [
         {
             "src": "logo.png",

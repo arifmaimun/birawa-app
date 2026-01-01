@@ -108,14 +108,20 @@ class InvoiceController extends Controller
                 $total += $amount;
             }
 
-            // 3. Add Medical Usage Items (Medications/Consumables)
+            // 3. Add Medical Usage Items (Medications/Consumables AND Services)
             // Load medical records and their usage logs
-            $visit->load('medicalRecords.usageLogs.doctorInventory');
+            $visit->load(['medicalRecords.usageLogs.doctorInventory', 'medicalRecords.usageLogs.service']);
 
             foreach ($visit->medicalRecords as $record) {
                 foreach ($record->usageLogs as $log) {
-                    $inventory = $log->doctorInventory;
-                    if ($inventory) {
+                    if ($log->doctorInventory) {
+                        $inventory = $log->doctorInventory;
+
+                        // Skip if not for sale
+                        if (!$inventory->is_sold) {
+                            continue;
+                        }
+
                         $qty = $log->quantity_used;
                         $price = $inventory->selling_price > 0 ? $inventory->selling_price : ($inventory->average_cost_price * 1.2); // Default 20% margin if no selling price
                         $subtotal = $qty * $price;
@@ -126,9 +132,25 @@ class InvoiceController extends Controller
                             'quantity' => $qty, 
                             'unit_price' => $price,
                             'unit_cost' => $inventory->average_cost_price,
-                            'product_id' => null, 
+                            'product_id' => $inventory->product_id, 
                         ]);
                         
+                        $total += $subtotal;
+                    } elseif ($log->service) {
+                        $service = $log->service;
+                        $qty = $log->quantity_used;
+                        $price = $service->price;
+                        $subtotal = $qty * $price;
+
+                        InvoiceItem::create([
+                            'invoice_id' => $invoice->id,
+                            'description' => $service->service_name,
+                            'quantity' => $qty,
+                            'unit_price' => $price,
+                            'unit_cost' => 0,
+                            'product_id' => null,
+                        ]);
+
                         $total += $subtotal;
                     }
                 }

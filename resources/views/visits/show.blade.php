@@ -1,8 +1,14 @@
 <x-app-layout>
-    <div class="mb-6 flex justify-between items-center">
-        <h1 class="text-3xl font-bold text-gray-800">Detail Kunjungan</h1>
-        <a href="{{ route('visits.index') }}" class="text-blue-500 hover:text-blue-700">Kembali ke Daftar</a>
-    </div>
+    <x-breadcrumb :items="[
+        ['label' => 'Home', 'route' => route('dashboard')],
+        ['label' => 'Kunjungan', 'route' => route('visits.index')],
+        ['label' => 'Detail Kunjungan']
+    ]" />
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="mb-6 flex justify-between items-center">
+            <h1 class="text-3xl font-bold text-gray-800">Detail Kunjungan</h1>
+        </div>
 
     @php
         $doctorProfile = Auth::user()->doctorProfile;
@@ -340,5 +346,6 @@
                 <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Hapus</button>
             </form>
         </div>
+    </div>
     </div>
 </x-app-layout>

@@ -44,6 +44,16 @@
                             </div>
                             <p class="text-xs text-slate-500 mt-1">Leave 0 to auto-calculate (Cost + 20%)</p>
                             <x-input-error :messages="$errors->get('selling_price')" class="mt-2" />
+
+                            <!-- Is Sold -->
+                            <div class="flex items-center mt-4">
+                                <input type="checkbox" id="is_sold" name="is_sold" value="1" 
+                                       class="w-5 h-5 rounded border-slate-300 text-birawa-600 focus:ring-birawa-500"
+                                       {{ old('is_sold', $doctorInventory->is_sold) ? 'checked' : '' }}>
+                                <label for="is_sold" class="ml-3 block text-sm font-bold text-slate-700">
+                                    Sellable Item <span class="text-slate-400 font-normal block text-xs mt-0.5">Include this item in invoices when used</span>
+                                </label>
+                            </div>
                         </div>
 
                         <!-- Base Unit -->

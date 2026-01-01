@@ -16,6 +16,10 @@ class MedicalRecordFlowTest extends TestCase
 
     public function test_doctor_can_create_medical_record_and_inventory_deducted()
     {
+        // 0. Setup Statuses
+        $scheduledStatus = \App\Models\VisitStatus::where('slug', 'scheduled')->first();
+        $completedStatus = \App\Models\VisitStatus::where('slug', 'completed')->first();
+
         // 1. Setup Doctor
         $doctor = User::factory()->create(['role' => 'veterinarian']);
         $this->actingAs($doctor);
@@ -33,7 +37,7 @@ class MedicalRecordFlowTest extends TestCase
             'patient_id' => $patient->id,
             'user_id' => $doctor->id,
             'scheduled_at' => now(),
-            'status' => 'scheduled',
+            'visit_status_id' => $scheduledStatus->id,
             'complaint' => 'Flu',
         ]);
 
@@ -92,7 +96,7 @@ class MedicalRecordFlowTest extends TestCase
         // Check Visit Status Completed
         $this->assertDatabaseHas('visits', [
             'id' => $visit->id,
-            'status' => 'completed',
+            'visit_status_id' => $completedStatus->id,
         ]);
     }
 

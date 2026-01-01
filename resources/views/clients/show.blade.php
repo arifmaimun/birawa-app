@@ -1,14 +1,14 @@
 <x-app-layout>
+    <x-breadcrumb :items="[
+        ['label' => 'Home', 'route' => route('dashboard')],
+        ['label' => 'Klien', 'route' => route('clients.index')],
+        ['label' => $client->name]
+    ]" />
+
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <!-- Header -->
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-2xl font-bold text-slate-800">Client Details</h1>
-            <a href="{{ route('clients.index') }}" class="text-sm font-medium text-birawa-600 hover:text-birawa-700 flex items-center gap-1">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                Back to List
-            </a>
         </div>
 
         <!-- Owner Card -->

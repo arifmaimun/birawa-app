@@ -97,10 +97,10 @@
             return {
                 type: 'request_from_central',
                 items: [
-                    { sku: '', item_name: '', quantity: 1 }
+                    { id: Date.now(), sku: '', item_name: '', quantity: 1 }
                 ],
                 addItem() {
-                    this.items.push({ sku: '', item_name: '', quantity: 1 });
+                    this.items.push({ id: Date.now() + Math.random(), sku: '', item_name: '', quantity: 1 });
                 },
                 removeItem(index) {
                     this.items.splice(index, 1);

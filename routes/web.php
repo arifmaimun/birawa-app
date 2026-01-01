@@ -29,6 +29,12 @@ Route::middleware(['auth'])->group(function () {
     // Profile & Settings
     Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/avatar', [App\Http\Controllers\ProfileController::class, 'updateAvatar'])->name('profile.avatar.update');
+    Route::put('/password', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('password.update');
+    Route::delete('/profile', [App\Http\Controllers\ProfileController::class, 'destroy'])->name('profile.destroy');
+    
+    // Application Settings Hub
+    Route::view('/settings', 'settings.index')->name('settings.index');
     
     // Shift Management
     Route::resource('shifts', App\Http\Controllers\DoctorShiftController::class)->only(['index', 'store', 'update', 'destroy']);
@@ -55,8 +61,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('vital-sign-settings', App\Http\Controllers\VitalSignSettingController::class);
 
     
-    Route::get('products/check-sku', [ProductController::class, 'checkSku'])->name('products.check-sku');
-    Route::resource('products', ProductController::class);
+    // Route::get('products/check-sku', [ProductController::class, 'checkSku'])->name('products.check-sku');
+    // Route::resource('products', ProductController::class);
 
     // Medical Records
     Route::post('/diagnoses', [App\Http\Controllers\DiagnosisController::class, 'store'])->name('diagnoses.store');
@@ -74,12 +80,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('inventory/items/search', [\App\Http\Controllers\DoctorInventoryController::class, 'searchItems'])->name('inventory.items.search');
     Route::get('inventory/expiry-report', [\App\Http\Controllers\DoctorInventoryController::class, 'expiryReport'])->name('inventory.expiry-report');
     Route::get('inventory/transactions', [\App\Http\Controllers\InventoryTransactionController::class, 'index'])->name('inventory.transactions.index');
+    Route::resource('storage-locations', \App\Http\Controllers\StorageLocationController::class); // Added
     Route::resource('inventory', \App\Http\Controllers\DoctorInventoryController::class);
     Route::get('inventory/{doctorInventory}/restock', [\App\Http\Controllers\DoctorInventoryController::class, 'restockForm'])->name('inventory.restock');
     Route::post('inventory/{doctorInventory}/restock', [\App\Http\Controllers\DoctorInventoryController::class, 'restock'])->name('inventory.restock.store');
 
     // Inventory Transfers
     Route::resource('inventory-transfers', \App\Http\Controllers\InventoryTransferController::class);
+    Route::post('internal-transfers', [\App\Http\Controllers\InternalTransferController::class, 'store'])->name('internal-transfers.store');
     Route::patch('inventory-transfers/{inventoryTransfer}/approve', [\App\Http\Controllers\InventoryTransferController::class, 'approve'])->name('inventory-transfers.approve');
     Route::patch('inventory-transfers/{inventoryTransfer}/reject', [\App\Http\Controllers\InventoryTransferController::class, 'reject'])->name('inventory-transfers.reject');
 

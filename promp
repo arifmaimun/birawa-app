@@ -1,0 +1,101 @@
+Buat sistem manajemen inventaris berbasis web yang mendukung operasi mobile dengan fitur CRUD lengkap untuk dua lokasi penyimpanan (gudang utama dan tas visit) dengan spesifikasi teknis berikut:
+
+1. Arsitektur Sistem:
+   - Frontend: 
+     * Framework modern dengan PWA support
+     * Desain responsive menggunakan CSS framework 
+     * State management untuk data real-time
+   - Backend:
+     * RESTful API dengan autentikasi JWT
+     * Database relasional dengan struktur:
+       - Tabel obat: id, nama, deskripsi, kategori, satuan
+       - Tabel lokasi: id, nama (gudang/tas), kapasitas
+       - Tabel stok: id, obat_id, lokasi_id, jumlah
+       - Tabel transaksi: id, user_id, obat_id, lokasi_asal, lokasi_tujuan, jumlah, timestamp
+     * Validasi bisnis untuk mencegah stok negatif
+
+2. Fitur Dokter:
+   - Sistem Autentikasi:
+     * Login dengan username/password
+     * Session management
+     * Role-based access control
+   - Dashboard Inventaris:
+     * Tab-based interface dengan 3 view:
+       1. Gudang Utama:
+          - Tabel daftar obat dengan kolom: nama, stok, satuan
+          - Filter dan pencarian
+          - Tombol aksi (tambah/kurangi/pindah)
+       2. Tas Visit:
+          - Layout sama dengan gudang utama
+          - Indikator stok tersedia
+       3. Riwayat:
+          - Timeline transaksi dengan filter tanggal
+          - Detail transaksi (user, obat, jumlah, lokasi)
+     * Real-time stock counter di header masing-masing tab
+
+3. Operasi CRUD:
+   - Create:
+     * Form tambah obat baru (nama, kategori, satuan)
+     * Form penambahan stok awal ke gudang
+   - Read:
+     * List view dengan pagination
+     * Detail view per obat
+   - Update:
+     * Form penyesuaian stok (+/-) dengan validasi
+     * Form pemindahan antar lokasi:
+       1. Pilih obat dari dropdown
+       2. Input jumlah (dengan max = stok tersedia)
+       3. Pilih lokasi tujuan
+       4. Konfirmasi dengan modal dialog
+   - Delete:
+     * Hapus obat (soft delete dengan flag)
+     * Batalkan transaksi (dengan audit trail)
+
+4. Alur Kerja:
+   - Flow autentikasi:
+     1. User login → redirect ke dashboard
+     2. Akses menu inventory → load data awal
+   - Flow pemindahan stok:
+     1. Pilih tab sumber (gudang/tas)
+     2. Klik tombol pindah pada obat
+     3. Isi form pemindahan
+     4. Submit → validasi → update database
+     5. Tampilkan notifikasi sukses/gagal
+     6. Update UI secara real-time
+
+5. Persyaratan Tampilan:
+   - Komponen UI:
+     * Tab navigation dengan indicator aktif
+     * Data tables dengan sorting
+     * Form dengan validasi client-side
+     * Modal dialog untuk konfirmasi
+     * Toast notifications
+   - UX Considerations:
+     * Loading state selama API call
+     * Error handling yang jelas
+     * Konfirmasi untuk operasi kritis
+     * Feedback visual untuk interaksi
+   - Mobile Optimization:
+     * Touch-friendly controls
+     * Viewport adaptation
+     * Offline capability (sync ketika online kembali)
+
+6. Testing Requirements:
+   - Unit test untuk logika bisnis
+   - Integration test untuk API endpoints
+   - UI test untuk alur pengguna
+   - Load test untuk operasi concurrent
+   - Test case khusus untuk:
+     * Validasi stok negatif
+     * Konflik data concurrent
+     * Offline operation
+
+7. Deliverables:
+   - Kode sumber lengkap
+   - Dokumentasi API
+   - Panduan pengguna
+   - Skema database
+   - Test report
+
+
+   saya mau dokter bisa bebas menambahkan gudang sesuai kebutuhan dan menambah tas visit sesuai kebutuhan.

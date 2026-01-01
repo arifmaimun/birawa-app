@@ -14,11 +14,22 @@ class DoctorInventory extends Model
     protected $casts = [
         'stock_qty' => 'decimal:2',
         'average_cost_price' => 'decimal:2',
+        'is_sold' => 'boolean',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function storageLocation()
+    {
+        return $this->belongsTo(StorageLocation::class);
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
     }
 
     public function transactions()

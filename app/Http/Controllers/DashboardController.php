@@ -38,17 +38,21 @@ class DashboardController extends Controller
         // Upcoming Visits (Today)
         $todayVisits = Visit::where('user_id', $user->id)
             ->whereDate('scheduled_at', now())
-            ->where('status', '!=', 'cancelled')
-            ->with(['patient', 'patient.client'])
+            ->whereHas('visitStatus', function($q) {
+                $q->where('slug', '!=', 'cancelled');
+            })
+            ->with(['patient', 'patient.client', 'visitStatus'])
             ->orderBy('scheduled_at')
             ->get();
 
         $upcomingVisits = Visit::where('user_id', $user->id)
-            ->where('status', 'scheduled')
+            ->whereHas('visitStatus', function($q) {
+                $q->where('slug', 'scheduled');
+            })
             ->whereDate('scheduled_at', '>', now())
             ->orderBy('scheduled_at')
             ->take(5)
-            ->with(['patient', 'patient.client'])
+            ->with(['patient', 'patient.client', 'visitStatus'])
             ->get();
 
         $pendingInvoicesCount = \App\Models\Invoice::where('payment_status', 'unpaid')

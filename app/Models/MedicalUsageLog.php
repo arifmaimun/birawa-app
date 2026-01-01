@@ -20,4 +20,9 @@ class MedicalUsageLog extends Model
     {
         return $this->belongsTo(DoctorInventory::class, 'doctor_inventory_id');
     }
+
+    public function service()
+    {
+        return $this->belongsTo(DoctorServiceCatalog::class, 'doctor_service_catalog_id');
+    }
 }
