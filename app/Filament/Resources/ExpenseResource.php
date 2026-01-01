@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ProductResource\Pages;
-use App\Filament\Resources\ProductResource\RelationManagers;
-use App\Models\Product;
+use App\Filament\Resources\ExpenseResource\Pages;
+use App\Filament\Resources\ExpenseResource\RelationManagers;
+use App\Models\Expense;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,9 +13,9 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class ProductResource extends Resource
+class ExpenseResource extends Resource
 {
-    protected static ?string $model = Product::class;
+    protected static ?string $model = Expense::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -23,24 +23,20 @@ class ProductResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('sku')
-                    ->label('SKU')
-                    ->required(),
-                Forms\Components\TextInput::make('name')
-                    ->required(),
+                Forms\Components\TextInput::make('user_id')
+                    ->required()
+                    ->numeric(),
                 Forms\Components\TextInput::make('type')
                     ->required(),
-                Forms\Components\TextInput::make('cost')
+                Forms\Components\TextInput::make('category')
+                    ->required(),
+                Forms\Components\TextInput::make('amount')
                     ->required()
-                    ->numeric()
-                    ->prefix('$'),
-                Forms\Components\TextInput::make('price')
-                    ->required()
-                    ->numeric()
-                    ->prefix('$'),
-                Forms\Components\TextInput::make('stock')
                     ->numeric(),
-                Forms\Components\TextInput::make('category'),
+                Forms\Components\Textarea::make('notes')
+                    ->columnSpanFull(),
+                Forms\Components\DatePicker::make('transaction_date')
+                    ->required(),
             ]);
     }
 
@@ -48,21 +44,18 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('sku')
-                    ->label('SKU')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
+                Tables\Columns\TextColumn::make('user_id')
+                    ->numeric()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('type')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('cost')
-                    ->money()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('price')
-                    ->money()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('stock')
+                Tables\Columns\TextColumn::make('category')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('amount')
                     ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('transaction_date')
+                    ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -72,8 +65,6 @@ class ProductResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('category')
-                    ->searchable(),
             ])
             ->filters([
                 //
@@ -85,10 +76,6 @@ class ProductResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ])
-            ->headerActions([
-                Tables\Actions\ExportAction::make()
-                    ->exporter(ProductExporter::class),
             ]);
     }
 
@@ -102,9 +89,9 @@ class ProductResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListProducts::route('/'),
-            'create' => Pages\CreateProduct::route('/create'),
-            'edit' => Pages\EditProduct::route('/{record}/edit'),
+            'index' => Pages\ListExpenses::route('/'),
+            'create' => Pages\CreateExpense::route('/create'),
+            'edit' => Pages\EditExpense::route('/{record}/edit'),
         ];
     }
 }

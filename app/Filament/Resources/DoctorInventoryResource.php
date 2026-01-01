@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\DoctorInventoryResource\Pages;
 use App\Filament\Resources\DoctorInventoryResource\RelationManagers;
 use App\Models\DoctorInventory;
+use App\Filament\Exports\DoctorInventoryExporter;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -83,7 +84,7 @@ class DoctorInventoryResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('stock_qty')
                     ->label('Stock')
-                    ->numeric()
+                    
                     ->sortable(),
                 Tables\Columns\TextColumn::make('unit'),
                 Tables\Columns\TextColumn::make('updated_at')

@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ProductResource\Pages;
-use App\Filament\Resources\ProductResource\RelationManagers;
-use App\Models\Product;
+use App\Filament\Resources\DoctorServiceCatalogResource\Pages;
+use App\Filament\Resources\DoctorServiceCatalogResource\RelationManagers;
+use App\Models\DoctorServiceCatalog;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,9 +13,9 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class ProductResource extends Resource
+class DoctorServiceCatalogResource extends Resource
 {
-    protected static ?string $model = Product::class;
+    protected static ?string $model = DoctorServiceCatalog::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -23,24 +23,23 @@ class ProductResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('sku')
-                    ->label('SKU')
-                    ->required(),
-                Forms\Components\TextInput::make('name')
-                    ->required(),
-                Forms\Components\TextInput::make('type')
-                    ->required(),
-                Forms\Components\TextInput::make('cost')
+                Forms\Components\TextInput::make('user_id')
                     ->required()
-                    ->numeric()
-                    ->prefix('$'),
+                    ->numeric(),
+                Forms\Components\TextInput::make('service_name')
+                    ->required(),
                 Forms\Components\TextInput::make('price')
                     ->required()
                     ->numeric()
                     ->prefix('$'),
-                Forms\Components\TextInput::make('stock')
-                    ->numeric(),
-                Forms\Components\TextInput::make('category'),
+                Forms\Components\Textarea::make('description')
+                    ->columnSpanFull(),
+                Forms\Components\TextInput::make('duration_minutes')
+                    ->required()
+                    ->numeric()
+                    ->default(30),
+                Forms\Components\TextInput::make('unit')
+                    ->required(),
             ]);
     }
 
@@ -48,21 +47,13 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('sku')
-                    ->label('SKU')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('type')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('cost')
-                    ->money()
+                Tables\Columns\TextColumn::make('user_id')
+                    ->numeric()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('service_name')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('price')
                     ->money()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('stock')
-                    ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -72,7 +63,10 @@ class ProductResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('category')
+                Tables\Columns\TextColumn::make('duration_minutes')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('unit')
                     ->searchable(),
             ])
             ->filters([
@@ -85,10 +79,6 @@ class ProductResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ])
-            ->headerActions([
-                Tables\Actions\ExportAction::make()
-                    ->exporter(ProductExporter::class),
             ]);
     }
 
@@ -102,9 +92,9 @@ class ProductResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListProducts::route('/'),
-            'create' => Pages\CreateProduct::route('/create'),
-            'edit' => Pages\EditProduct::route('/{record}/edit'),
+            'index' => Pages\ListDoctorServiceCatalogs::route('/'),
+            'create' => Pages\CreateDoctorServiceCatalog::route('/create'),
+            'edit' => Pages\EditDoctorServiceCatalog::route('/{record}/edit'),
         ];
     }
 }

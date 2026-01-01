@@ -51,7 +51,7 @@ class InvoiceResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('visit.id')
-                    ->numeric()
+                    
                     ->sortable(),
                 Tables\Columns\TextColumn::make('invoice_number')
                     ->searchable(),

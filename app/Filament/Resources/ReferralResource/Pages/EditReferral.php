@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Filament\Resources\AuditLogResource\Pages;
+namespace App\Filament\Resources\ReferralResource\Pages;
 
-use App\Filament\Resources\AuditLogResource;
+use App\Filament\Resources\ReferralResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
-class EditAuditLog extends EditRecord
+class EditReferral extends EditRecord
 {
-    protected static string $resource = AuditLogResource::class;
+    protected static string $resource = ReferralResource::class;
 
     protected function getHeaderActions(): array
     {

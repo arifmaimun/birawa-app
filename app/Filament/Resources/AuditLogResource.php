@@ -23,21 +23,25 @@ class AuditLogResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('user_id')
-                    ->numeric(),
+                Forms\Components\Select::make('user_id')
+                    ->relationship('user', 'name')
+                    ->disabled(),
                 Forms\Components\TextInput::make('action')
-                    ->required(),
+                    ->disabled(),
                 Forms\Components\TextInput::make('model_type')
-                    ->required(),
+                    ->disabled(),
                 Forms\Components\TextInput::make('model_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\Textarea::make('old_values')
-                    ->columnSpanFull(),
-                Forms\Components\Textarea::make('new_values')
-                    ->columnSpanFull(),
-                Forms\Components\TextInput::make('ip_address'),
-                Forms\Components\TextInput::make('user_agent'),
+                    ->disabled(),
+                Forms\Components\KeyValue::make('old_values')
+                    ->columnSpanFull()
+                    ->disabled(),
+                Forms\Components\KeyValue::make('new_values')
+                    ->columnSpanFull()
+                    ->disabled(),
+                Forms\Components\TextInput::make('ip_address')
+                    ->disabled(),
+                Forms\Components\TextInput::make('user_agent')
+                    ->disabled(),
             ]);
     }
 
@@ -45,40 +49,44 @@ class AuditLogResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user_id')
-                    ->numeric()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('user.name')
+                    ->label('User')
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('action')
-                    ->searchable(),
+                    ->sortable()
+                    ->searchable()
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'created' => 'success',
+                        'updated' => 'warning',
+                        'deleted' => 'danger',
+                        default => 'gray',
+                    }),
                 Tables\Columns\TextColumn::make('model_type')
-                    ->searchable(),
+                    ->sortable()
+                    ->searchable()
+                    ->formatStateUsing(fn (string $state): string => class_basename($state)),
                 Tables\Columns\TextColumn::make('model_id')
-                    ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('ip_address')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('user_agent')
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('action')
+                    ->options([
+                        'created' => 'Created',
+                        'updated' => 'Updated',
+                        'deleted' => 'Deleted',
+                    ]),
+                Tables\Filters\SelectFilter::make('user')
+                    ->relationship('user', 'name'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->bulkActions([]);
     }
 
     public static function getRelations(): array
@@ -92,8 +100,7 @@ class AuditLogResource extends Resource
     {
         return [
             'index' => Pages\ListAuditLogs::route('/'),
-            'create' => Pages\CreateAuditLog::route('/create'),
-            'edit' => Pages\EditAuditLog::route('/{record}/edit'),
+            'view' => Pages\ViewAuditLog::route('/{record}'),
         ];
     }
 }
