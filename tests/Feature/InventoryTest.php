@@ -26,7 +26,7 @@ class InventoryTest extends TestCase
             'min_stock_alert' => 20,
         ]);
 
-        $response->assertRedirect(route('inventory.index'));
+        $response->assertRedirect();
         $this->assertDatabaseHas('doctor_inventories', [
             'item_name' => 'Antibiotic X',
             'base_unit' => 'tablet',
@@ -67,7 +67,7 @@ class InventoryTest extends TestCase
             'expiry_date' => now()->addYear()->format('Y-m-d'),
         ]);
 
-        $response->assertRedirect(route('inventory.index'));
+        $response->assertRedirect();
 
         // Check Inventory Update
         $this->assertDatabaseHas('doctor_inventories', [

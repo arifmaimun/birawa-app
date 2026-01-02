@@ -6,6 +6,7 @@ use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\InvoicePayment;
 use App\Models\Visit;
+use App\Services\InventoryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -133,6 +134,7 @@ class InvoiceController extends Controller
                             'unit_price' => $price,
                             'unit_cost' => $inventory->average_cost_price,
                             'product_id' => $inventory->product_id, 
+                            'doctor_inventory_id' => null, // Stock already deducted in Medical Record
                         ]);
                         
                         $total += $subtotal;
@@ -170,7 +172,8 @@ class InvoiceController extends Controller
 
     public function update(Request $request, Invoice $invoice)
     {
-        if ($invoice->visit->user_id !== Auth::id()) {
+        $ownerId = $invoice->visit ? $invoice->visit->user_id : $invoice->user_id;
+        if ($ownerId !== Auth::id()) {
             abort(403);
         }
 
@@ -191,9 +194,10 @@ class InvoiceController extends Controller
         return back()->with('success', 'Invoice details updated.');
     }
 
-    public function storePayment(Request $request, Invoice $invoice)
+    public function storePayment(Request $request, Invoice $invoice, InventoryService $inventoryService)
     {
-        if ($invoice->visit->user_id !== Auth::id()) {
+        $ownerId = $invoice->visit ? $invoice->visit->user_id : $invoice->user_id;
+        if ($ownerId !== Auth::id()) {
             abort(403);
         }
 
@@ -204,22 +208,68 @@ class InvoiceController extends Controller
             'paid_at' => 'nullable|date',
         ]);
 
-        InvoicePayment::create([
-            'invoice_id' => $invoice->id,
-            'amount' => $request->amount,
-            'method' => $request->method,
-            'notes' => $request->notes,
-            'paid_at' => $request->paid_at ?? now(),
-        ]);
+        DB::transaction(function () use ($request, $invoice, $inventoryService) {
+            InvoicePayment::create([
+                'invoice_id' => $invoice->id,
+                'amount' => $request->amount,
+                'method' => $request->method,
+                'notes' => $request->notes,
+                'paid_at' => $request->paid_at ?? now(),
+            ]);
 
-        $invoice->recalculateStatus();
+            $invoice->recalculateStatus();
+
+            // Commit stock if paid
+            if ($invoice->payment_status === 'paid' && !$invoice->stock_committed) {
+                foreach ($invoice->invoiceItems as $item) {
+                    if ($item->doctor_inventory_id) {
+                        try {
+                            $inventoryService->commitStock($item->doctor_inventory_id, $item->quantity);
+                        } catch (\Exception $e) {
+                            // Log error but don't fail payment? Or fail payment?
+                            // Better to fail so we know something is wrong with stock
+                            throw $e;
+                        }
+                    }
+                }
+                $invoice->update(['stock_committed' => true, 'status' => 'issued']);
+            }
+        });
 
         return back()->with('success', 'Payment recorded.');
     }
 
+    public function cancel(Invoice $invoice, InventoryService $inventoryService)
+    {
+        $ownerId = $invoice->visit ? $invoice->visit->user_id : $invoice->user_id;
+        if ($ownerId !== Auth::id()) {
+            abort(403);
+        }
+
+        if ($invoice->status === 'cancelled') {
+             return back()->with('error', 'Invoice already cancelled.');
+        }
+
+        DB::transaction(function () use ($invoice, $inventoryService) {
+             $invoice->update(['status' => 'cancelled']);
+             
+             // Release reservation if not committed
+             if (!$invoice->stock_committed) {
+                 foreach ($invoice->invoiceItems as $item) {
+                    if ($item->doctor_inventory_id) {
+                        $inventoryService->releaseStock($item->doctor_inventory_id, $item->quantity);
+                    }
+                }
+             }
+        });
+
+        return back()->with('success', 'Invoice cancelled.');
+    }
+
     public function destroyPayment(Invoice $invoice, InvoicePayment $payment)
     {
-        if ($invoice->visit->user_id !== Auth::id()) {
+        $ownerId = $invoice->visit ? $invoice->visit->user_id : $invoice->user_id;
+        if ($ownerId !== Auth::id()) {
             abort(403);
         }
         

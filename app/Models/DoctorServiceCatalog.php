@@ -15,4 +15,11 @@ class DoctorServiceCatalog extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function materials()
+    {
+        return $this->belongsToMany(Product::class, 'service_inventory_materials')
+            ->withPivot(['quantity', 'unit'])
+            ->withTimestamps();
+    }
 }

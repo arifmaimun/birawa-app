@@ -61,8 +61,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('vital-sign-settings', App\Http\Controllers\VitalSignSettingController::class);
 
     
-    // Route::get('products/check-sku', [ProductController::class, 'checkSku'])->name('products.check-sku');
-    // Route::resource('products', ProductController::class);
+    Route::get('products/check-sku', [ProductController::class, 'checkSku'])->name('products.check-sku');
+    Route::resource('products', ProductController::class);
 
     // Medical Records
     Route::post('/diagnoses', [App\Http\Controllers\DiagnosisController::class, 'store'])->name('diagnoses.store');

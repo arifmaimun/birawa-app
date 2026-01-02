@@ -69,10 +69,9 @@ class MedicalRecordFlowTest extends TestCase
         $response->assertRedirect();
         
         // Check Record Created
-        $this->assertDatabaseHas('medical_records', [
-            'visit_id' => $visit->id,
-            'subjective' => 'Batuk pilek',
-        ]);
+        $record = \App\Models\MedicalRecord::where('visit_id', $visit->id)->first();
+        $this->assertNotNull($record);
+        $this->assertEquals('Batuk pilek', $record->subjective);
 
         // Check Stock Deducted
         $this->assertDatabaseHas('doctor_inventories', [

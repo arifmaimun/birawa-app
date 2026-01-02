@@ -116,6 +116,13 @@ class DoctorInventoryController extends Controller
             'purchase_unit' => 'required|string',
             'conversion_ratio' => 'required|integer|min:1',
             'min_stock_alert' => 'required|integer|min:0',
+            'sku' => [
+                'nullable',
+                Rule::unique('doctor_inventories')->where(function ($query) use ($locationId) {
+                    return $query->where('user_id', Auth::id())
+                                 ->where('storage_location_id', $locationId);
+                }),
+            ],
         ]);
 
         $productId = $request->product_id;
@@ -145,16 +152,23 @@ class DoctorInventoryController extends Controller
                 $sku = $cat . '-' . now()->format('ymd') . '-' . Str::random(4);
             }
             
-            // Create Product first
-            $product = Product::create([
-                'name' => $itemName,
-                'sku' => $sku,
-                'category' => $request->category ?? 'General',
-                'type' => 'goods',
-                'cost' => 0, // Will be updated via purchases
-                'price' => $request->selling_price ?? 0,
-                'stock' => 0,
-            ]);
+            // Check if product exists by SKU
+            $existingProduct = \App\Models\Product::where('sku', $sku)->first();
+
+            if ($existingProduct) {
+                $product = $existingProduct;
+            } else {
+                // Create Product first
+                $product = Product::create([
+                    'name' => $itemName,
+                    'sku' => $sku,
+                    'category' => $request->category ?? 'General',
+                    'type' => 'goods',
+                    'cost' => 0, // Will be updated via purchases
+                    'price' => $request->selling_price ?? 0,
+                    'stock' => 0,
+                ]);
+            }
             $productId = $product->id;
         }
 

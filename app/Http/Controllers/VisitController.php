@@ -18,19 +18,44 @@ class VisitController extends Controller
      */
     public function index(Request $request)
     {
+        $request->validate([
+            'status' => ['nullable', function ($attribute, $value, $fail) {
+                $slugs = is_array($value) ? $value : [$value];
+                foreach ($slugs as $slug) {
+                    if (!is_string($slug) || !VisitStatus::where('slug', $slug)->exists()) {
+                        $fail('The selected status is invalid: ' . $slug);
+                    }
+                }
+            }],
+            'search' => 'nullable|string|max:100',
+        ]);
+
         $search = $request->input('search');
+        $status = $request->input('status');
         
         $visits = Visit::with(['patient.client', 'user', 'invoice', 'medicalRecords', 'visitStatus'])
             ->where('user_id', Auth::id()) // SCOPED: Only show visits for the logged-in doctor
             ->when($search, function ($query) use ($search) {
-                $query->whereHas('patient', function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%");
-                })->orWhereHas('patient.client', function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%");
+                $query->where(function($q) use ($search) {
+                    $q->whereHas('patient', function ($p) use ($search) {
+                        $p->where('name', 'like', "%{$search}%");
+                    })->orWhereHas('patient.client', function ($c) use ($search) {
+                        $c->where('name', 'like', "%{$search}%");
+                    });
+                });
+            })
+            ->when($status, function ($query) use ($status) {
+                $query->whereHas('visitStatus', function ($q) use ($status) {
+                    if (is_array($status)) {
+                        $q->whereIn('slug', $status);
+                    } else {
+                        $q->where('slug', $status);
+                    }
                 });
             })
             ->latest('scheduled_at')
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
             
         return view('visits.index', compact('visits', 'search'));
     }
@@ -47,22 +72,23 @@ class VisitController extends Controller
     {
         $user = Auth::user();
         $selectedPatientId = $request->query('patient_id');
+        $search = $request->query('search');
 
-        // SCOPED: Only show patients linked to the doctor OR the specifically selected patient
+        // Allow searching all patients, not just those with history
         $patients = Patient::with('client')
-            ->where(function($q) use ($user, $selectedPatientId) {
-                $q->whereHas('visits', function($v) use ($user) {
-                    $v->where('user_id', $user->id);
-                })
-                ->orWhereHas('medicalRecords', function($m) use ($user) {
-                    $m->where('doctor_id', $user->id);
-                });
-                
-                if ($selectedPatientId) {
-                    $q->orWhere('id', $selectedPatientId);
-                }
+            ->when($search, function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhereHas('client', function($c) use ($search) {
+                      $c->where('name', 'like', "%{$search}%");
+                  });
+            })
+            ->when($selectedPatientId, function($q) use ($selectedPatientId) {
+                 // Ensure selected patient is prioritized or included if we were paginating
+                 // With limit, this ensures if we select one, it's definitely in the list
+                 $q->orWhere('id', $selectedPatientId);
             })
             ->orderBy('name')
+            ->limit(500) // Increase limit to reasonable amount for dropdown
             ->get();
 
         return view('visits.create', compact('patients', 'selectedPatientId'));
@@ -73,6 +99,13 @@ class VisitController extends Controller
      */
     public function store(Request $request)
     {
+        // 1. Merge date/time if provided separately
+        if ($request->has(['scheduled_date', 'scheduled_time']) && !$request->has('scheduled_at')) {
+            $request->merge([
+                'scheduled_at' => $request->scheduled_date . ' ' . $request->scheduled_time
+            ]);
+        }
+
         $request->validate([
             'patient_id' => 'required|exists:patients,id',
             'scheduled_at' => 'required|date',

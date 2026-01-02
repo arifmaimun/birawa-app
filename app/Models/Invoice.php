@@ -9,14 +9,18 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Invoice extends Model
 {
     protected $fillable = [
-        'visit_id', 
+        'user_id',
+        'visit_id',
+        'patient_id',
         'invoice_number', 
         'total_amount', 
         'deposit_amount',
         'remaining_balance',
         'payment_status', // unpaid, partial, paid
         'due_date',
-        'access_token'
+        'access_token',
+        'stock_committed',
+        'status'
     ];
 
     protected $casts = [

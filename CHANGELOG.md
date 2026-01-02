@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased] - 2026-01-01
+
+### Fixed
+- **Visits**:
+    - Fixed issue where `/visits/create` only showed patients with previous history. Now allows searching and selecting any patient in the system.
+    - Fixed `/visits` filter logic where searching by name broke the doctor-scoping rule (logic grouping fix).
+    - Fixed `/visits` status filter which was previously ignored.
+    - Added validation for visit filter parameters.
+
 ## [Unreleased] - 2025-12-29
 
 ### Added

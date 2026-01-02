@@ -13,6 +13,11 @@ class MedicalRecord extends Model
 
     protected $casts = [
         'is_locked' => 'boolean',
+        'subjective' => 'encrypted',
+        'objective' => 'encrypted',
+        'assessment' => 'encrypted',
+        'plan_treatment' => 'encrypted',
+        'plan_recipe' => 'encrypted',
     ];
 
     public function visit()

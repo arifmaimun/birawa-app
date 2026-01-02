@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('inventory_transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('doctor_inventory_id')->constrained()->onDelete('cascade');
-            $table->enum('type', ['IN', 'OUT', 'ADJUSTMENT']);
+            $table->enum('type', ['IN', 'OUT', 'ADJUSTMENT', 'RESERVATION', 'CANCEL_RESERVATION']);
             $table->decimal('quantity_change', 10, 2); // In Base Unit
             $table->foreignId('related_expense_id')->nullable(); // Can be linked to expenses later
             $table->text('notes')->nullable();
