@@ -9,6 +9,7 @@
         "bezhansalleh/filament-shield": "^3.9",
         "filament/filament": "^3.2",
         "laravel/framework": "^11.9",
+        "laravel/sanctum": "^4.2",
         "laravel/tinker": "^2.9",
         "shuvroroy/filament-spatie-laravel-backup": "^2.2",
         "spatie/laravel-backup": "^9.3"

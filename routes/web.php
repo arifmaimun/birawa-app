@@ -20,6 +20,9 @@ Route::post('/login', [AuthController::class, 'authenticate'])->name('login.auth
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Public Routes (No Auth Required)
+Route::get('/react-demo', function () {
+    return view('react_demo');
+})->name('react.demo');
 Route::get('/r/{token}', [App\Http\Controllers\ReferralController::class, 'showPublic'])->name('referrals.public');
 Route::get('/i/{token}', [App\Http\Controllers\InvoiceController::class, 'showPublic'])->name('invoices.public');
 
@@ -111,4 +114,21 @@ Route::middleware(['auth'])->group(function () {
     Route::post('visits/{visit}/create-invoice', [\App\Http\Controllers\InvoiceController::class, 'createFromVisit'])->name('invoices.createFromVisit');
     Route::post('invoices/{invoice}/payments', [\App\Http\Controllers\InvoiceController::class, 'storePayment'])->name('invoices.payments.store');
     Route::delete('invoices/{invoice}/payments/{payment}', [\App\Http\Controllers\InvoiceController::class, 'destroyPayment'])->name('invoices.payments.destroy');
+
+    // Social Features
+    Route::get('/friendships', [App\Http\Controllers\FriendshipController::class, 'index'])->name('friendships.index');
+    Route::post('/friendships', [App\Http\Controllers\FriendshipController::class, 'sendRequest'])->name('friendships.store');
+    Route::patch('/friendships/{friendship}/accept', [App\Http\Controllers\FriendshipController::class, 'acceptRequest'])->name('friendships.accept');
+    Route::delete('/friendships/{friendship}', [App\Http\Controllers\FriendshipController::class, 'destroy'])->name('friendships.destroy');
+    Route::get('/messages/unread-count', [App\Http\Controllers\MessageController::class, 'unreadCount'])->name('messages.unread-count');
+    Route::get('/messages/{user}', [App\Http\Controllers\MessageController::class, 'index'])->name('messages.index');
+    Route::post('/messages', [App\Http\Controllers\MessageController::class, 'store'])->name('messages.store');
+    Route::patch('/messages/{message}/read', [App\Http\Controllers\MessageController::class, 'markAsRead'])->name('messages.mark-read');
+
+    // Admin Panel
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::resource('users', App\Http\Controllers\Admin\UserController::class);
+        Route::get('audit-logs', [App\Http\Controllers\Admin\AuditLogController::class, 'index'])->name('audit-logs.index');
+    });
+
 });

@@ -9,11 +9,15 @@ use Illuminate\Support\Facades\Auth;
 
 class PatientController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $patients = Patient::with('client')->latest()->paginate(10);
-        $clients = Client::orderBy('name')->get(); // Needed for Create Modal
-        return view('patients.index', compact('patients', 'clients'));
+
+        if ($request->wantsJson() || $request->is('api/*')) {
+            return response()->json($patients);
+        }
+
+        return view('react_spa');
     }
 
     public function create()
@@ -39,9 +43,13 @@ class PatientController extends Controller
         return redirect()->route('patients.index')->with('success', 'Patient created successfully.');
     }
 
-    public function show(Patient $patient)
+    public function show(Request $request, Patient $patient)
     {
-        return view('patients.show', compact('patient'));
+        if ($request->wantsJson() || $request->is('api/*')) {
+            $patient->load(['client', 'medical_records.diagnoses']);
+            return response()->json($patient);
+        }
+        return view('react_spa');
     }
 
     public function edit(Request $request, Patient $patient)

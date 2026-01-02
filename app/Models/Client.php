@@ -25,14 +25,30 @@ class Client extends Model
         'dob' => 'date',
     ];
 
+    public function getRecentVisitsAttribute()
+    {
+        $patientIds = $this->patients()->pluck('patients.id');
+        return Visit::whereIn('patient_id', $patientIds)
+            ->with(['patient', 'visitStatus'])
+            ->latest('scheduled_at')
+            ->limit(10)
+            ->get();
+    }
+
+    public function getTotalSpendingAttribute()
+    {
+        $patientIds = $this->patients()->pluck('patients.id');
+        return Invoice::whereIn('patient_id', $patientIds)->sum('total_amount');
+    }
+
     public function addresses(): HasMany
     {
         return $this->hasMany(ClientAddress::class);
     }
 
-    public function patients(): HasMany
+    public function patients(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->hasMany(Patient::class);
+        return $this->belongsToMany(Patient::class, 'client_patient');
     }
 
     public function user(): BelongsTo

@@ -59,7 +59,7 @@ class BirawaFeaturesTest extends TestCase
 
         // 6. Create MedicalRecord using Service
         $dto = new MedicalRecordDTO(
-            subjective: 'S', objective: 'O', assessment: 'A', plan_treatment: 'P', plan_recipe: 'R',
+            subjective: 'S', objective: 'O', assessment: 'A', plan_diagnostic: 'D', plan_treatment: 'P', plan_recipe: 'R',
             diagnoses: [],
             inventory_items: [],
             service_items: [['id' => $service->id, 'qty' => 1]], // 1 Service used

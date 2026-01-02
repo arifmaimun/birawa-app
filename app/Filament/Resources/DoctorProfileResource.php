@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\DoctorProfileResource\Pages;
 use App\Filament\Resources\DoctorProfileResource\RelationManagers;
 use App\Models\DoctorProfile;
+use App\Services\TimezoneService;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -30,6 +31,12 @@ class DoctorProfileResource extends Resource
                     ->columnSpanFull(),
                 Forms\Components\Textarea::make('bio')
                     ->columnSpanFull(),
+                Forms\Components\Select::make('timezone')
+                    ->label('Time Zone')
+                    ->options(fn () => app(TimezoneService::class)->getTimezonesForSelect())
+                    ->searchable()
+                    ->required()
+                    ->default(config('app.timezone')),
                 Forms\Components\TextInput::make('specialty'),
                 Forms\Components\TextInput::make('service_radius_km')
                     ->required()
@@ -59,6 +66,10 @@ class DoctorProfileResource extends Resource
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Doctor')
                     ->sortable(),
+                Tables\Columns\TextColumn::make('timezone')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('specialty')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('service_radius_km')

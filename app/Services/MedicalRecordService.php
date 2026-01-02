@@ -35,6 +35,7 @@ class MedicalRecordService
                 'subjective' => $data->subjective,
                 'objective' => $data->objective,
                 'assessment' => $assessmentText ?? 'N/A',
+                'plan_diagnostic' => $data->plan_diagnostic,
                 'plan_treatment' => $data->plan_treatment,
                 'plan_recipe' => $data->plan_recipe,
                 'is_locked' => true,
@@ -70,8 +71,8 @@ class MedicalRecordService
                 foreach ($data->inventory_items as $item) {
                     if ($item['qty'] > 0) {
                         try {
-                            // Use InventoryService to handle deduction immediately
-                            $this->inventoryService->commitStock($item['id'], $item['qty']);
+                            // Use InventoryService to reserve stock first (committed on payment/invoice)
+                            $this->inventoryService->reserveStock($item['id'], $item['qty']);
                             
                             // Log usage in MedicalUsageLog (Medical Context)
                             MedicalUsageLog::create([
@@ -113,7 +114,7 @@ class MedicalRecordService
 
                             if ($inventory) {
                                 try {
-                                    $this->inventoryService->commitStock($inventory->id, $requiredQty, $material->pivot->unit ?? 'unit');
+                                    $this->inventoryService->reserveStock($inventory->id, $requiredQty, $material->pivot->unit ?? 'unit');
                                     
                                     // Log bundled usage
                                     MedicalUsageLog::create([

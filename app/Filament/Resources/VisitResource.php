@@ -208,6 +208,11 @@ class VisitResource extends Resource
                         $url = "https://wa.me/{$phone}?text={$text}";
                         return redirect()->away($url);
                     }),
+                Tables\Actions\Action::make('consultation')
+                    ->label('Start Consultation')
+                    ->icon('heroicon-o-clipboard-document-list')
+                    ->color('primary')
+                    ->url(fn (Visit $record) => Pages\DoctorConsultation::getUrl(['record' => $record])),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -234,6 +239,7 @@ class VisitResource extends Resource
             'index' => Pages\ListVisits::route('/'),
             'create' => Pages\CreateVisit::route('/create'),
             'edit' => Pages\EditVisit::route('/{record}/edit'),
+            'consultation' => Pages\DoctorConsultation::route('/{record}/consultation'),
         ];
     }
 }

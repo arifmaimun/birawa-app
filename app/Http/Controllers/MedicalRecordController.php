@@ -51,7 +51,11 @@ class MedicalRecordController extends Controller
     public function store(StoreMedicalRecordRequest $request, Visit $visit)
     {
         $dto = MedicalRecordDTO::fromRequest($request);
-        $this->medicalRecordService->createMedicalRecord($visit, $dto);
+        $record = $this->medicalRecordService->createMedicalRecord($visit, $dto);
+
+        if ($request->wantsJson()) {
+            return response()->json($record, 201);
+        }
 
         return redirect()->route('visits.show', $visit->id)->with('success', 'Medical Record saved successfully.');
     }
@@ -90,6 +94,9 @@ class MedicalRecordController extends Controller
             ->first();
 
         if ($existing && $existing->status === 'approved') {
+            if ($request->wantsJson()) {
+                 return response()->json(['message' => 'Access already granted'], 200);
+            }
             return redirect()->route('medical-records.show', $medicalRecord->id);
         }
 
@@ -99,10 +106,15 @@ class MedicalRecordController extends Controller
                 'target_medical_record_id' => $medicalRecord->id,
                 'owner_doctor_id' => $medicalRecord->doctor_id,
                 'status' => 'pending',
+                'requested_at' => now(),
             ]);
         }
 
-        return back()->with('success', 'Access request sent to the doctor.');
+        if ($request->wantsJson()) {
+            return response()->json(['message' => 'Access request sent successfully'], 201);
+        }
+
+        return back()->with('success', 'Access request sent.');
     }
     
     public function approveAccess(AccessRequest $accessRequest)

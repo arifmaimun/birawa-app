@@ -73,10 +73,11 @@ class MedicalRecordFlowTest extends TestCase
         $this->assertNotNull($record);
         $this->assertEquals('Batuk pilek', $record->subjective);
 
-        // Check Stock Deducted
+        // Check Stock Reserved (Not Deducted yet)
         $this->assertDatabaseHas('doctor_inventories', [
             'id' => $inventory->id,
-            'stock_qty' => 95, // 100 - 5
+            'stock_qty' => 100, // Still 100
+            'reserved_qty' => 5, // Reserved 5
         ]);
 
         // Check Usage Log
@@ -85,11 +86,11 @@ class MedicalRecordFlowTest extends TestCase
             'quantity_used' => 5,
         ]);
 
-        // Check Inventory Transaction (OUT)
+        // Check Inventory Transaction (RESERVATION)
         $this->assertDatabaseHas('inventory_transactions', [
             'doctor_inventory_id' => $inventory->id,
-            'type' => 'OUT',
-            'quantity_change' => -5,
+            'type' => 'RESERVATION',
+            'quantity_change' => 0,
         ]);
 
         // Check Visit Status Completed

@@ -63,8 +63,12 @@
                 Install App
             </button>
             <div class="relative">
-                 <button @click="open = !open" class="h-9 w-9 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 font-bold text-sm hover:bg-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-birawa-500">
-                     {{ substr(Auth::user()->name ?? 'U', 0, 1) }}
+                 <button @click="open = !open" class="h-9 w-9 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600 font-bold text-sm hover:bg-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-birawa-500 overflow-hidden">
+                     @if(Auth::user()->avatar)
+                        <img src="{{ Storage::url(Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}" class="w-full h-full object-cover">
+                     @else
+                        {{ substr(Auth::user()->name ?? 'U', 0, 1) }}
+                     @endif
                  </button>
 
                  <!-- Dropdown -->

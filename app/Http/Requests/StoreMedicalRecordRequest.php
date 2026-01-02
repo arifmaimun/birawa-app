@@ -17,6 +17,7 @@ class StoreMedicalRecordRequest extends FormRequest
             'subjective' => 'required|string',
             'objective' => 'required|string',
             'assessment' => 'nullable|string',
+            'plan_diagnostic' => 'nullable|string',
             'diagnoses' => 'nullable|array',
             'diagnoses.*' => 'exists:diagnoses,id',
             'plan_treatment' => 'required|string',

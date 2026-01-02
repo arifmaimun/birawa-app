@@ -32,11 +32,14 @@ class Visit extends Model
         'transport_fee',
         'latitude',
         'longitude',
-        'distance_km'
+        'distance_km',
+        'actual_travel_minutes'
     ];
 
     protected $casts = [
         'scheduled_at' => 'datetime',
+        'distance_km' => 'float',
+        'actual_travel_minutes' => 'integer',
     ];
 
     public function patient(): BelongsTo

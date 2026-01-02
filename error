@@ -1,216 +1,162 @@
-# Symfony\Component\Routing\Exception\RouteNotFoundException - Internal Server Error
+Internal Server Error
 
-Route [templates.consent.create] not defined.
+Illuminate\Foundation\ViteException
+Unable to locate file in Vite manifest: resources/js/react-app.tsx.
+GET localhost:8000
+PHP 8.5.1 — Laravel 11.47.0
 
-PHP 8.5.1
-Laravel 12.44.0
-localhost:3000
+Expand
+vendor frames
+2 vendor frames collapsed
 
-## Stack Trace
+resources/views/react_spa.blade.php
+:5
+require
+59 vendor frames collapsed
 
-0 - vendor/laravel/framework/src/Illuminate/Routing/UrlGenerator.php:526
-1 - vendor/laravel/framework/src/Illuminate/Foundation/helpers.php:871
-2 - resources/views/templates/consent/index.blade.php:5
-3 - vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php:123
-4 - vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php:124
-5 - vendor/laravel/framework/src/Illuminate/View/Engines/PhpEngine.php:57
-6 - vendor/laravel/framework/src/Illuminate/View/Engines/CompilerEngine.php:76
-7 - vendor/laravel/framework/src/Illuminate/View/View.php:208
-8 - vendor/laravel/framework/src/Illuminate/View/View.php:191
-9 - vendor/laravel/framework/src/Illuminate/View/View.php:160
-10 - vendor/laravel/framework/src/Illuminate/Http/Response.php:78
-11 - vendor/laravel/framework/src/Illuminate/Http/Response.php:34
-12 - vendor/laravel/framework/src/Illuminate/Routing/Router.php:939
-13 - vendor/laravel/framework/src/Illuminate/Routing/Router.php:906
-14 - vendor/laravel/framework/src/Illuminate/Routing/Router.php:821
-15 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:180
-16 - vendor/laravel/framework/src/Illuminate/Routing/Middleware/SubstituteBindings.php:50
-17 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-18 - vendor/laravel/framework/src/Illuminate/Auth/Middleware/Authenticate.php:63
-19 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-20 - vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/VerifyCsrfToken.php:87
-21 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-22 - vendor/laravel/framework/src/Illuminate/View/Middleware/ShareErrorsFromSession.php:48
-23 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-24 - vendor/laravel/framework/src/Illuminate/Session/Middleware/StartSession.php:120
-25 - vendor/laravel/framework/src/Illuminate/Session/Middleware/StartSession.php:63
-26 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-27 - vendor/laravel/framework/src/Illuminate/Cookie/Middleware/AddQueuedCookiesToResponse.php:36
-28 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-29 - vendor/laravel/framework/src/Illuminate/Cookie/Middleware/EncryptCookies.php:74
-30 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-31 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:137
-32 - vendor/laravel/framework/src/Illuminate/Routing/Router.php:821
-33 - vendor/laravel/framework/src/Illuminate/Routing/Router.php:800
-34 - vendor/laravel/framework/src/Illuminate/Routing/Router.php:764
-35 - vendor/laravel/framework/src/Illuminate/Routing/Router.php:753
-36 - vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php:200
-37 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:180
-38 - vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php:21
-39 - vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/ConvertEmptyStringsToNull.php:31
-40 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-41 - vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php:21
-42 - vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TrimStrings.php:51
-43 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-44 - vendor/laravel/framework/src/Illuminate/Http/Middleware/ValidatePostSize.php:27
-45 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-46 - vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/PreventRequestsDuringMaintenance.php:109
-47 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-48 - vendor/laravel/framework/src/Illuminate/Http/Middleware/HandleCors.php:48
-49 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-50 - vendor/laravel/framework/src/Illuminate/Http/Middleware/TrustProxies.php:58
-51 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-52 - vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/InvokeDeferredCallbacks.php:22
-53 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-54 - vendor/laravel/framework/src/Illuminate/Http/Middleware/ValidatePathEncoding.php:26
-55 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-56 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:137
-57 - vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php:175
-58 - vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php:144
-59 - vendor/laravel/framework/src/Illuminate/Foundation/Application.php:1220
-60 - public/index.php:20
-61 - vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php:23
-
-## Request
-
-GET /consent-templates
-
-## Headers
-
-* **host**: localhost:3000
-* **connection**: keep-alive
-* **user-agent**: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Trae/1.104.3 Chrome/138.0.7204.251 Electron/37.6.1 Safari/537.36
-* **accept**: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
-* **upgrade-insecure-requests**: 1
-* **sec-fetch-site**: same-origin
-* **sec-fetch-mode**: navigate
-* **sec-fetch-dest**: empty
-* **referer**: http://localhost:3000/settings
-* **accept-encoding**: gzip, deflate, br, zstd
-* **accept-language**: en-US
-* **cookie**: XSRF-TOKEN=eyJpdiI6IlhxaEl2bGxRQ2xXRnhXeDJYSFBveEE9PSIsInZhbHVlIjoibUJPanNEOUgrbFBhVGptR0tHbmt2R0d2RGhDdHhvangrSXFqSGp5SGtxOUVPeUN2RTVhR2R2ak1kdkk4Y2JkQUhaVVN3OVpqUWd2c1pSMGFUZjZCdXhJanZqbFRxZklzaGhXRko1TGhUM3I1MU1WUHIzRVR2TEZjc0NqSCs4eEQiLCJtYWMiOiIyZmIxMDY2ZGFkMWQ1ZjAyNzQyNjkyZDViNDRlMGQ2YzI0N2ExNTY3OWQwNDgxN2I4MjUwODU2OWZkZGVlYzQ1IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6Ik8zUUNmTUZWU3JnbjV6bW1OMzRpOGc9PSIsInZhbHVlIjoiajFvK0t0ZjQ4WFBQdlVIUlRiOE5uNFR4T0xHY29MSjRibmNRYk9TbUdUcURMUHdRbExxZTB2cGJzb1JXYVhVSzc4c3JLSFRqVlNWTTV1WXZKa3dsTUkvSitHOEdlT3RtejhVRjIzTC9lZzE1S21uYThyTmU4bFZIdU5TaDNMb1oiLCJtYWMiOiI4N2JkOTczMDk2YjgxZTE4MGIwYmNlMmZlYjA1NDliMWY4NmU5YjdiOTgxZTQ3MGZhYjRjNzc0N2QyZjI5NjEwIiwidGFnIjoiIn0%3D
-
-## Route Context
-
-controller: App\Http\Controllers\ConsentTemplateController@index
-route name: consent-templates.index
-middleware: web, auth
-
-## Route Parameters
-
-No route parameter data available.
-
-## Database Queries
-
-* sqlite - select * from "sessions" where "id" = 't9w2OYQufV39RKl3rLQC2wwoW4giAxs13OiIohHm' limit 1 (1.7 ms)
-* sqlite - select * from "users" where "id" = 1 limit 1 (0.07 ms)
-* sqlite - select * from "consent_templates" where "doctor_id" = 1 order by "created_at" desc (0.09 ms)
+public/index.php
+:20
+require_once
+1 vendor frame collapsed
+resources/views/react_spa.blade.php :5
+<x-app-layout>
+    <div id="react-root" class="min-h-[calc(100vh-65px)]"></div>
+ 
+    @viteReactRefresh
+    @vite(['resources/css/app.css', 'resources/js/react-app.tsx'])
+</x-app-layout>
+ 
+Request
+GET /patients
+Headers
+host
+localhost:8000
+connection
+keep-alive
+sec-ch-ua-platform
+"macOS"
+user-agent
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+accept
+text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+sec-ch-ua
+"Google Chrome";v="143", "Chromium";v="143", "Not A(Brand";v="24"
+upgrade-insecure-requests
+1
+sec-ch-ua-mobile
+?0
+sec-fetch-site
+same-origin
+sec-fetch-mode
+navigate
+sec-fetch-dest
+empty
+accept-encoding
+gzip, deflate, br, zstd
+accept-language
+en-US,en;q=0.9
+cookie
+sb-anovzbbvasxsagkblbaf-auth-token.0=base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SW5KRlRYaEZkVU0zTWpOcWQzWjVTak1pTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDJGdWIzWjZZbUoyWVhONGMyRm5hMkpzWW1GbUxuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSXhNek5oWldRNVlpMDVaVEV5TFRSbVpXSXRZakJoT1MwM05ESXhPRGd3TW1Zek4yVWlMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpZeE5EUTJOVGN6TENKcFlYUWlPakUzTmpFME5ESTVOek1zSW1WdFlXbHNJam9pWkhKb0xtMTFhR0Z0YldGa1lYSnBaa0JuYldGcGJDNWpiMjBpTENKd2FHOXVaU0k2SWlJc0ltRndjRjl0WlhSaFpHRjBZU0k2ZXlKd2NtOTJhV1JsY2lJNkltZHZiMmRzWlNJc0luQnliM1pwWkdWeWN5STZXeUpuYjI5bmJHVWlYWDBzSW5WelpYSmZiV1YwWVdSaGRHRWlPbnNpWVhaaGRHRnlYM1Z5YkNJNkltaDBkSEJ6T2k4dmJHZ3pMbWR2YjJkc1pYVnpaWEpqYjI1MFpXNTBMbU52YlM5aEwwRkRaemh2WTBwWmQxVmplVkphWmtJd09HNXlaMFZFVDB0S1FqSnJjWEp0WTJ4cVgzVktPWEp5WldaRWJ6UnBXRTVTZUU0elJtYzljemsyTFdNaUxDSmxiV0ZwYkNJNkltUnlhQzV0ZFdoaGJXMWhaR0Z5YVdaQVoyMWhhV3d1WTI5dElpd2laVzFoYVd4ZmRtVnlhV1pwWldRaU9uUnlkV1VzSW1aMWJHeGZibUZ0WlNJNklrMTFhR0Z0YldGa0lFRnlhV1lpTENKcGMzTWlPaUpvZEhSd2N6b3ZMMkZqWTI5MWJuUnpMbWR2YjJkc1pTNWpiMjBpTENKdVlXMWxJam9pVFhWb1lXMXRZV1FnUVhKcFppSXNJbkJvYjI1bFgzWmxjbWxtYVdWa0lqcG1ZV3h6WlN3aWNHbGpkSFZ5WlNJNkltaDBkSEJ6T2k4dmJHZ3pMbWR2YjJkc1pYVnpaWEpqYjI1MFpXNTBMbU52YlM5aEwwRkRaemh2WTBwWmQxVmplVkphWmtJd09HNXlaMFZFVDB0S1FqSnJjWEp0WTJ4cVgzVktPWEp5WldaRWJ6UnBXRTVTZUU0elJtYzljemsyTFdNaUxDSndjbTkyYVdSbGNsOXBaQ0k2SWpFeE5URTVNak14TmpFNE1UQTJOelF3T1RZMk9TSXNJbk4xWWlJNklqRXhOVEU1TWpNeE5qRTRNVEEyTnpRd09UWTJPU0o5TENKeWIyeGxJam9pWVhWMGFHVnVkR2xqWVhSbFpDSXNJbUZoYkNJNkltRmhiREVpTENKaGJYSWlPbHQ3SW0xbGRHaHZaQ0k2SW05aGRYUm9JaXdpZEdsdFpYTjBZVzF3SWpveE56WXhORFF5T1RjemZWMHNJbk5sYzNOcGIyNWZhV1FpT2lJNU1qWXlNamRtTXkxa1pUZzBMVFJqWTJNdE9UQTBOQzB5WTJZM09XSTNOVE14TkRVaUxDSnBjMTloYm05dWVXMXZkWE1pT21aaGJITmxmUS5BVmZXYW5VSWN3ODE3WE1ReG9jWWN0THROSmRSdWNCREk5M2FXaF8yUFdjIiwidG9rZW5fdHlwZSI6ImJlYXJlciIsImV4cGlyZXNfaW4iOjM2MDAsImV4cGlyZXNfYXQiOjE3NjE0NDY1NzMsInJlZnJlc2hfdG9rZW4iOiJuNjJ2ZXA1dW5vejQiLCJ1c2VyIjp7ImlkIjoiMTMzYWVkOWItOWUxMi00ZmViLWIwYTktNzQyMTg4MDJmMzdlIiwiYXVkIjoiYXV0aGVudGljYXRlZCIsInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiZW1haWwiOiJkcmgubXVoYW1tYWRhcmlmQGdtYWlsLmNvbSIsImVtYWlsX2NvbmZpcm1lZF9hdCI6IjIwMjUtMTAtMjVUMTI6NDM6NDUuNzE5ODVaIiwicGhvbmUiOiIiLCJjb25maXJtZWRfYXQiOiIyMDI1LTEwLTI1VDEyOjQzOjQ1LjcxOTg1WiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMTAtMjZUMDE6NDI6NTMuMzk4NzI0MTg4WiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6Imdvb2dsZSIsInByb3ZpZGVycyI6WyJnb29nbGUiXX0sInVzZXJfbWV0YWRhdGEiOnsiYXZhdGFyX3VybCI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FDZzhvY0pZd1VjeVJaZkIwOG5yZ0VET0tKQjJrcXJtY2xqX3VKOXJyZWZEbzRpWE5SeE4zRmc9czk2LWMiLCJlbWFpbCI6ImRyaC5tdWhhbW1hZGFyaWZAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImZ1bGxfbmFtZSI6Ik11aGFtbWFkIEFyaWYiLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiTXVoYW1tYWQgQXJpZiIsInBob25lX3ZlcmlmaWVkIjpmYWxzZSwicGljdHVyZSI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FDZzhvY0pZd1VjeVJaZkIwOG5yZ0VET0tKQjJrcXJtY2xqX3VKOXJyZWZEbzRpWE5SeE4zRmc9czk2LWMiLCJwcm92aWRlcl9pZCI6IjExNTE5MjMxNjE4MTA2NzQwOTY2OSIsInN1YiI6IjExNTE5MjMxNjE4MTA2NzQwOTY2OSJ9LCJpZGVudGl0aWVzIjpbeyJpZGVudGl0eV9pZCI6ImY2MWZkODQ0LTQ0YzUtNDQzNy04MWIxLWFmMTBjZGE5ZWZhNyIsImlkIjoiMTE1MTkyMzE2MTgxMDY3NDA5NjY5IiwidXNlcl9pZCI6IjEzM2FlZDliL; sb-anovzbbvasxsagkblbaf-auth-token.1=TllMTItNGZlYi1iMGE5LTc0MjE4ODAyZjM3ZSIsImlkZW50aXR5X2RhdGEiOnsiYXZhdGFyX3VybCI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FDZzhvY0pZd1VjeVJaZkIwOG5yZ0VET0tKQjJrcXJtY2xqX3VKOXJyZWZEbzRpWE5SeE4zRmc9czk2LWMiLCJlbWFpbCI6ImRyaC5tdWhhbW1hZGFyaWZAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImZ1bGxfbmFtZSI6Ik11aGFtbWFkIEFyaWYiLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiTXVoYW1tYWQgQXJpZiIsInBob25lX3ZlcmlmaWVkIjpmYWxzZSwicGljdHVyZSI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FDZzhvY0pZd1VjeVJaZkIwOG5yZ0VET0tKQjJrcXJtY2xqX3VKOXJyZWZEbzRpWE5SeE4zRmc9czk2LWMiLCJwcm92aWRlcl9pZCI6IjExNTE5MjMxNjE4MTA2NzQwOTY2OSIsInN1YiI6IjExNTE5MjMxNjE4MTA2NzQwOTY2OSJ9LCJwcm92aWRlciI6Imdvb2dsZSIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMTAtMjVUMTI6NDM6NDUuNzA1MDk4WiIsImNyZWF0ZWRfYXQiOiIyMDI1LTEwLTI1VDEyOjQzOjQ1LjcwNTE1MloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0xMC0yNlQwMTo0Mjo1Mi42MzQyMjRaIiwiZW1haWwiOiJkcmgubXVoYW1tYWRhcmlmQGdtYWlsLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMTAtMjVUMTI6NDM6NDUuNjY1OTczWiIsInVwZGF0ZWRfYXQiOiIyMDI1LTEwLTI2VDAxOjQyOjUzLjQwNzg4N1oiLCJpc19hbm9ueW1vdXMiOmZhbHNlfSwicHJvdmlkZXJfdG9rZW4iOiJ5YTI5LmEwQVRpNksyc2l1V3R1U3I0RmsyYUpwSVF3aWxta2QxOGJkeWVMYTNIZk94VDVGNi1jTENlZl9jbThZTFNQT2VXMTBDRk1QeVdlOTJ2TEpLUmNKNXg5ajlsYjNLMThHMEtLdFBKUk1SZFRCc2xYS2RqY0c2aTcxWDBJQ2RITzJadkpSTTNFbFVTTHJ2T1I0Q1FTMVJjanhUVldXMUgxUUlWUFk2a2hYTmJDZ1g0VzByTkFPQ1pDNHhoNFlYS1FxM2xNSE1yVGl6d2FDZ1lLQWRrU0FSY1NGUUhHWDJNaUpORWZWLW13N1VyQk1ISXN2N0l2dncwMjA2IiwicHJvdmlkZXJfcmVmcmVzaF90b2tlbiI6IjEvLzBnQUxsaTU1YmxoMmtDZ1lJQVJBQUdCQVNOd0YtTDlJck1SU1h4OExFdUlpLXZKMTc2ME9Bd0s3bE9OcUZqcXVBanJTdGxRYXpVVnJ0UXdsNUwzdVpJNDMxNVBsamZjUWFzRzQifQ; _ga=GA1.1.124590460.1766332379; _ga_8MZ9CEF0PB=GS2.1.s1766332379$o1$g1$t1766332762$j60$l0$h0; XSRF-TOKEN=eyJpdiI6IkR5YmZYaUVOT0kvZGNRU3p2d2lTZlE9PSIsInZhbHVlIjoiZFdzVmxpWGQ3YnJNelpsUUpoeWZrT2hNcEpQalFTazlLbitPc0ozZHpxeXlxdzkzS0wzbGFiZVVWVURpdFd1NjhjYlkrT25jUDhtOHpHRnF1T3ZMSVdZNExJWHNDSkRUSnJQRVJtcVYyRFdOZC8veGlWcGJHaldsa0NyUXdaL0MiLCJtYWMiOiJlMGNlNTdmZmQ5ZjY4MTNkZDZiMWEwMGYwMGE1N2ViMWQwYTQ0NWQ1NzM1Y2E3M2Q2MzY5MzgwYTVhOTRiNDZhIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IlBjTVZXNzM4a0RLS3liSDljK1Mybmc9PSIsInZhbHVlIjoiTmVLYTdUeVVBWjZ5UVhsZTd2RWdIRVdRUmk3VXh1YzQrb21WaCsyUGU2aE1mVlN3V1ZCdnYrQW1DM3JuV1FkTUFNMy9rT3FiZ2paUEFVMG04N0U3cDUvTllYSVc0eWN6Zldlb21XT3RKYUNzRUl6Q3poSXBvR0dnTW5vdFBmcXQiLCJtYWMiOiJkMGQzMDIwM2NiNmM1ODJhN2U1NzcxMjYxZTQ3NDUzYzU3MzI1NTEzMGM3OTAyNGU5NzM5YjZjYzg0M2E4MDVkIiwidGFnIjoiIn0%3D
+Body
+No body data
+Application
+Routing
+controller
+App\Http\Controllers\PatientController@index
+route name
+patients.index
+middleware
+web, auth
+Database Queries
+sqlite (1.15 ms)
+select * from "sessions" where "id" = 'NcendooDUnBAUbAmoV8TPuf98lQdBB6XxyOqJhHN' limit 1
+sqlite (0.48 ms)
+select * from "users" where "id" = 1 limit 1
+sqlite (0.17 ms)
+select count(*) as aggregate from "patients" where "patients"."deleted_at" is null
+sqlite (0.06 ms)
+select * from "patients" where "patients"."deleted_at" is null order by "created_at" desc limit 10 offset 0
+sqlite (0.13 ms)
+select * from "clients" where "clients"."id" in (2, 3, 4) and "clients"."deleted_at" is null
 
 
+Internal Server Error
 
+Illuminate\Foundation\ViteException
+Unable to locate file in Vite manifest: resources/js/react-app.tsx.
+GET localhost:8000
+PHP 8.5.1 — Laravel 11.47.0
 
-# Illuminate\Database\QueryException - Internal Server Error
+Expand
+vendor frames
+2 vendor frames collapsed
 
-SQLSTATE[HY000]: General error: 1 no such function: FIELD (Connection: sqlite, SQL: select * from "doctor_shifts" where "doctor_id" = 1 order by FIELD(day_of_week, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'), "start_time" asc)
+resources/views/react_spa.blade.php
+:5
+require
+59 vendor frames collapsed
 
-PHP 8.5.1
-Laravel 12.44.0
-localhost:3000
-
-## Stack Trace
-
-0 - vendor/laravel/framework/src/Illuminate/Database/Connection.php:826
-1 - vendor/laravel/framework/src/Illuminate/Database/Connection.php:780
-2 - vendor/laravel/framework/src/Illuminate/Database/Connection.php:397
-3 - vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php:3188
-4 - vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php:3173
-5 - vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php:3763
-6 - vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php:3172
-7 - vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:902
-8 - vendor/laravel/framework/src/Illuminate/Database/Eloquent/Builder.php:884
-9 - app/Http/Controllers/DoctorShiftController.php:16
-10 - vendor/laravel/framework/src/Illuminate/Routing/ControllerDispatcher.php:46
-11 - vendor/laravel/framework/src/Illuminate/Routing/Route.php:265
-12 - vendor/laravel/framework/src/Illuminate/Routing/Route.php:211
-13 - vendor/laravel/framework/src/Illuminate/Routing/Router.php:822
-14 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:180
-15 - vendor/laravel/framework/src/Illuminate/Routing/Middleware/SubstituteBindings.php:50
-16 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-17 - vendor/laravel/framework/src/Illuminate/Auth/Middleware/Authenticate.php:63
-18 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-19 - vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/VerifyCsrfToken.php:87
-20 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-21 - vendor/laravel/framework/src/Illuminate/View/Middleware/ShareErrorsFromSession.php:48
-22 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-23 - vendor/laravel/framework/src/Illuminate/Session/Middleware/StartSession.php:120
-24 - vendor/laravel/framework/src/Illuminate/Session/Middleware/StartSession.php:63
-25 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-26 - vendor/laravel/framework/src/Illuminate/Cookie/Middleware/AddQueuedCookiesToResponse.php:36
-27 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-28 - vendor/laravel/framework/src/Illuminate/Cookie/Middleware/EncryptCookies.php:74
-29 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-30 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:137
-31 - vendor/laravel/framework/src/Illuminate/Routing/Router.php:821
-32 - vendor/laravel/framework/src/Illuminate/Routing/Router.php:800
-33 - vendor/laravel/framework/src/Illuminate/Routing/Router.php:764
-34 - vendor/laravel/framework/src/Illuminate/Routing/Router.php:753
-35 - vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php:200
-36 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:180
-37 - vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php:21
-38 - vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/ConvertEmptyStringsToNull.php:31
-39 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-40 - vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TransformsRequest.php:21
-41 - vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/TrimStrings.php:51
-42 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-43 - vendor/laravel/framework/src/Illuminate/Http/Middleware/ValidatePostSize.php:27
-44 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-45 - vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/PreventRequestsDuringMaintenance.php:109
-46 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-47 - vendor/laravel/framework/src/Illuminate/Http/Middleware/HandleCors.php:48
-48 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-49 - vendor/laravel/framework/src/Illuminate/Http/Middleware/TrustProxies.php:58
-50 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-51 - vendor/laravel/framework/src/Illuminate/Foundation/Http/Middleware/InvokeDeferredCallbacks.php:22
-52 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-53 - vendor/laravel/framework/src/Illuminate/Http/Middleware/ValidatePathEncoding.php:26
-54 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:219
-55 - vendor/laravel/framework/src/Illuminate/Pipeline/Pipeline.php:137
-56 - vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php:175
-57 - vendor/laravel/framework/src/Illuminate/Foundation/Http/Kernel.php:144
-58 - vendor/laravel/framework/src/Illuminate/Foundation/Application.php:1220
-59 - public/index.php:20
-60 - vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php:23
-
-## Request
-
-GET /shifts
-
-## Headers
-
-* **host**: localhost:3000
-* **connection**: keep-alive
-* **user-agent**: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Trae/1.104.3 Chrome/138.0.7204.251 Electron/37.6.1 Safari/537.36
-* **accept**: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
-* **upgrade-insecure-requests**: 1
-* **sec-fetch-site**: same-origin
-* **sec-fetch-mode**: navigate
-* **sec-fetch-dest**: empty
-* **referer**: http://localhost:3000/settings
-* **accept-encoding**: gzip, deflate, br, zstd
-* **accept-language**: en-US
-* **cookie**: XSRF-TOKEN=eyJpdiI6InhuTmF5UXZqakFXSms0SVdKVzhOeHc9PSIsInZhbHVlIjoiWVcrMDF4bFFET282aVNQMTRRUE9HeUQwMmtqbk5QNEFEQjRaMDNZQzZmS3FXb2hsdm1Dc05kM2RKL1dKNll5SGpQL0tqc0Y3N0RzUEEyc1lmWW0xWnpxMXhTdjhRbjhpdmxlSCt6WlZWWVBpU0xkUFBjWkp3Qnp6SmkxNXNkS2EiLCJtYWMiOiJlZGFiMzMyNGQ4YzgxYWI4ZjcwYzRmOTlhMjM5ZTdhZTJiZjVjNDRlY2YyNjk5MTA0Y2FiZDk1N2RkMTU0MTk5IiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IkN6ZWxueEVJSU5NZ2xPb1RPYk5qRlE9PSIsInZhbHVlIjoiODhpZVZhUGFLVGRxaUI3VnkxMHQ0QlFKNThkaTdlNWlCY3p3VVRXb0J3VXVKa0JmUjkxeHFIbkZFRXNDdm5sTGlnSXdRNUtkN3owejd4YllMd3hQWlduVDczd1pjRXdZcytoSVd3WnFBMk0wSW9JTDVvcHlTdGovNkQyQWRiZzgiLCJtYWMiOiIzZjhiNGVjY2NkMjgwYWNlYjYxMGM2ZmE5NDcwNzE4YjYwMTNmMmZkMTQ1NzhiYmViYzI4MGU4MjYzMzVjYmYzIiwidGFnIjoiIn0%3D
-
-## Route Context
-
-controller: App\Http\Controllers\DoctorShiftController@index
-route name: shifts.index
-middleware: web, auth
-
-## Route Parameters
-
-No route parameter data available.
-
-## Database Queries
-
-* sqlite - select * from "sessions" where "id" = 't9w2OYQufV39RKl3rLQC2wwoW4giAxs13OiIohHm' limit 1 (2.9 ms)
-* sqlite - select * from "users" where "id" = 1 limit 1 (0.08 ms)
+public/index.php
+:20
+require_once
+1 vendor frame collapsed
+resources/views/react_spa.blade.php :5
+<x-app-layout>
+    <div id="react-root" class="min-h-[calc(100vh-65px)]"></div>
+ 
+    @viteReactRefresh
+    @vite(['resources/css/app.css', 'resources/js/react-app.tsx'])
+</x-app-layout>
+ 
+Request
+GET /clients
+Headers
+host
+localhost:8000
+connection
+keep-alive
+sec-ch-ua-platform
+"macOS"
+user-agent
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36
+accept
+text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+sec-ch-ua
+"Google Chrome";v="143", "Chromium";v="143", "Not A(Brand";v="24"
+upgrade-insecure-requests
+1
+sec-ch-ua-mobile
+?0
+sec-fetch-site
+same-origin
+sec-fetch-mode
+navigate
+sec-fetch-dest
+empty
+referer
+http://localhost:8000/dashboard
+accept-encoding
+gzip, deflate, br, zstd
+accept-language
+en-US,en;q=0.9
+cookie
+sb-anovzbbvasxsagkblbaf-auth-token.0=base64-eyJhY2Nlc3NfdG9rZW4iOiJleUpoYkdjaU9pSklVekkxTmlJc0ltdHBaQ0k2SW5KRlRYaEZkVU0zTWpOcWQzWjVTak1pTENKMGVYQWlPaUpLVjFRaWZRLmV5SnBjM01pT2lKb2RIUndjem92TDJGdWIzWjZZbUoyWVhONGMyRm5hMkpzWW1GbUxuTjFjR0ZpWVhObExtTnZMMkYxZEdndmRqRWlMQ0p6ZFdJaU9pSXhNek5oWldRNVlpMDVaVEV5TFRSbVpXSXRZakJoT1MwM05ESXhPRGd3TW1Zek4yVWlMQ0poZFdRaU9pSmhkWFJvWlc1MGFXTmhkR1ZrSWl3aVpYaHdJam94TnpZeE5EUTJOVGN6TENKcFlYUWlPakUzTmpFME5ESTVOek1zSW1WdFlXbHNJam9pWkhKb0xtMTFhR0Z0YldGa1lYSnBaa0JuYldGcGJDNWpiMjBpTENKd2FHOXVaU0k2SWlJc0ltRndjRjl0WlhSaFpHRjBZU0k2ZXlKd2NtOTJhV1JsY2lJNkltZHZiMmRzWlNJc0luQnliM1pwWkdWeWN5STZXeUpuYjI5bmJHVWlYWDBzSW5WelpYSmZiV1YwWVdSaGRHRWlPbnNpWVhaaGRHRnlYM1Z5YkNJNkltaDBkSEJ6T2k4dmJHZ3pMbWR2YjJkc1pYVnpaWEpqYjI1MFpXNTBMbU52YlM5aEwwRkRaemh2WTBwWmQxVmplVkphWmtJd09HNXlaMFZFVDB0S1FqSnJjWEp0WTJ4cVgzVktPWEp5WldaRWJ6UnBXRTVTZUU0elJtYzljemsyTFdNaUxDSmxiV0ZwYkNJNkltUnlhQzV0ZFdoaGJXMWhaR0Z5YVdaQVoyMWhhV3d1WTI5dElpd2laVzFoYVd4ZmRtVnlhV1pwWldRaU9uUnlkV1VzSW1aMWJHeGZibUZ0WlNJNklrMTFhR0Z0YldGa0lFRnlhV1lpTENKcGMzTWlPaUpvZEhSd2N6b3ZMMkZqWTI5MWJuUnpMbWR2YjJkc1pTNWpiMjBpTENKdVlXMWxJam9pVFhWb1lXMXRZV1FnUVhKcFppSXNJbkJvYjI1bFgzWmxjbWxtYVdWa0lqcG1ZV3h6WlN3aWNHbGpkSFZ5WlNJNkltaDBkSEJ6T2k4dmJHZ3pMbWR2YjJkc1pYVnpaWEpqYjI1MFpXNTBMbU52YlM5aEwwRkRaemh2WTBwWmQxVmplVkphWmtJd09HNXlaMFZFVDB0S1FqSnJjWEp0WTJ4cVgzVktPWEp5WldaRWJ6UnBXRTVTZUU0elJtYzljemsyTFdNaUxDSndjbTkyYVdSbGNsOXBaQ0k2SWpFeE5URTVNak14TmpFNE1UQTJOelF3T1RZMk9TSXNJbk4xWWlJNklqRXhOVEU1TWpNeE5qRTRNVEEyTnpRd09UWTJPU0o5TENKeWIyeGxJam9pWVhWMGFHVnVkR2xqWVhSbFpDSXNJbUZoYkNJNkltRmhiREVpTENKaGJYSWlPbHQ3SW0xbGRHaHZaQ0k2SW05aGRYUm9JaXdpZEdsdFpYTjBZVzF3SWpveE56WXhORFF5T1RjemZWMHNJbk5sYzNOcGIyNWZhV1FpT2lJNU1qWXlNamRtTXkxa1pUZzBMVFJqWTJNdE9UQTBOQzB5WTJZM09XSTNOVE14TkRVaUxDSnBjMTloYm05dWVXMXZkWE1pT21aaGJITmxmUS5BVmZXYW5VSWN3ODE3WE1ReG9jWWN0THROSmRSdWNCREk5M2FXaF8yUFdjIiwidG9rZW5fdHlwZSI6ImJlYXJlciIsImV4cGlyZXNfaW4iOjM2MDAsImV4cGlyZXNfYXQiOjE3NjE0NDY1NzMsInJlZnJlc2hfdG9rZW4iOiJuNjJ2ZXA1dW5vejQiLCJ1c2VyIjp7ImlkIjoiMTMzYWVkOWItOWUxMi00ZmViLWIwYTktNzQyMTg4MDJmMzdlIiwiYXVkIjoiYXV0aGVudGljYXRlZCIsInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiZW1haWwiOiJkcmgubXVoYW1tYWRhcmlmQGdtYWlsLmNvbSIsImVtYWlsX2NvbmZpcm1lZF9hdCI6IjIwMjUtMTAtMjVUMTI6NDM6NDUuNzE5ODVaIiwicGhvbmUiOiIiLCJjb25maXJtZWRfYXQiOiIyMDI1LTEwLTI1VDEyOjQzOjQ1LjcxOTg1WiIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMTAtMjZUMDE6NDI6NTMuMzk4NzI0MTg4WiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6Imdvb2dsZSIsInByb3ZpZGVycyI6WyJnb29nbGUiXX0sInVzZXJfbWV0YWRhdGEiOnsiYXZhdGFyX3VybCI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FDZzhvY0pZd1VjeVJaZkIwOG5yZ0VET0tKQjJrcXJtY2xqX3VKOXJyZWZEbzRpWE5SeE4zRmc9czk2LWMiLCJlbWFpbCI6ImRyaC5tdWhhbW1hZGFyaWZAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImZ1bGxfbmFtZSI6Ik11aGFtbWFkIEFyaWYiLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiTXVoYW1tYWQgQXJpZiIsInBob25lX3ZlcmlmaWVkIjpmYWxzZSwicGljdHVyZSI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FDZzhvY0pZd1VjeVJaZkIwOG5yZ0VET0tKQjJrcXJtY2xqX3VKOXJyZWZEbzRpWE5SeE4zRmc9czk2LWMiLCJwcm92aWRlcl9pZCI6IjExNTE5MjMxNjE4MTA2NzQwOTY2OSIsInN1YiI6IjExNTE5MjMxNjE4MTA2NzQwOTY2OSJ9LCJpZGVudGl0aWVzIjpbeyJpZGVudGl0eV9pZCI6ImY2MWZkODQ0LTQ0YzUtNDQzNy04MWIxLWFmMTBjZGE5ZWZhNyIsImlkIjoiMTE1MTkyMzE2MTgxMDY3NDA5NjY5IiwidXNlcl9pZCI6IjEzM2FlZDliL; sb-anovzbbvasxsagkblbaf-auth-token.1=TllMTItNGZlYi1iMGE5LTc0MjE4ODAyZjM3ZSIsImlkZW50aXR5X2RhdGEiOnsiYXZhdGFyX3VybCI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FDZzhvY0pZd1VjeVJaZkIwOG5yZ0VET0tKQjJrcXJtY2xqX3VKOXJyZWZEbzRpWE5SeE4zRmc9czk2LWMiLCJlbWFpbCI6ImRyaC5tdWhhbW1hZGFyaWZAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImZ1bGxfbmFtZSI6Ik11aGFtbWFkIEFyaWYiLCJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJuYW1lIjoiTXVoYW1tYWQgQXJpZiIsInBob25lX3ZlcmlmaWVkIjpmYWxzZSwicGljdHVyZSI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FDZzhvY0pZd1VjeVJaZkIwOG5yZ0VET0tKQjJrcXJtY2xqX3VKOXJyZWZEbzRpWE5SeE4zRmc9czk2LWMiLCJwcm92aWRlcl9pZCI6IjExNTE5MjMxNjE4MTA2NzQwOTY2OSIsInN1YiI6IjExNTE5MjMxNjE4MTA2NzQwOTY2OSJ9LCJwcm92aWRlciI6Imdvb2dsZSIsImxhc3Rfc2lnbl9pbl9hdCI6IjIwMjUtMTAtMjVUMTI6NDM6NDUuNzA1MDk4WiIsImNyZWF0ZWRfYXQiOiIyMDI1LTEwLTI1VDEyOjQzOjQ1LjcwNTE1MloiLCJ1cGRhdGVkX2F0IjoiMjAyNS0xMC0yNlQwMTo0Mjo1Mi42MzQyMjRaIiwiZW1haWwiOiJkcmgubXVoYW1tYWRhcmlmQGdtYWlsLmNvbSJ9XSwiY3JlYXRlZF9hdCI6IjIwMjUtMTAtMjVUMTI6NDM6NDUuNjY1OTczWiIsInVwZGF0ZWRfYXQiOiIyMDI1LTEwLTI2VDAxOjQyOjUzLjQwNzg4N1oiLCJpc19hbm9ueW1vdXMiOmZhbHNlfSwicHJvdmlkZXJfdG9rZW4iOiJ5YTI5LmEwQVRpNksyc2l1V3R1U3I0RmsyYUpwSVF3aWxta2QxOGJkeWVMYTNIZk94VDVGNi1jTENlZl9jbThZTFNQT2VXMTBDRk1QeVdlOTJ2TEpLUmNKNXg5ajlsYjNLMThHMEtLdFBKUk1SZFRCc2xYS2RqY0c2aTcxWDBJQ2RITzJadkpSTTNFbFVTTHJ2T1I0Q1FTMVJjanhUVldXMUgxUUlWUFk2a2hYTmJDZ1g0VzByTkFPQ1pDNHhoNFlYS1FxM2xNSE1yVGl6d2FDZ1lLQWRrU0FSY1NGUUhHWDJNaUpORWZWLW13N1VyQk1ISXN2N0l2dncwMjA2IiwicHJvdmlkZXJfcmVmcmVzaF90b2tlbiI6IjEvLzBnQUxsaTU1YmxoMmtDZ1lJQVJBQUdCQVNOd0YtTDlJck1SU1h4OExFdUlpLXZKMTc2ME9Bd0s3bE9OcUZqcXVBanJTdGxRYXpVVnJ0UXdsNUwzdVpJNDMxNVBsamZjUWFzRzQifQ; _ga=GA1.1.124590460.1766332379; _ga_8MZ9CEF0PB=GS2.1.s1766332379$o1$g1$t1766332762$j60$l0$h0; XSRF-TOKEN=eyJpdiI6ImNUYm8rMjdtVFowdDBwM3BGd1BDa0E9PSIsInZhbHVlIjoiQVdyMy9UV2V4STJMZXM1TzNPN0gwcUt2T3FiV1RKdFpQQkRoQ3hEU05rZ29hZnc2bU1qajhpTFp4ekRTbnYzZzlGODJybS9DcHJkSEtkcWM2UGJHdEU1bTdVdmJ1VEtINkl3UXh2ZmxVRG9VMDVrZTlCdzhsVSttNXRldEVXRlgiLCJtYWMiOiI3NzRjOWNmOWYxOWRmNjIxYzE4OTVjMGVjZTA4MDBiYjJiNDEwMmFjNTcwYzliOGUxMWU3ZmJlNzEwMzkzZTRkIiwidGFnIjoiIn0%3D; laravel-session=eyJpdiI6IktzR1JpMGFnaW8wODlEWUd0UThSRGc9PSIsInZhbHVlIjoiR1gza1BhN2lzL2xRdW9hOURwcjYreEI5d211Sjc4eWFsS1UxenRiNThvWGVDQXRtVXN0YUwwdlZzSWZQWk40NjExalpSQjZML0N1R25FbFNSOW9QZCs0WUl5V3BETXV5Yzl0R1R1ZzkwUzNZZFlRSlA1R1I4VjcxZlFKQTNYMmYiLCJtYWMiOiI1OTZmODE3MGI2NDRiNjBmMDc4ZmUyN2YzMWIzMTllY2E0NzBjMjQ3YTEzMzhjM2Q5ODkzMjdkNzI3OTMzYjhkIiwidGFnIjoiIn0%3D
+Body
+No body data
+Application
+Routing
+controller
+App\Http\Controllers\ClientController@index
+route name
+clients.index
+middleware
+web, auth
+Database Queries
+sqlite (0.67 ms)
+select * from "sessions" where "id" = 'NcendooDUnBAUbAmoV8TPuf98lQdBB6XxyOqJhHN' limit 1
+sqlite (0.08 ms)
+select * from "users" where "id" = 1 limit 1
+sqlite (0.04 ms)
+select count(*) as aggregate from "clients" where "clients"."deleted_at" is null
+sqlite (0.08 ms)
+select "clients".*, (select count(*) from "patients" inner join "client_patient" on "patients"."id" = "client_patient"."patient_id" where "clients"."id" = "client_patient"."client_id" and "patients"."deleted_at" is null) as "patients_count" from "clients" where "clients"."deleted_at" is null order by "created_at" desc limit 10 offset 0

@@ -4,22 +4,40 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "test": "vitest"
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.11",
         "@tailwindcss/postcss": "^4.1.18",
         "@tailwindcss/vite": "^4.0.0",
+        "@testing-library/jest-dom": "^6.9.1",
+        "@testing-library/react": "^16.3.1",
+        "@testing-library/user-event": "^14.6.1",
+        "@types/react": "^19.2.7",
+        "@types/react-dom": "^19.2.3",
+        "@vitejs/plugin-react": "^5.1.2",
         "alpinejs": "^3.15.3",
         "autoprefixer": "^10.4.23",
         "axios": "^1.11.0",
         "concurrently": "^9.0.1",
+        "jsdom": "^27.4.0",
         "laravel-vite-plugin": "^2.0.0",
         "postcss": "^8.5.6",
+        "react": "^19.2.3",
+        "react-dom": "^19.2.3",
         "tailwindcss": "^4.1.18",
-        "vite": "^7.0.7"
+        "typescript": "^5.9.3",
+        "vite": "^7.0.7",
+        "vitest": "^4.0.16"
     },
     "dependencies": {
-        "cropperjs": "^1.6.2"
+        "clsx": "^2.1.1",
+        "cropperjs": "^1.6.2",
+        "date-fns": "^4.1.0",
+        "framer-motion": "^12.23.26",
+        "lucide-react": "^0.562.0",
+        "react-router-dom": "^7.11.0",
+        "tailwind-merge": "^3.4.0"
     }
 }

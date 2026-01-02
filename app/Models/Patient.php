@@ -12,11 +12,21 @@ class Patient extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['client_id', 'name', 'species', 'breed', 'gender', 'dob', 'is_sterile'];
+    protected $fillable = ['client_id', 'name', 'species', 'breed', 'gender', 'dob', 'is_sterile', 'allergies', 'special_conditions', 'vaccination_history'];
+
+    protected $casts = [
+        'dob' => 'date',
+        'is_sterile' => 'boolean',
+    ];
 
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);
+    }
+
+    public function clients(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Client::class, 'client_patient');
     }
 
     public function visits(): HasMany
@@ -24,7 +34,7 @@ class Patient extends Model
         return $this->hasMany(Visit::class);
     }
 
-    public function medicalRecords(): HasMany
+    public function medical_records(): HasMany
     {
         return $this->hasMany(MedicalRecord::class);
     }

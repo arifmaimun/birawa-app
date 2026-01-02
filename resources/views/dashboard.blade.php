@@ -186,4 +186,87 @@
             </div>
         @endif
     </div>
+    <!-- Start Visit Modal -->
+    <div id="startVisitModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeStartVisitModal()"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-birawa-100 sm:mx-0 sm:h-10 sm:w-10">
+                            <svg class="h-6 w-6 text-birawa-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Mulai Kunjungan</h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-gray-500">Anda akan memulai perjalanan ke lokasi pasien:</p>
+                                <p class="text-base font-bold text-gray-800 mt-1" id="modalPatientName">Patient Name</p>
+                                <div class="bg-gray-50 p-3 rounded-lg mt-2 flex items-start gap-2">
+                                    <svg class="w-5 h-5 text-gray-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    <p class="text-sm text-gray-600" id="modalAddress">Address here...</p>
+                                </div>
+                                
+                                <!-- Input Jarak & Waktu -->
+                                <div class="mt-4 grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="distance_km" class="block text-xs font-medium text-gray-700">Jarak (km)</label>
+                                        <input type="number" step="0.1" name="distance_km" id="distance_km" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-birawa-500 focus:ring-birawa-500 sm:text-sm" placeholder="Ex: 5.2">
+                                    </div>
+                                    <div>
+                                        <label for="estimated_minutes" class="block text-xs font-medium text-gray-700">Estimasi Waktu (menit)</label>
+                                        <input type="number" name="estimated_minutes" id="estimated_minutes" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-birawa-500 focus:ring-birawa-500 sm:text-sm" placeholder="Ex: 15">
+                                    </div>
+                                </div>
+
+                                <!-- Mini Map Placeholder -->
+                                <div class="mt-3 h-32 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400 text-sm overflow-hidden relative">
+                                    <iframe id="modalMapFrame" width="100%" height="100%" frameborder="0" style="border:0" src="" allowfullscreen></iframe>
+                                    <div class="absolute inset-0 pointer-events-none border-2 border-transparent rounded-lg"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <form id="startVisitForm" method="POST" action="">
+                        @csrf
+                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-birawa-600 text-base font-medium text-white hover:bg-birawa-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-birawa-500 sm:ml-3 sm:w-auto sm:text-sm">
+                            Berangkat Sekarang
+                        </button>
+                    </form>
+                    <button type="button" onclick="closeStartVisitModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Batal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openStartVisitModal(visitId, address, patientName) {
+            document.getElementById('startVisitModal').classList.remove('hidden');
+            document.getElementById('modalAddress').innerText = address || 'No address provided';
+            document.getElementById('modalPatientName').innerText = patientName;
+            
+            // Update Form Action to use start-trip endpoint
+            const form = document.getElementById('startVisitForm');
+            form.action = `/visits/${visitId}/start-trip`;
+            
+            // Update Map
+            const mapFrame = document.getElementById('modalMapFrame');
+            if (address) {
+                const encodedAddress = encodeURIComponent(address);
+                mapFrame.src = `https://maps.google.com/maps?q=${encodedAddress}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+            } else {
+                mapFrame.src = '';
+            }
+        }
+
+        function closeStartVisitModal() {
+            document.getElementById('startVisitModal').classList.add('hidden');
+        }
+    </script>
 </x-app-layout>

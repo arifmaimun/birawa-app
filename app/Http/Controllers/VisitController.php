@@ -143,10 +143,51 @@ class VisitController extends Controller
             $data['transport_fee'] = round($transportFee, -2); // Round to nearest 100
         }
 
+        // Get prediction if not already set manually? 
+        // For now, we don't set 'actual_travel_minutes' on creation, but we could return prediction in response if API
+        
         Visit::create($data);
 
         return redirect()->route('visits.index')
             ->with('success', 'Visit scheduled successfully.');
+    }
+
+    /**
+     * Get predicted travel time in minutes based on history
+     */
+    protected function getPredictedTravelTime($patientId, $currentDistanceKm = null)
+    {
+        // Strategy: 
+        // 1. Find completed visits for this patient with actual_travel_minutes recorded
+        // 2. Average them
+        // 3. If no history for patient, look for visits with similar distance (+/- 10%)
+        
+        // 1. Patient history
+        $avgPatientTime = Visit::where('patient_id', $patientId)
+            ->whereNotNull('actual_travel_minutes')
+            ->where('actual_travel_minutes', '>', 0)
+            ->avg('actual_travel_minutes');
+            
+        if ($avgPatientTime) {
+            return round($avgPatientTime);
+        }
+
+        // 2. Distance-based approximation if we have distance
+        if ($currentDistanceKm) {
+             $avgDistanceTime = Visit::whereNotNull('actual_travel_minutes')
+                ->where('actual_travel_minutes', '>', 0)
+                ->whereBetween('distance_km', [$currentDistanceKm * 0.9, $currentDistanceKm * 1.1])
+                ->avg('actual_travel_minutes');
+
+            if ($avgDistanceTime) {
+                return round($avgDistanceTime);
+            }
+
+            // Fallback: 2 minutes per km + 5 mins buffer
+            return round(($currentDistanceKm * 2) + 5);
+        }
+
+        return null; // Unknown
     }
 
     /**
@@ -161,10 +202,48 @@ class VisitController extends Controller
 
         $request->validate([
             'status' => 'required|exists:visit_statuses,slug',
+            'distance_km' => 'nullable|numeric|min:0',
+            'actual_travel_minutes' => 'nullable|integer|min:0',
         ]);
 
         $status = VisitStatus::where('slug', $request->status)->firstOrFail();
-        $visit->update(['visit_status_id' => $status->id]);
+        
+        $data = ['visit_status_id' => $status->id];
+        
+        // Handle side effects based on status change
+        if ($request->status === 'otw' || $request->status === 'on-the-way') {
+            if (!$visit->departure_time) {
+                $data['departure_time'] = now();
+            }
+        } elseif ($request->status === 'arrived') {
+            if (!$visit->arrival_time) {
+                $data['arrival_time'] = now();
+                // Calculate duration if not provided manually and departure time exists
+                if (!$request->has('actual_travel_minutes') && $visit->departure_time) {
+                    $start = Carbon::parse($visit->departure_time);
+                    $data['actual_travel_minutes'] = $start->diffInMinutes($data['arrival_time']);
+                }
+            }
+        } elseif ($request->status === 'completed') {
+             if (!$visit->arrival_time) {
+                $data['arrival_time'] = now(); // Ensure arrival time is set if jumped straight to completed
+            }
+        }
+
+        if ($request->has('distance_km')) {
+            $data['distance_km'] = $request->distance_km;
+        }
+        if ($request->has('actual_travel_minutes')) {
+            $data['actual_travel_minutes'] = $request->actual_travel_minutes;
+        }
+
+        $visit->update($data);
+
+        if ($request->wantsJson()) {
+            $visit->load(['patient.client', 'user', 'invoice', 'medicalRecords', 'visitStatus']);
+            $visit->status = $visit->visitStatus?->slug;
+            return response()->json($visit);
+        }
 
         return back()->with('success', 'Visit status updated to ' . ucfirst($request->status));
     }
@@ -188,12 +267,27 @@ class VisitController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Visit $visit)
+    public function show(Request $request, Visit $visit)
     {
         if ($visit->user_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
-        return view('visits.show', compact('visit'));
+
+        if ($request->wantsJson() || $request->is('api/*')) {
+            $visit->load(['patient.client', 'user', 'invoice', 'medicalRecords.doctor', 'visitStatus']);
+            
+            // Map status slug to simple status string if needed by frontend
+            $visit->status = $visit->visitStatus?->slug ?? 'scheduled';
+            
+            // Add predicted travel time
+            if (!$visit->actual_travel_minutes && $visit->status !== 'completed' && $visit->status !== 'cancelled') {
+                $visit->predicted_travel_minutes = $this->getPredictedTravelTime($visit->patient_id, $visit->distance_km);
+            }
+            
+            return response()->json($visit);
+        }
+
+        return view('react_spa');
     }
 
     /**
@@ -211,7 +305,7 @@ class VisitController extends Controller
                 $q->whereHas('visits', function($v) use ($user) {
                     $v->where('user_id', $user->id);
                 })
-                ->orWhereHas('medicalRecords', function($m) use ($user) {
+                ->orWhereHas('medical_records', function($m) use ($user) {
                     $m->where('doctor_id', $user->id);
                 });
             })
@@ -301,21 +395,27 @@ class VisitController extends Controller
 
         $request->validate([
             'estimated_hours' => 'nullable|numeric|min:0',
+            'estimated_minutes' => 'nullable|integer|min:0',
+            'distance_km' => 'nullable|numeric|min:0',
         ]);
 
         $departureTime = Carbon::now();
         $visit->departure_time = $departureTime;
         
-        if ($request->estimated_hours) {
-            $minutes = $request->estimated_hours * 60;
-            $visit->estimated_travel_minutes = $minutes;
+        if ($request->estimated_minutes) {
+            $visit->estimated_travel_minutes = $request->estimated_minutes;
+        } elseif ($request->estimated_hours) {
+            $visit->estimated_travel_minutes = $request->estimated_hours * 60;
+        }
+
+        if ($request->has('distance_km')) {
+            $visit->distance_km = $request->distance_km;
         }
         
         // Update status to 'otw' if possible
         $otwStatus = VisitStatus::where('slug', 'otw')->orWhere('slug', 'on-the-way')->first();
         if ($otwStatus) {
             $visit->visit_status_id = $otwStatus->id;
-            // $visit->status = 'otw'; // Legacy fallback removed
         }
 
         $visit->save();

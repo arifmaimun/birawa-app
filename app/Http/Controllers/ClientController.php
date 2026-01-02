@@ -30,8 +30,13 @@ class ClientController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view('clients.index', compact('clients', 'search'));
+        if ($request->wantsJson() || $request->is('api/*')) {
+            return response()->json($clients);
+        }
+
+        return view('react_spa');
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -190,10 +195,15 @@ class ClientController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Client $client)
+    public function show(Request $request, Client $client)
     {
         $client->load('patients');
-        return view('clients.show', compact('client'));
+        
+        if ($request->wantsJson() || $request->is('api/*')) {
+            return response()->json($client);
+        }
+
+        return view('react_spa');
     }
 
     /**
