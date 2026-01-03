@@ -10,59 +10,29 @@ use App\Models\MessageTemplate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use App\Services\RouteOptimizationService;
 
 class VisitController extends Controller
 {
+    protected $routeService;
+
+    public function __construct(RouteOptimizationService $routeService)
+    {
+        $this->routeService = $routeService;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $request->validate([
-            'status' => ['nullable', function ($attribute, $value, $fail) {
-                $slugs = is_array($value) ? $value : [$value];
-                foreach ($slugs as $slug) {
-                    if (!is_string($slug) || !VisitStatus::where('slug', $slug)->exists()) {
-                        $fail('The selected status is invalid: ' . $slug);
-                    }
-                }
-            }],
-            'search' => 'nullable|string|max:100',
-        ]);
-
-        $search = $request->input('search');
-        $status = $request->input('status');
-        
-        $visits = Visit::with(['patient.client', 'user', 'invoice', 'medicalRecords', 'visitStatus'])
-            ->where('user_id', Auth::id()) // SCOPED: Only show visits for the logged-in doctor
-            ->when($search, function ($query) use ($search) {
-                $query->where(function($q) use ($search) {
-                    $q->whereHas('patient', function ($p) use ($search) {
-                        $p->where('name', 'like', "%{$search}%");
-                    })->orWhereHas('patient.client', function ($c) use ($search) {
-                        $c->where('name', 'like', "%{$search}%");
-                    });
-                });
-            })
-            ->when($status, function ($query) use ($status) {
-                $query->whereHas('visitStatus', function ($q) use ($status) {
-                    if (is_array($status)) {
-                        $q->whereIn('slug', $status);
-                    } else {
-                        $q->where('slug', $status);
-                    }
-                });
-            })
-            ->latest('scheduled_at')
-            ->paginate(10)
-            ->withQueryString();
-            
-        return view('visits.index', compact('visits', 'search'));
+        $statuses = VisitStatus::all();
+        return view('visits.calendar', compact('statuses'));
     }
 
     public function calendar()
     {
-        return view('visits.calendar');
+        return redirect()->route('visits.index');
     }
 
     /**
@@ -123,12 +93,17 @@ class VisitController extends Controller
         // Calculate distance if coordinates are provided
         $doctorProfile = Auth::user()->doctorProfile;
         if ($doctorProfile && $request->filled('latitude') && $request->filled('longitude') && $doctorProfile->latitude && $doctorProfile->longitude) {
-            $distance = $this->calculateDistance(
-                $doctorProfile->latitude,
-                $doctorProfile->longitude,
-                $request->latitude,
-                $request->longitude
-            );
+            $origin = [
+                'latitude' => $doctorProfile->latitude,
+                'longitude' => $doctorProfile->longitude
+            ];
+            $destination = [
+                'latitude' => $request->latitude,
+                'longitude' => $request->longitude
+            ];
+
+            $routeData = $this->routeService->getDistanceDuration($origin, $destination);
+            $distance = $routeData['distance'];
             
             $data['distance_km'] = $distance;
 
@@ -248,22 +223,6 @@ class VisitController extends Controller
         return back()->with('success', 'Visit status updated to ' . ucfirst($request->status));
     }
 
-    private function calculateDistance($lat1, $lon1, $lat2, $lon2)
-    {
-        $earthRadius = 6371; // km
-
-        $dLat = deg2rad($lat2 - $lat1);
-        $dLon = deg2rad($lon2 - $lon1);
-
-        $a = sin($dLat / 2) * sin($dLat / 2) +
-             cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
-             sin($dLon / 2) * sin($dLon / 2);
-
-        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-
-        return $earthRadius * $c;
-    }
-
     /**
      * Display the specified resource.
      */
@@ -287,7 +246,7 @@ class VisitController extends Controller
             return response()->json($visit);
         }
 
-        return view('react_spa');
+        return view('visits.show', compact('visit'));
     }
 
     /**
@@ -358,11 +317,31 @@ class VisitController extends Controller
         try {
             $start = $request->query('start');
             $end = $request->query('end');
+            $status = $request->query('status'); // Array of slugs
+            $search = $request->query('search');
 
-            $visits = Visit::where('user_id', Auth::id())
-                ->whereBetween('scheduled_at', [$start, $end])
-                ->with(['patient.client', 'visitStatus'])
-                ->get();
+            $query = Visit::where('user_id', Auth::id())
+                ->whereBetween('scheduled_at', [$start, $end]);
+
+            // Apply Status Filter
+            if (!empty($status)) {
+                $query->whereHas('visitStatus', function ($q) use ($status) {
+                    $q->whereIn('slug', is_array($status) ? $status : explode(',', $status));
+                });
+            }
+
+            // Apply Search Filter
+            if (!empty($search)) {
+                $query->where(function($q) use ($search) {
+                    $q->whereHas('patient', function ($p) use ($search) {
+                        $p->where('name', 'like', "%{$search}%");
+                    })->orWhereHas('patient.client', function ($c) use ($search) {
+                        $c->where('name', 'like', "%{$search}%");
+                    });
+                });
+            }
+
+            $visits = $query->with(['patient.client', 'visitStatus'])->get();
 
             $events = $visits->map(function ($visit) {
                 $color = $visit->visitStatus->color ?? '#6B7280';
@@ -377,6 +356,14 @@ class VisitController extends Controller
                     'url' => route('visits.show', $visit->id),
                     'backgroundColor' => $color,
                     'borderColor' => $color,
+                    'extendedProps' => [
+                        'status' => $visit->visitStatus->name ?? 'Unknown',
+                        'client' => $clientName,
+                        'patient' => $patientName,
+                        'latitude' => $visit->latitude,
+                        'longitude' => $visit->longitude,
+                        'address' => $visit->patient->client->address ?? '',
+                    ]
                 ];
             });
 
@@ -385,6 +372,39 @@ class VisitController extends Controller
             \Illuminate\Support\Facades\Log::error('Calendar Events Error: ' . $e->getMessage());
             return response()->json(['error' => 'Failed to fetch events'], 500);
         }
+    }
+
+    public function recommendRoute(Request $request)
+    {
+        $date = $request->input('date');
+        $visits = Visit::where('user_id', Auth::id())
+            ->whereDate('scheduled_at', $date)
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->where('visit_status_id', '!=', VisitStatus::where('slug', 'cancelled')->value('id'))
+            ->get();
+
+        if ($visits->isEmpty()) {
+            return response()->json([]);
+        }
+
+        // Use RouteOptimizationService
+        $doctorProfile = Auth::user()->doctorProfile;
+        $startLocation = [
+            'latitude' => $doctorProfile->latitude ?? $visits->first()->latitude,
+            'longitude' => $doctorProfile->longitude ?? $visits->first()->longitude,
+        ];
+
+        $result = $this->routeService->optimizeRoute($visits, $startLocation);
+
+        $route = $result['route']->values();
+        
+        // Eager load relations
+        $route->each(function($visit) {
+            $visit->load('patient.client', 'visitStatus');
+        });
+
+        return response()->json($route);
     }
 
     public function startTrip(Request $request, Visit $visit)

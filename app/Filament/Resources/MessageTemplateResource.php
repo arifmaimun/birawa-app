@@ -17,7 +17,9 @@ class MessageTemplateResource extends Resource
 {
     protected static ?string $model = MessageTemplate::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-bottom-center-text';
+    protected static ?string $navigationGroup = 'Settings';
+    protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form
     {

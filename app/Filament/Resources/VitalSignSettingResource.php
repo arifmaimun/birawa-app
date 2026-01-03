@@ -17,7 +17,9 @@ class VitalSignSettingResource extends Resource
 {
     protected static ?string $model = VitalSignSetting::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-adjustments-horizontal';
+    protected static ?string $navigationGroup = 'Settings';
+    protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
     {

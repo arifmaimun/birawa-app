@@ -41,7 +41,7 @@ class ViewRenderTest extends TestCase
         $response = $this->actingAs($user)->get(route('patients.index'));
 
         $response->assertStatus(200);
-        $response->assertSee('react-root');
+        $response->assertSee('Patient Management');
     }
 
     public function test_patient_show_can_be_rendered()
@@ -52,7 +52,7 @@ class ViewRenderTest extends TestCase
         $response = $this->actingAs($user)->get(route('patients.show', $patient));
 
         $response->assertStatus(200);
-        $response->assertSee('react-root');
+        $response->assertSee($patient->name);
     }
 
     public function test_clients_index_can_be_rendered()
@@ -67,7 +67,7 @@ class ViewRenderTest extends TestCase
         $response = $this->actingAs($user)->get(route('clients.index'));
 
         $response->assertStatus(200);
-        $response->assertSee('react-root');
+        $response->assertSee('Client Management');
     }
 
     public function test_client_show_can_be_rendered()
@@ -82,7 +82,7 @@ class ViewRenderTest extends TestCase
         $response = $this->actingAs($user)->get(route('clients.show', $client));
 
         $response->assertStatus(200);
-        $response->assertSee('react-root');
+        $response->assertSee($client->name);
     }
 
     public function test_visits_index_can_be_rendered()
@@ -97,6 +97,7 @@ class ViewRenderTest extends TestCase
         $response = $this->actingAs($user)->get(route('visits.index'));
 
         $response->assertStatus(200);
+        $response->assertSee('Filter Jadwal');
     }
 
     public function test_visit_show_can_be_rendered()
@@ -111,7 +112,7 @@ class ViewRenderTest extends TestCase
         $response = $this->actingAs($user)->get(route('visits.show', $visit));
 
         $response->assertStatus(200);
-        $response->assertSee('react-root');
+        $response->assertSee($patient->name);
     }
 
     public function test_visit_edit_can_be_rendered()

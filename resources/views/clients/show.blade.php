@@ -118,7 +118,7 @@
                     </div>
                     <h3 class="text-lg font-bold text-slate-800">No pets yet</h3>
                     <p class="text-slate-500 max-w-sm mx-auto mt-1 mb-6">Add a pet to this owner to start tracking their medical history.</p>
-                    <a href="{{ route('patients.create') }}?owner_id={{ $owner->id }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-birawa-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-birawa-500/30 hover:bg-birawa-600 transition-all">
+                    <a href="{{ route('patients.create') }}?client_id={{ $client->id }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-birawa-500 text-white rounded-xl text-sm font-bold shadow-lg shadow-birawa-500/30 hover:bg-birawa-600 transition-all">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                         </svg>

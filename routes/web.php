@@ -54,6 +54,7 @@ Route::middleware(['auth'])->group(function () {
     
     Route::get('visits/calendar-events', [VisitController::class, 'calendarEvents'])->name('visits.calendar-events');
     Route::get('visits/calendar', [VisitController::class, 'calendar'])->name('visits.calendar');
+    Route::get('visits/recommend-route', [VisitController::class, 'recommendRoute'])->name('visits.recommend-route');
     Route::post('visits/{visit}/start-trip', [VisitController::class, 'startTrip'])->name('visits.start-trip');
     Route::post('visits/{visit}/end-trip', [VisitController::class, 'endTrip'])->name('visits.end-trip');
     Route::resource('visits', VisitController::class);
@@ -97,6 +98,7 @@ Route::middleware(['auth'])->group(function () {
     // Stock Opname
     Route::resource('stock-opnames', \App\Http\Controllers\StockOpnameController::class);
     Route::post('stock-opnames/{stockOpname}/complete', [\App\Http\Controllers\StockOpnameController::class, 'complete'])->name('stock-opnames.complete');
+
     Route::get('stock-opnames/{stockOpname}/export', [\App\Http\Controllers\StockOpnameController::class, 'export'])->name('stock-opnames.export');
     Route::post('stock-opnames/{stockOpname}/items/{item}', [\App\Http\Controllers\StockOpnameController::class, 'updateItem'])->name('stock-opnames.items.update');
 
@@ -115,14 +117,21 @@ Route::middleware(['auth'])->group(function () {
     Route::post('invoices/{invoice}/payments', [\App\Http\Controllers\InvoiceController::class, 'storePayment'])->name('invoices.payments.store');
     Route::delete('invoices/{invoice}/payments/{payment}', [\App\Http\Controllers\InvoiceController::class, 'destroyPayment'])->name('invoices.payments.destroy');
 
-    // Social Features
-    Route::get('/friendships', [App\Http\Controllers\FriendshipController::class, 'index'])->name('friendships.index');
-    Route::post('/friendships', [App\Http\Controllers\FriendshipController::class, 'sendRequest'])->name('friendships.store');
-    Route::patch('/friendships/{friendship}/accept', [App\Http\Controllers\FriendshipController::class, 'acceptRequest'])->name('friendships.accept');
-    Route::delete('/friendships/{friendship}', [App\Http\Controllers\FriendshipController::class, 'destroy'])->name('friendships.destroy');
+    // Social Features (Friends & Chat)
+    // Friends
+    Route::get('/friends', [App\Http\Controllers\FriendshipController::class, 'index'])->name('friends.index');
+    Route::get('/friends/search', [App\Http\Controllers\FriendshipController::class, 'search'])->name('friends.search');
+    Route::post('/friends/request', [App\Http\Controllers\FriendshipController::class, 'sendRequest'])->name('friends.request');
+    Route::post('/friends/{friendship}/accept', [App\Http\Controllers\FriendshipController::class, 'acceptRequest'])->name('friends.accept');
+    Route::delete('/friends/{friendship}', [App\Http\Controllers\FriendshipController::class, 'destroy'])->name('friends.destroy');
+    
+    // Chat UI
+    Route::get('/chat', [App\Http\Controllers\ChatController::class, 'index'])->name('chat.index');
+    Route::post('/chat', [App\Http\Controllers\ChatController::class, 'store'])->name('chat.store');
+    Route::get('/chat/messages/{user}', [App\Http\Controllers\ChatController::class, 'getMessages'])->name('chat.messages');
+
+    // Legacy/API Message Routes (optional, keeping for compatibility if needed)
     Route::get('/messages/unread-count', [App\Http\Controllers\MessageController::class, 'unreadCount'])->name('messages.unread-count');
-    Route::get('/messages/{user}', [App\Http\Controllers\MessageController::class, 'index'])->name('messages.index');
-    Route::post('/messages', [App\Http\Controllers\MessageController::class, 'store'])->name('messages.store');
     Route::patch('/messages/{message}/read', [App\Http\Controllers\MessageController::class, 'markAsRead'])->name('messages.mark-read');
 
     // Admin Panel

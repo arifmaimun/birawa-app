@@ -35,4 +35,17 @@ return [
         ],
     ],
 
+    'google_maps' => [
+        'key' => env('GOOGLE_MAPS_API_KEY'),
+    ],
+
+    'mapbox' => [
+        'token' => env('MAPBOX_ACCESS_TOKEN'),
+    ],
+
+    'routing' => [
+        'driver' => env('ROUTING_DRIVER', 'haversine'), // mapbox, valhalla, osrm, haversine
+        'valhalla_url' => env('VALHALLA_URL', 'http://localhost:8002'),
+        'osrm_url' => env('OSRM_URL', 'http://router.project-osrm.org'),
+    ],
 ];

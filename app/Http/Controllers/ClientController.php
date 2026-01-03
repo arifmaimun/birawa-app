@@ -34,7 +34,7 @@ class ClientController extends Controller
             return response()->json($clients);
         }
 
-        return view('react_spa');
+        return view('clients.index', compact('clients'));
     }
 
 
@@ -203,7 +203,7 @@ class ClientController extends Controller
             return response()->json($client);
         }
 
-        return view('react_spa');
+        return view('clients.show', compact('client'));
     }
 
     /**

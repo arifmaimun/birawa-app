@@ -39,6 +39,9 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
 
     public function canAccessPanel(Panel $panel): bool
     {
+        if ($panel->getId() === 'birawa-hub') {
+            return $this->role === 'superadmin';
+        }
         return true;
     }
 
@@ -95,29 +98,38 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         return $this->hasMany(DoctorInventory::class);
     }
 
-    public function pets()
-    {
-        return $this->belongsToMany(Patient::class, 'pet_owners');
-    }
-
-    public function sentMessages()
-    {
-        return $this->hasMany(Message::class, 'sender_id');
-    }
-
-    public function receivedMessages()
-    {
-        return $this->hasMany(Message::class, 'receiver_id');
-    }
-
+    // Friendship Relationships
     public function friendships()
     {
         return $this->hasMany(Friendship::class, 'user_id');
     }
 
-    public function friends()
+    public function friendRequestsReceived()
     {
-        return $this->belongsToMany(User::class, 'friendships', 'user_id', 'friend_id')
-            ->wherePivot('status', 'accepted');
+        return $this->hasMany(Friendship::class, 'friend_id')->where('status', 'pending');
+    }
+
+    // Helper to get accepted friends
+    public function getFriendsAttribute()
+    {
+        $friendsOfMine = $this->friendships()->where('status', 'accepted')->get()->pluck('friend');
+        $friendOf = $this->hasMany(Friendship::class, 'friend_id')->where('status', 'accepted')->get()->pluck('user');
+        
+        return $friendsOfMine->merge($friendOf);
+    }
+
+    // Chat Relationships
+    public function messagesSent()
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    public function messagesReceived()
+    {
+        return $this->hasMany(Message::class, 'receiver_id');
+    }
+    public function pets()
+    {
+        return $this->belongsToMany(Patient::class, 'pet_owners');
     }
 }

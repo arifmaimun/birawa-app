@@ -17,7 +17,7 @@ class PatientController extends Controller
             return response()->json($patients);
         }
 
-        return view('react_spa');
+        return view('patients.index', compact('patients'));
     }
 
     public function create()
@@ -49,7 +49,7 @@ class PatientController extends Controller
             $patient->load(['client', 'medical_records.diagnoses']);
             return response()->json($patient);
         }
-        return view('react_spa');
+        return view('patients.show', compact('patient'));
     }
 
     public function edit(Request $request, Patient $patient)

@@ -17,11 +17,11 @@ class SocialFeatureTest extends TestCase
         $user1 = User::factory()->create();
         $user2 = User::factory()->create();
 
-        $response = $this->actingAs($user1)->postJson(route('friendships.store'), [
+        $response = $this->actingAs($user1)->post(route('friends.request'), [
             'friend_id' => $user2->id,
         ]);
 
-        $response->assertStatus(201);
+        $response->assertStatus(302); // Redirects back
         $this->assertDatabaseHas('friendships', [
             'user_id' => $user1->id,
             'friend_id' => $user2->id,
@@ -40,11 +40,9 @@ class SocialFeatureTest extends TestCase
             'status' => 'pending',
         ]);
 
-        $response = $this->actingAs($user2)->putJson(route('friendships.update', $friendship->id), [
-            'status' => 'accepted',
-        ]);
+        $response = $this->actingAs($user2)->post(route('friends.accept', $friendship->id));
 
-        $response->assertStatus(200);
+        $response->assertStatus(302); // Redirects back
         $this->assertDatabaseHas('friendships', [
             'user_id' => $user1->id,
             'friend_id' => $user2->id,
@@ -64,12 +62,12 @@ class SocialFeatureTest extends TestCase
         $user1 = User::factory()->create();
         $user2 = User::factory()->create();
 
-        $response = $this->actingAs($user1)->postJson(route('messages.store'), [
+        $response = $this->actingAs($user1)->postJson(route('chat.store'), [
             'receiver_id' => $user2->id,
             'message' => 'Hello Doctor!',
         ]);
 
-        $response->assertStatus(201);
+        $response->assertStatus(200);
         $this->assertDatabaseHas('messages', [
             'sender_id' => $user1->id,
             'receiver_id' => $user2->id,
@@ -88,7 +86,7 @@ class SocialFeatureTest extends TestCase
             'message' => 'Hi there',
         ]);
 
-        $response = $this->actingAs($user1)->getJson(route('messages.index', $user2->id));
+        $response = $this->actingAs($user1)->getJson(route('chat.messages', $user2->id));
 
         $response->assertStatus(200);
         $response->assertJsonCount(1);

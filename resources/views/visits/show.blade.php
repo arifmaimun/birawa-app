@@ -255,16 +255,24 @@
             
             <div class="h-64 bg-slate-100 rounded-xl border border-slate-200 flex items-center justify-center overflow-hidden relative">
                 @if($visit->latitude && $visit->longitude)
-                    <!-- Simple static map fallback or iframe if key existed -->
-                    <iframe 
-                        width="100%" 
-                        height="100%" 
-                        style="border:0" 
-                        loading="lazy" 
-                        allowfullscreen 
-                        referrerpolicy="no-referrer-when-downgrade"
-                        src="https://maps.google.com/maps?q={{ $visit->latitude }},{{ $visit->longitude }}&z=15&output=embed">
-                    </iframe>
+                    <div id="visit-map" class="w-full h-full z-0"></div>
+                    
+                    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+                    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            var lat = parseFloat('{{ $visit->latitude }}');
+                            var lng = parseFloat('{{ $visit->longitude }}');
+                            
+                            var map = L.map('visit-map').setView([lat, lng], 15);
+                            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                attribution: '&copy; OpenStreetMap contributors'
+                            }).addTo(map);
+                            L.marker([lat, lng]).addTo(map)
+                                .bindPopup("{{ $visit->patient->client->address ?? 'Lokasi Kunjungan' }}")
+                                .openPopup();
+                        });
+                    </script>
                 @else
                     <div class="text-center p-6 text-slate-400">
                         <svg class="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>

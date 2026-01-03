@@ -96,6 +96,15 @@ class VisitSchedulingTest extends TestCase
             'transport_fee_per_km' => 5000,
         ]);
 
+        // Mock RouteOptimizationService to ensure consistent distance regardless of routing engine
+        $this->mock(\App\Services\RouteOptimizationService::class, function ($mock) {
+            $mock->shouldReceive('getDistanceDuration')
+                ->andReturn([
+                    'distance' => 5.0, // Exactly 5km
+                    'duration' => 15
+                ]);
+        });
+
         $this->actingAs($doctor);
         $client = Client::factory()->create();
         $patient = Patient::factory()->create(['client_id' => $client->id]);
@@ -129,6 +138,15 @@ class VisitSchedulingTest extends TestCase
             'longitude' => 106.816666,
             'service_radius_km' => 10,
         ]);
+
+        // Mock RouteOptimizationService
+        $this->mock(\App\Services\RouteOptimizationService::class, function ($mock) {
+            $mock->shouldReceive('getDistanceDuration')
+                ->andReturn([
+                    'distance' => 20.0, // 20km
+                    'duration' => 60
+                ]);
+        });
 
         $this->actingAs($doctor);
         $client = Client::factory()->create();

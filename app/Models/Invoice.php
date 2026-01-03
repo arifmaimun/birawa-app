@@ -12,7 +12,10 @@ class Invoice extends Model
         'user_id',
         'visit_id',
         'patient_id',
-        'invoice_number', 
+        'invoice_number',
+        'subtotal',
+        'discount_amount',
+        'promo_id',
         'total_amount', 
         'deposit_amount',
         'remaining_balance',
@@ -25,6 +28,8 @@ class Invoice extends Model
 
     protected $casts = [
         'due_date' => 'date',
+        'subtotal' => 'decimal:2',
+        'discount_amount' => 'decimal:2',
         'total_amount' => 'decimal:2',
         'deposit_amount' => 'decimal:2',
         'remaining_balance' => 'decimal:2',
@@ -43,6 +48,11 @@ class Invoice extends Model
     public function payments(): HasMany
     {
         return $this->hasMany(InvoicePayment::class);
+    }
+
+    public function promo(): BelongsTo
+    {
+        return $this->belongsTo(Promo::class);
     }
 
     public function recalculateStatus()
