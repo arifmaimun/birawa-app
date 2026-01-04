@@ -3,10 +3,10 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Infolists\Components\TextEntry;
-use Filament\Support\Facades\FilamentView;
+// use Filament\Tables\Columns\TextColumn;
+// use Filament\Forms\Components\DateTimePicker;
+// use Filament\Infolists\Components\TextEntry;
+// use Filament\Support\Facades\FilamentView;
 use Illuminate\Support\Facades\Config;
 
 class FilamentTimezoneServiceProvider extends ServiceProvider
@@ -24,10 +24,10 @@ class FilamentTimezoneServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // This ensures that when Filament renders, it uses the 'app.display_timezone' config
-        // which is set by our Middleware based on user preference.
-        // If not set, it falls back to 'app.timezone' (UTC).
-
+        // This provider has been disabled as part of the Filament removal process.
+        // It was used to configure Filament components to use the 'app.display_timezone' config.
+        
+        /*
         TextColumn::configureUsing(function (TextColumn $column) {
             $column->timezone(Config::get('app.display_timezone', Config::get('app.timezone')));
         });
@@ -39,5 +39,6 @@ class FilamentTimezoneServiceProvider extends ServiceProvider
         TextEntry::configureUsing(function (TextEntry $entry) {
             $entry->timezone(Config::get('app.display_timezone', Config::get('app.timezone')));
         });
+        */
     }
 }

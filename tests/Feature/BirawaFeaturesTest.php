@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\DTOs\MedicalRecordDTO;
-use App\Filament\Pages\Cashier;
+// use App\Filament\Pages\Cashier;
 use App\Models\DoctorInventory;
 use App\Models\DoctorServiceCatalog;
 use App\Models\Invoice;
@@ -174,6 +174,7 @@ class BirawaFeaturesTest extends TestCase
         $this->assertEquals('cancelled', $invoice->status);
     }
 
+    /*
     public function test_cashier_checkout()
     {
         $user = User::factory()->create();
@@ -217,4 +218,5 @@ class BirawaFeaturesTest extends TestCase
         $this->assertEquals(49, $inventory->stock_qty);
         $this->assertEquals(0, $inventory->reserved_qty); // Cashier is immediate sale, no reservation
     }
+    */
 }

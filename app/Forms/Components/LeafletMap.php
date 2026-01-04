@@ -2,9 +2,10 @@
 
 namespace App\Forms\Components;
 
-use Filament\Forms\Components\Field;
+// use Filament\Forms\Components\Field;
 
-class LeafletMap extends Field
+class LeafletMap // extends Field
 {
-    protected string $view = 'forms.components.leaflet-map';
+    // protected string $view = 'forms.components.leaflet-map';
+    // This component is disabled as part of the Filament removal process.
 }

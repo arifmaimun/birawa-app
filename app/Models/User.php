@@ -7,14 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
-use Filament\Models\Contracts\FilamentUser;
-use Filament\Models\Contracts\HasAvatar;
-use Filament\Panel;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable implements FilamentUser, HasAvatar
+class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasRoles, HasApiTokens;
@@ -30,19 +27,6 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
                 ]);
             }
         });
-    }
-
-    public function getFilamentAvatarUrl(): ?string
-    {
-        return $this->avatar ? Storage::url($this->avatar) . '?t=' . $this->updated_at->timestamp : null;
-    }
-
-    public function canAccessPanel(Panel $panel): bool
-    {
-        if ($panel->getId() === 'birawa-hub') {
-            return $this->role === 'superadmin';
-        }
-        return true;
     }
 
     /**
@@ -116,6 +100,13 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         $friendOf = $this->hasMany(Friendship::class, 'friend_id')->where('status', 'accepted')->get()->pluck('user');
         
         return $friendsOfMine->merge($friendOf);
+    }
+
+    public function getAvatarUrlAttribute()
+    {
+        return $this->avatar 
+            ? Storage::url($this->avatar) 
+            : null;
     }
 
     // Chat Relationships
