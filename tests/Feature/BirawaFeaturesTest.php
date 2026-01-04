@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\DTOs\MedicalRecordDTO;
-// use App\Filament\Pages\Cashier;
 use App\Models\DoctorInventory;
 use App\Models\DoctorServiceCatalog;
 use App\Models\Invoice;
@@ -17,7 +16,6 @@ use App\Services\InventoryService;
 use App\Services\MedicalRecordService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
-// use Livewire\Livewire;
 use Tests\TestCase;
 
 class BirawaFeaturesTest extends TestCase
@@ -174,49 +172,5 @@ class BirawaFeaturesTest extends TestCase
         $this->assertEquals('cancelled', $invoice->status);
     }
 
-    /*
-    public function test_cashier_checkout()
-    {
-        $user = User::factory()->create();
-        $this->actingAs($user);
 
-        $product = Product::factory()->create([
-            'sku' => '12345',
-            'name' => 'Test Product',
-            'price' => 50000,
-            'stock' => 100
-        ]);
-
-        // Create Inventory for this user
-        $inventory = DoctorInventory::create([
-            'user_id' => $user->id,
-            'product_id' => $product->id,
-            'item_name' => $product->name,
-            'stock_qty' => 50,
-            'reserved_qty' => 0,
-            'unit' => 'unit',
-        ]);
-
-        Livewire::test(Cashier::class)
-            ->set('barcode', '12345')
-            ->call('scan')
-            ->assertSet('barcode', '')
-            ->assertSee('Test Product')
-            ->assertSee(number_format(50000, 0, ',', '.')) // Format as Rp 50.000
-            ->call('checkout');
-
-        // Verify Invoice Created
-        $this->assertDatabaseHas('invoices', [
-            'user_id' => $user->id,
-            'total_amount' => 50000,
-            'payment_status' => 'paid',
-            'stock_committed' => 1,
-        ]);
-
-        // Verify Stock Deducted (Committed)
-        $inventory->refresh();
-        $this->assertEquals(49, $inventory->stock_qty);
-        $this->assertEquals(0, $inventory->reserved_qty); // Cashier is immediate sale, no reservation
-    }
-    */
 }

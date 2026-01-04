@@ -110,7 +110,7 @@
                     <div class="flex items-center justify-between">
                         <span class="text-sm font-medium text-gray-700 capitalize">{{ $module }}</span>
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $enabled ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
-                            {{ $enabled ? 'Active (Manual)' : 'Pending (Filament)' }}
+                            {{ $enabled ? 'Active (Manual)' : 'Inactive' }}
                         </span>
                     </div>
                     @endforeach

@@ -22,7 +22,7 @@ class TimezoneService
     }
 
     /**
-     * Get timezones formatted for Filament Select options.
+     * Get timezones formatted for Select options.
      */
     public function getTimezonesForSelect(): array
     {
