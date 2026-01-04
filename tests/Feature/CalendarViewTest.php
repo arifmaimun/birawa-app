@@ -16,11 +16,11 @@ class CalendarViewTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->user = User::factory()->create([
             'role' => 'veterinarian',
         ]);
-        
+
         // Ensure statuses exist for the view
         VisitStatus::firstOrCreate(['slug' => 'scheduled'], ['name' => 'Scheduled', 'color' => '#3B82F6']);
     }

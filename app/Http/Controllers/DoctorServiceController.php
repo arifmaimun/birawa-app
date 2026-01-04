@@ -18,7 +18,7 @@ class DoctorServiceController extends Controller
             })
             ->orderBy('service_name')
             ->paginate(10);
-            
+
         return view('services.index', compact('services', 'search'));
     }
 
@@ -54,6 +54,7 @@ class DoctorServiceController extends Controller
         if ($service->user_id !== Auth::id()) {
             abort(403);
         }
+
         return view('services.edit', compact('service'));
     }
 

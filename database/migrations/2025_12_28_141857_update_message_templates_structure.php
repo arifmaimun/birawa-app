@@ -17,15 +17,15 @@ return new class extends Migration
             // but Laravel's schema builder usually handles it or we can just change it.
             // For safety in SQLite (often used in testing), we might need a raw statement or a specific approach.
             // However, let's try standard Laravel modification first.
-            
+
             // If we can't easily modify enum, we can just make it a string.
             // But first, let's add the new column.
-            if (!Schema::hasColumn('message_templates', 'trigger_event')) {
+            if (! Schema::hasColumn('message_templates', 'trigger_event')) {
                 $table->string('trigger_event')->nullable()->after('content_pattern');
             }
         });
-        
-        // Changing enum to string or expanding it. 
+
+        // Changing enum to string or expanding it.
         // Since it's SQLite in tests, modifying columns can be tricky.
         // We will try to modify the type column.
         Schema::table('message_templates', function (Blueprint $table) {

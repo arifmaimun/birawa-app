@@ -24,12 +24,12 @@ class InvoiceController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('invoice_number', 'like', "%{$search}%")
-                  ->orWhereHas('visit.patient', function ($q) use ($search) {
-                      $q->where('name', 'like', "%{$search}%");
-                  })
-                  ->orWhereHas('visit.patient.owners', function ($q) use ($search) {
-                      $q->where('name', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('visit.patient', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('visit.patient.owners', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -48,10 +48,10 @@ class InvoiceController extends Controller
         if (empty($invoice->access_token)) {
             $invoice->update([
                 'access_token' => (string) Str::uuid(),
-                'token_expires_at' => now()->addHours(48)
+                'token_expires_at' => now()->addHours(48),
             ]);
         }
-        
+
         $invoice->load('payments');
 
         return view('invoices.show', compact('invoice'));
@@ -63,9 +63,9 @@ class InvoiceController extends Controller
 
         // LOGIC: If token_expires_at is past (or fallback to created_at if null) AND user is NOT logged in
         $expiresAt = $invoice->token_expires_at ?? $invoice->created_at->addHours(48);
-        
-        if ($expiresAt->isPast() && !Auth::check()) {
-             return redirect()->route('login')->with('error', 'This invoice link has expired. Please log in to view.');
+
+        if ($expiresAt->isPast() && ! Auth::check()) {
+            return redirect()->route('login')->with('error', 'This invoice link has expired. Please log in to view.');
         }
 
         return view('invoices.public_show', compact('invoice'));
@@ -87,7 +87,7 @@ class InvoiceController extends Controller
             // 1. Create Invoice Header
             $invoice = Invoice::create([
                 'visit_id' => $visit->id,
-                'invoice_number' => 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(4)),
+                'invoice_number' => 'INV-'.date('Ymd').'-'.strtoupper(Str::random(4)),
                 'total_amount' => 0, // Will update later
                 'payment_status' => 'unpaid',
                 'access_token' => (string) Str::uuid(),
@@ -100,7 +100,7 @@ class InvoiceController extends Controller
                 $amount = $visit->transport_fee;
                 InvoiceItem::create([
                     'invoice_id' => $invoice->id,
-                    'description' => 'Transport Fee (' . ($visit->distance_km ?? 0) . ' km)',
+                    'description' => 'Transport Fee ('.($visit->distance_km ?? 0).' km)',
                     'quantity' => 1,
                     'unit_price' => $amount,
                     'unit_cost' => 0,
@@ -119,7 +119,7 @@ class InvoiceController extends Controller
                         $inventory = $log->doctorInventory;
 
                         // Skip if not for sale
-                        if (!$inventory->is_sold) {
+                        if (! $inventory->is_sold) {
                             continue;
                         }
 
@@ -130,13 +130,13 @@ class InvoiceController extends Controller
                         InvoiceItem::create([
                             'invoice_id' => $invoice->id,
                             'description' => $inventory->item_name,
-                            'quantity' => $qty, 
+                            'quantity' => $qty,
                             'unit_price' => $price,
                             'unit_cost' => $inventory->average_cost_price,
-                            'product_id' => $inventory->product_id, 
+                            'product_id' => $inventory->product_id,
                             'doctor_inventory_id' => null, // Stock already deducted in Medical Record
                         ]);
-                        
+
                         $total += $subtotal;
                     } elseif ($log->service) {
                         $service = $log->service;
@@ -167,6 +167,7 @@ class InvoiceController extends Controller
 
         // Redirect to show newly created invoice
         $invoice = Invoice::where('visit_id', $visit->id)->first();
+
         return redirect()->route('invoices.show', $invoice)->with('success', 'Invoice generated successfully.');
     }
 
@@ -188,7 +189,7 @@ class InvoiceController extends Controller
             'notes' => $request->notes,
             'due_date' => $request->due_date,
         ]);
-        
+
         $invoice->recalculateStatus();
 
         return back()->with('success', 'Invoice details updated.');
@@ -220,7 +221,7 @@ class InvoiceController extends Controller
             $invoice->recalculateStatus();
 
             // Commit stock if paid
-            if ($invoice->payment_status === 'paid' && !$invoice->stock_committed) {
+            if ($invoice->payment_status === 'paid' && ! $invoice->stock_committed) {
                 foreach ($invoice->invoiceItems as $item) {
                     if ($item->doctor_inventory_id) {
                         try {
@@ -247,20 +248,20 @@ class InvoiceController extends Controller
         }
 
         if ($invoice->status === 'cancelled') {
-             return back()->with('error', 'Invoice already cancelled.');
+            return back()->with('error', 'Invoice already cancelled.');
         }
 
         DB::transaction(function () use ($invoice, $inventoryService) {
-             $invoice->update(['status' => 'cancelled']);
-             
-             // Release reservation if not committed
-             if (!$invoice->stock_committed) {
-                 foreach ($invoice->invoiceItems as $item) {
+            $invoice->update(['status' => 'cancelled']);
+
+            // Release reservation if not committed
+            if (! $invoice->stock_committed) {
+                foreach ($invoice->invoiceItems as $item) {
                     if ($item->doctor_inventory_id) {
                         $inventoryService->releaseStock($item->doctor_inventory_id, $item->quantity);
                     }
                 }
-             }
+            }
         });
 
         return back()->with('success', 'Invoice cancelled.');
@@ -272,7 +273,7 @@ class InvoiceController extends Controller
         if ($ownerId !== Auth::id()) {
             abort(403);
         }
-        
+
         if ($payment->invoice_id !== $invoice->id) {
             abort(404);
         }

@@ -15,10 +15,10 @@ class PatientController extends Controller
 
         if ($search = $request->input('search')) {
             $query->where('name', 'like', "%{$search}%")
-                  ->orWhereHas('client', function($q) use ($search) {
-                      $q->where('name', 'like', "%{$search}%")
+                ->orWhereHas('client', function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
                         ->orWhere('phone', 'like', "%{$search}%");
-                  });
+                });
         }
 
         $patients = $query->latest()->paginate(10);
@@ -30,8 +30,8 @@ class PatientController extends Controller
     {
         // For dropdown, limit to recent or provide search via AJAX in real app
         // For MVP, just get all clients sorted by name
-        $clients = Client::orderBy('name')->get(); 
-        
+        $clients = Client::orderBy('name')->get();
+
         return view('manual.clinical.patients.create', compact('clients'));
     }
 
@@ -52,8 +52,8 @@ class PatientController extends Controller
         $patient = Patient::create($request->all());
 
         // Also attach to pivot if needed, but client_id handles primary ownership
-        if (!$patient->clients()->where('client_id', $request->client_id)->exists()) {
-             $patient->clients()->attach($request->client_id);
+        if (! $patient->clients()->where('client_id', $request->client_id)->exists()) {
+            $patient->clients()->attach($request->client_id);
         }
 
         return redirect()->route('manual.patients.index')
@@ -63,6 +63,7 @@ class PatientController extends Controller
     public function edit(Patient $patient)
     {
         $clients = Client::orderBy('name')->get();
+
         return view('manual.clinical.patients.edit', compact('patient', 'clients'));
     }
 
@@ -83,9 +84,9 @@ class PatientController extends Controller
         $patient->update($request->all());
 
         // Sync primary client to pivot
-        if (!$patient->clients()->where('client_id', $request->client_id)->exists()) {
+        if (! $patient->clients()->where('client_id', $request->client_id)->exists()) {
             $patient->clients()->attach($request->client_id);
-       }
+        }
 
         return redirect()->route('manual.patients.index')
             ->with('success', 'Patient updated successfully.');

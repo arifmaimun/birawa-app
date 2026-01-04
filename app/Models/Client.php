@@ -4,8 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Client extends Model
@@ -17,9 +17,9 @@ class Client extends Model
         'first_name', 'last_name',
         'is_business', 'business_name', 'contact_person',
         'id_type', 'id_number', 'gender', 'occupation',
-        'dob', 'ethnicity', 'religion', 'marital_status'
+        'dob', 'ethnicity', 'religion', 'marital_status',
     ];
-    
+
     protected $casts = [
         'is_business' => 'boolean',
         'dob' => 'date',
@@ -28,6 +28,7 @@ class Client extends Model
     public function getRecentVisitsAttribute()
     {
         $patientIds = $this->patients()->pluck('patients.id');
+
         return Visit::whereIn('patient_id', $patientIds)
             ->with(['patient', 'visitStatus'])
             ->latest('scheduled_at')
@@ -38,6 +39,7 @@ class Client extends Model
     public function getTotalSpendingAttribute()
     {
         $patientIds = $this->patients()->pluck('patients.id');
+
         return Invoice::whereIn('patient_id', $patientIds)->sum('total_amount');
     }
 

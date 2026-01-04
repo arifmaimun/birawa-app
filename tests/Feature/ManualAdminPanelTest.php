@@ -14,9 +14,9 @@ class ManualAdminPanelTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Ensure roles exist
-        if (!Role::where('name', 'superadmin')->exists()) {
+        if (! Role::where('name', 'superadmin')->exists()) {
             Role::create(['name' => 'superadmin']);
         }
     }
@@ -25,6 +25,7 @@ class ManualAdminPanelTest extends TestCase
     {
         $user = User::factory()->create(['role' => 'superadmin']);
         $user->assignRole('superadmin');
+
         return $user;
     }
 
@@ -67,7 +68,7 @@ class ManualAdminPanelTest extends TestCase
 
         $response->assertStatus(200);
     }
-    
+
     public function test_manual_inventory_index_is_accessible()
     {
         $user = $this->createAdminUser();

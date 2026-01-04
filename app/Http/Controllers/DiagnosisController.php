@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Diagnosis;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class DiagnosisController extends Controller
 {
@@ -18,9 +17,9 @@ class DiagnosisController extends Controller
 
         // Check if diagnosis already exists globally or for this user
         $exists = Diagnosis::where('code', $request->code)
-            ->where(function($q) use ($request) {
+            ->where(function ($q) use ($request) {
                 $q->whereNull('user_id')
-                  ->orWhere('user_id', $request->user()->id);
+                    ->orWhere('user_id', $request->user()->id);
             })->exists();
 
         if ($exists) {

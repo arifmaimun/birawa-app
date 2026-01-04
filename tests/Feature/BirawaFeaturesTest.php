@@ -31,7 +31,7 @@ class BirawaFeaturesTest extends TestCase
 
         // 1. Create Product (Material)
         $material = Product::factory()->create(['stock' => 100]); // Global stock, but we use DoctorInventory
-        
+
         // 2. Create DoctorInventory
         $inventory = DoctorInventory::create([
             'user_id' => $user->id,
@@ -80,7 +80,7 @@ class BirawaFeaturesTest extends TestCase
     {
         $user = User::factory()->create();
         Auth::login($user);
-        
+
         $product = Product::factory()->create();
         $inventory = DoctorInventory::create([
             'user_id' => $user->id,
@@ -124,7 +124,7 @@ class BirawaFeaturesTest extends TestCase
 
         $this->assertEquals(0, $inventory->reserved_qty); // 5 - 5 = 0
         $this->assertEquals(5, $inventory->stock_qty);    // 10 - 5 = 5
-        $this->assertTrue((bool)$invoice->stock_committed);
+        $this->assertTrue((bool) $invoice->stock_committed);
         $this->assertEquals('paid', $invoice->payment_status);
     }
 
@@ -132,7 +132,7 @@ class BirawaFeaturesTest extends TestCase
     {
         $user = User::factory()->create();
         Auth::login($user);
-        
+
         $product = Product::factory()->create();
         $inventory = DoctorInventory::create([
             'user_id' => $user->id,
@@ -162,7 +162,7 @@ class BirawaFeaturesTest extends TestCase
         ]);
 
         // Cancel Invoice
-        $controller = new \App\Http\Controllers\InvoiceController();
+        $controller = new \App\Http\Controllers\InvoiceController;
         $inventoryService = app(InventoryService::class);
         $controller->cancel($invoice, $inventoryService);
 

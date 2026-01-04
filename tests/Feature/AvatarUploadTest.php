@@ -15,7 +15,7 @@ class AvatarUploadTest extends TestCase
     public function test_user_can_upload_avatar()
     {
         Storage::fake('public');
-        
+
         $user = User::factory()->create();
         $this->actingAs($user);
 
@@ -31,7 +31,7 @@ class AvatarUploadTest extends TestCase
         // Check if file is stored
         // Filename is ID-TIMESTAMP.webp, we can't guess timestamp exactly but we can check if directory has files
         $this->assertNotEmpty(Storage::disk('public')->files('avatars'));
-        
+
         // Check user record
         $user->refresh();
         $this->assertNotNull($user->avatar);

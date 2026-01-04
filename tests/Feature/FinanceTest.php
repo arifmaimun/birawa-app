@@ -2,13 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Models\Expense;
+use App\Models\Invoice;
 use App\Models\User;
 use App\Models\Visit;
-use App\Models\Invoice;
-use App\Models\Expense;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Carbon\Carbon;
 
 class FinanceTest extends TestCase
 {
@@ -95,7 +95,7 @@ class FinanceTest extends TestCase
         $response->assertViewHas('capex', 500000);
         $response->assertViewHas('totalExpenses', 520000);
         $response->assertViewHas('netProfit', 150000 - 520000); // -370000
-        
+
         // Assert Recent Payments present
         $response->assertViewHas('recentPayments');
     }

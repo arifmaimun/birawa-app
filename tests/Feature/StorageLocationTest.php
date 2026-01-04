@@ -2,11 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
-use App\Models\StorageLocation;
 use App\Models\DoctorInventory;
+use App\Models\StorageLocation;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class StorageLocationTest extends TestCase
@@ -148,7 +147,7 @@ class StorageLocationTest extends TestCase
         $this->actingAs($user);
 
         $location = StorageLocation::create(['user_id' => $user->id, 'name' => 'Loc 1', 'type' => 'warehouse']);
-        
+
         DoctorInventory::create([
             'user_id' => $user->id,
             'storage_location_id' => $location->id,
@@ -171,7 +170,7 @@ class StorageLocationTest extends TestCase
         $this->actingAs($user);
 
         $location = StorageLocation::create(['user_id' => $user->id, 'name' => 'Loc 1', 'type' => 'warehouse']);
-        
+
         // No items or items with 0 stock
         DoctorInventory::create([
             'user_id' => $user->id,

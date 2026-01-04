@@ -2,12 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
 class Visit extends Model
@@ -24,16 +23,16 @@ class Visit extends Model
     }
 
     protected $fillable = [
-        'patient_id', 
-        'user_id', 
-        'scheduled_at', 
-        'visit_status_id', 
-        'complaint', 
+        'patient_id',
+        'user_id',
+        'scheduled_at',
+        'visit_status_id',
+        'complaint',
         'transport_fee',
         'latitude',
         'longitude',
         'distance_km',
-        'actual_travel_minutes'
+        'actual_travel_minutes',
     ];
 
     protected $casts = [
@@ -56,7 +55,7 @@ class Visit extends Model
     {
         return $this->belongsTo(VisitStatus::class);
     }
-    
+
     public function medicalRecords()
     {
         return $this->hasMany(MedicalRecord::class);

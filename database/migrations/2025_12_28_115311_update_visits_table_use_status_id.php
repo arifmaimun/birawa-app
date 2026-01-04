@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -18,10 +18,10 @@ return new class extends Migration
             $table->foreignId('patient_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->datetime('scheduled_at');
-            
+
             // New column
             $table->foreignId('visit_status_id')->nullable()->constrained('visit_statuses')->nullOnDelete();
-            
+
             $table->text('complaint')->nullable();
             $table->decimal('transport_fee', 10, 2)->nullable();
             $table->decimal('latitude', 10, 8)->nullable();
@@ -38,7 +38,7 @@ return new class extends Migration
             // Map old enum status to new status ID
             // Old enum: ['scheduled', 'otw', 'arrived', 'completed', 'cancelled']
             // New slugs match these.
-            
+
             $statusSlug = $visit->status;
             // Handle potential mismatch if any, default to 'scheduled' or null
             $statusId = $statuses[$statusSlug] ?? $statuses['scheduled'] ?? null;
@@ -90,7 +90,7 @@ return new class extends Migration
 
         foreach ($visits as $visit) {
             $slug = $statuses[$visit->visit_status_id] ?? 'scheduled';
-            
+
             DB::table('visits_temp')->insert([
                 'id' => $visit->id,
                 'patient_id' => $visit->patient_id,

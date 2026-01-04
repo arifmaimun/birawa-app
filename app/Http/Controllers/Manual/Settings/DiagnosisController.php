@@ -14,7 +14,7 @@ class DiagnosisController extends Controller
 
         if ($search = $request->input('search')) {
             $query->where('name', 'like', "%{$search}%")
-                  ->orWhere('code', 'like', "%{$search}%");
+                ->orWhere('code', 'like', "%{$search}%");
         }
 
         $diagnoses = $query->latest()->paginate(10);
@@ -49,7 +49,7 @@ class DiagnosisController extends Controller
     public function update(Request $request, Diagnosis $diagnosis)
     {
         $validated = $request->validate([
-            'code' => 'required|string|unique:diagnoses,code,' . $diagnosis->id,
+            'code' => 'required|string|unique:diagnoses,code,'.$diagnosis->id,
             'name' => 'required|string',
             'description' => 'nullable|string',
         ]);

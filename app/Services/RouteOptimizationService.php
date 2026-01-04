@@ -2,14 +2,16 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class RouteOptimizationService
 {
     protected $mapboxToken;
+
     protected $valhallaUrl;
+
     protected $osrmUrl;
 
     public function __construct()
@@ -38,7 +40,7 @@ class RouteOptimizationService
             foreach ($unvisited as $id => $visit) {
                 $legData = $this->getDistanceDuration($currentLocation, [
                     'latitude' => $visit->latitude,
-                    'longitude' => $visit->longitude
+                    'longitude' => $visit->longitude,
                 ]);
 
                 // Metric: Primary is duration, fallback to distance
@@ -64,7 +66,7 @@ class RouteOptimizationService
                 // Update current location
                 $currentLocation = [
                     'latitude' => $nearestVisit->latitude,
-                    'longitude' => $nearestVisit->longitude
+                    'longitude' => $nearestVisit->longitude,
                 ];
 
                 $totalDistance += $bestLegData['distance'];
@@ -79,7 +81,7 @@ class RouteOptimizationService
             'summary' => [
                 'total_distance_km' => round($totalDistance, 2),
                 'total_duration_minutes' => round($totalDuration / 60),
-            ]
+            ],
         ];
     }
 
@@ -89,15 +91,17 @@ class RouteOptimizationService
     public function getDistanceDuration($origin, $destination)
     {
         $cacheKey = "route_v2_{$origin['latitude']},{$origin['longitude']}_{$destination['latitude']},{$destination['longitude']}";
-        
+
         return Cache::remember($cacheKey, 3600, function () use ($origin, $destination) {
             // 1. Try Mapbox (Highest Accuracy)
             if ($this->mapboxToken) {
                 try {
                     $result = $this->getMapboxRoute($origin, $destination);
-                    if ($result) return $result;
+                    if ($result) {
+                        return $result;
+                    }
                 } catch (\Exception $e) {
-                    Log::warning('Mapbox API failed: ' . $e->getMessage());
+                    Log::warning('Mapbox API failed: '.$e->getMessage());
                 }
             }
 
@@ -105,7 +109,9 @@ class RouteOptimizationService
             // Note: Prioritize Valhalla if configured locally as per instructions
             try {
                 $result = $this->getValhallaRoute($origin, $destination);
-                if ($result) return $result;
+                if ($result) {
+                    return $result;
+                }
             } catch (\Exception $e) {
                 // Silently fail to next fallback
             }
@@ -118,17 +124,18 @@ class RouteOptimizationService
     protected function getMapboxRoute($origin, $destination)
     {
         $url = "https://api.mapbox.com/directions/v5/mapbox/driving/{$origin['longitude']},{$origin['latitude']};{$destination['longitude']},{$destination['latitude']}";
-        
+
         $response = Http::timeout(3)->get($url, [
             'access_token' => $this->mapboxToken,
             'geometries' => 'geojson',
-            'overview' => 'false'
+            'overview' => 'false',
         ]);
 
         if ($response->successful()) {
             $data = $response->json();
-            if (!empty($data['routes'])) {
+            if (! empty($data['routes'])) {
                 $route = $data['routes'][0];
+
                 return [
                     'distance' => $route['distance'] / 1000, // meters to km
                     'duration' => $route['duration'], // seconds
@@ -145,18 +152,19 @@ class RouteOptimizationService
         // Example implementation for Valhalla/OSRM
         // This assumes a standard OSRM or Valhalla API structure
         // If Valhalla URL is not reachable, this returns null
-        
+
         // Simple check if URL is localhost and port is closed, skip... but Http timeout handles it.
-        
+
         // Using OSRM format as generic open source example
         $url = "{$this->osrmUrl}/route/v1/driving/{$origin['longitude']},{$origin['latitude']};{$destination['longitude']},{$destination['latitude']}";
-        
+
         $response = Http::timeout(2)->get($url); // Fast timeout for local/fallback
 
         if ($response->successful()) {
             $data = $response->json();
-            if (!empty($data['routes'])) {
+            if (! empty($data['routes'])) {
                 $route = $data['routes'][0];
+
                 return [
                     'distance' => $route['distance'] / 1000, // meters to km
                     'duration' => $route['duration'], // seconds
@@ -164,7 +172,7 @@ class RouteOptimizationService
                 ];
             }
         }
-        
+
         return null;
     }
 
@@ -183,19 +191,19 @@ class RouteOptimizationService
         $a = sin($dLat / 2) * sin($dLat / 2) +
              cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
              sin($dLon / 2) * sin($dLon / 2);
-             
+
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
         $distance = $earthRadius * $c;
 
         // Accuracy correction for short distances (<50km) - usually not needed for simple Haversine but can add "road factor"
         // Road factor: straight line distance * 1.4 (heuristic for urban road network)
-        $roadFactor = 1.4; 
+        $roadFactor = 1.4;
         $estDistance = $distance * $roadFactor;
 
         // Time estimation
         // Base speed: 30 km/h (Urban default)
         // Can be adjusted by "crowdsourced" or user input factors in future
-        $speedKmh = 30; 
+        $speedKmh = 30;
         $durationHours = $estDistance / $speedKmh;
         $durationSeconds = $durationHours * 3600;
 

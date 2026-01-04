@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Models\Visit;
 use App\Models\EngagementTask;
+use App\Models\Visit;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class GenerateEngagementTasks extends Command
 {
@@ -45,10 +45,10 @@ class GenerateEngagementTasks extends Command
                 'task_type' => 'control',
                 'due_date' => $today, // Notify doctor TODAY that tomorrow is control
             ], [
-                'status' => 'pending'
+                'status' => 'pending',
             ]);
         }
-        $this->info("Generated " . $upcomingVisits->count() . " control reminders.");
+        $this->info('Generated '.$upcomingVisits->count().' control reminders.');
 
         // 2. Wellness Check (H+3 Post-Visit)
         // Find visits completed 3 days ago
@@ -63,15 +63,15 @@ class GenerateEngagementTasks extends Command
                 'task_type' => 'wellness',
                 'due_date' => $today,
             ], [
-                'status' => 'pending'
+                'status' => 'pending',
             ]);
         }
-        $this->info("Generated " . $pastVisits->count() . " wellness checks.");
-        
+        $this->info('Generated '.$pastVisits->count().' wellness checks.');
+
         // 3. Vaccine Reminders (H-3)
         // This requires 'next_vaccine_date' on Patient or MedicalRecord.
         // Skipping for now as column doesn't strictly exist in provided schema dump.
-        
+
         $this->info('Engagement tasks generation completed.');
     }
 }

@@ -2,10 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\Client;
-use App\Models\Patient;
 use App\Models\FormOption;
+use App\Models\Patient;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -34,7 +34,7 @@ class ClientCreateTest extends TestCase
             ['category' => 'id_type', 'value' => 'KTP'],
             ['is_active' => true]
         );
-        
+
         $data = [
             'is_business' => '0',
             'first_name' => 'John',
@@ -49,7 +49,7 @@ class ClientCreateTest extends TestCase
                     'street' => 'Jl. Test No. 1',
                     'city' => 'Jakarta',
                     'country' => 'Indonesia',
-                ]
+                ],
             ],
             // Patient Data
             'patient_name' => 'Mochi',
@@ -68,7 +68,7 @@ class ClientCreateTest extends TestCase
         ]);
 
         $client = Client::where('phone', '08123456789')->first();
-        
+
         $this->assertDatabaseHas('client_addresses', [
             'client_id' => $client->id,
             'street' => 'Jl. Test No. 1',
@@ -89,7 +89,7 @@ class ClientCreateTest extends TestCase
             'last_name' => 'Doe',
             'phone' => '08123456789',
             'addresses' => [
-                ['street' => 'Jl. Test']
+                ['street' => 'Jl. Test'],
             ],
             // Missing patient data
         ];

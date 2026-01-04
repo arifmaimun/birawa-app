@@ -13,6 +13,7 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::where('type', 'goods')->latest()->paginate(10);
+
         return view('products.index', compact('products'));
     }
 
@@ -22,12 +23,14 @@ class ProductController extends Controller
     public function create()
     {
         $categories = Product::distinct()->pluck('category')->filter();
+
         return view('products.create', compact('categories'));
     }
 
     public function checkSku(Request $request)
     {
         $exists = Product::where('sku', $request->sku)->exists();
+
         return response()->json(['exists' => $exists]);
     }
 
@@ -68,10 +71,12 @@ class ProductController extends Controller
         // Generate prefix: 3 letters of category (or PRD/SVC)
         $prefix = $category ? strtoupper(substr($category, 0, 3)) : ($type == 'goods' ? 'PRD' : 'SVC');
         $prefix = preg_replace('/[^A-Z]/', '', $prefix); // Keep only letters
-        if (strlen($prefix) < 3) $prefix = str_pad($prefix, 3, 'X');
+        if (strlen($prefix) < 3) {
+            $prefix = str_pad($prefix, 3, 'X');
+        }
 
         // Find last product with this prefix to determine sequence
-        $lastProduct = Product::where('sku', 'like', $prefix . '-%')
+        $lastProduct = Product::where('sku', 'like', $prefix.'-%')
             ->orderBy('id', 'desc')
             ->first();
 
@@ -84,7 +89,7 @@ class ProductController extends Controller
             }
         }
 
-        return $prefix . '-' . str_pad($sequence, 4, '0', STR_PAD_LEFT);
+        return $prefix.'-'.str_pad($sequence, 4, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -109,7 +114,7 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $request->validate([
-            'sku' => 'required|string|max:50|unique:products,sku,' . $product->id,
+            'sku' => 'required|string|max:50|unique:products,sku,'.$product->id,
             'name' => 'required|string|max:255',
             'category' => 'nullable|string|max:50',
             'type' => 'required|in:barang,jasa',

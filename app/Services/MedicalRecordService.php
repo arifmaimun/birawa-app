@@ -3,27 +3,24 @@
 namespace App\Services;
 
 use App\DTOs\MedicalRecordDTO;
+use App\Models\Diagnosis;
 use App\Models\MedicalRecord;
+use App\Models\MedicalUsageLog;
 use App\Models\Visit;
 use App\Models\VitalSign;
-use App\Models\Diagnosis;
-use App\Models\MedicalUsageLog;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use App\Services\InventoryService;
 
 class MedicalRecordService
 {
-    public function __construct(protected InventoryService $inventoryService)
-    {
-    }
+    public function __construct(protected InventoryService $inventoryService) {}
 
     public function createMedicalRecord(Visit $visit, MedicalRecordDTO $data): MedicalRecord
     {
         return DB::transaction(function () use ($visit, $data) {
             // Auto-generate assessment text from selected diagnoses if assessment is empty
             $assessmentText = $data->assessment;
-            if (empty($assessmentText) && !empty($data->diagnoses)) {
+            if (empty($assessmentText) && ! empty($data->diagnoses)) {
                 $selectedDiagnoses = Diagnosis::whereIn('id', $data->diagnoses)->pluck('name')->toArray();
                 $assessmentText = implode(', ', $selectedDiagnoses);
             }
@@ -51,7 +48,7 @@ class MedicalRecordService
 
             // Handle Custom Fields
             $customData = [];
-            if (!empty($data->custom_vital_signs)) {
+            if (! empty($data->custom_vital_signs)) {
                 foreach ($data->custom_vital_signs as $key => $value) {
                     if ($value !== null && $value !== '') {
                         $customData[$key] = $value;
@@ -63,17 +60,17 @@ class MedicalRecordService
             VitalSign::create($vitalData);
 
             // Attach Diagnoses
-            if (!empty($data->diagnoses)) {
+            if (! empty($data->diagnoses)) {
                 $record->diagnoses()->attach($data->diagnoses);
             }
 
-            if (!empty($data->inventory_items)) {
+            if (! empty($data->inventory_items)) {
                 foreach ($data->inventory_items as $item) {
                     if ($item['qty'] > 0) {
                         try {
                             // Use InventoryService to reserve stock first (committed on payment/invoice)
                             $this->inventoryService->reserveStock($item['id'], $item['qty']);
-                            
+
                             // Log usage in MedicalUsageLog (Medical Context)
                             MedicalUsageLog::create([
                                 'medical_record_id' => $record->id,
@@ -83,17 +80,19 @@ class MedicalRecordService
 
                         } catch (\Exception $e) {
                             // Throwing error to rollback transaction
-                            throw new \Exception("Inventory Error: " . $e->getMessage());
+                            throw new \Exception('Inventory Error: '.$e->getMessage());
                         }
                     }
                 }
             }
 
-            if (!empty($data->service_items)) {
+            if (! empty($data->service_items)) {
                 foreach ($data->service_items as $serviceData) {
                     if (($serviceData['qty'] ?? 0) > 0) {
                         $service = \App\Models\DoctorServiceCatalog::with('materials')->find($serviceData['id']);
-                        if (!$service) continue;
+                        if (! $service) {
+                            continue;
+                        }
 
                         MedicalUsageLog::create([
                             'medical_record_id' => $record->id,
@@ -104,7 +103,7 @@ class MedicalRecordService
                         // Handle Bundled Materials
                         foreach ($service->materials as $material) {
                             $requiredQty = $material->pivot->quantity * $serviceData['qty'];
-                            
+
                             // Find doctor's inventory for this product
                             // Prioritize finding inventory with enough stock? Or just the default one?
                             // Assuming one inventory entry per product per doctor usually.
@@ -115,7 +114,7 @@ class MedicalRecordService
                             if ($inventory) {
                                 try {
                                     $this->inventoryService->reserveStock($inventory->id, $requiredQty, $material->pivot->unit ?? 'unit');
-                                    
+
                                     // Log bundled usage
                                     MedicalUsageLog::create([
                                         'medical_record_id' => $record->id,
@@ -123,14 +122,14 @@ class MedicalRecordService
                                         'quantity_used' => $requiredQty,
                                     ]);
                                 } catch (\Exception $e) {
-                                     throw new \Exception("Bundled Inventory Error ({$material->name}): " . $e->getMessage());
+                                    throw new \Exception("Bundled Inventory Error ({$material->name}): ".$e->getMessage());
                                 }
                             }
                         }
                     }
                 }
             }
-            
+
             // Update visit status to completed
             $completedStatus = \App\Models\VisitStatus::where('slug', 'completed')->first();
             if ($completedStatus) {

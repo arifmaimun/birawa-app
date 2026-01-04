@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\Friendship;
 use App\Models\Message;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -48,7 +48,7 @@ class SocialFeatureTest extends TestCase
             'friend_id' => $user2->id,
             'status' => 'accepted',
         ]);
-        
+
         // Check reverse creation (simplified logic in controller)
         $this->assertDatabaseHas('friendships', [
             'user_id' => $user2->id,

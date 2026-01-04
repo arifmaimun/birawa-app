@@ -32,7 +32,7 @@ class Promo extends Model
 
     public function calculateDiscount($amount)
     {
-        if (!$this->isValid($amount)) {
+        if (! $this->isValid($amount)) {
             return 0;
         }
 
@@ -41,7 +41,7 @@ class Promo extends Model
         }
 
         $discount = $amount * ($this->value / 100);
-        
+
         if ($this->max_discount && $discount > $this->max_discount) {
             $discount = $this->max_discount;
         }
@@ -51,11 +51,21 @@ class Promo extends Model
 
     public function isValid($amount)
     {
-        if (!$this->is_active) return false;
-        if ($this->start_date && now()->lt($this->start_date)) return false;
-        if ($this->end_date && now()->gt($this->end_date)) return false;
-        if ($this->usage_limit && $this->used_count >= $this->usage_limit) return false;
-        if ($amount < $this->min_purchase) return false;
+        if (! $this->is_active) {
+            return false;
+        }
+        if ($this->start_date && now()->lt($this->start_date)) {
+            return false;
+        }
+        if ($this->end_date && now()->gt($this->end_date)) {
+            return false;
+        }
+        if ($this->usage_limit && $this->used_count >= $this->usage_limit) {
+            return false;
+        }
+        if ($amount < $this->min_purchase) {
+            return false;
+        }
 
         return true;
     }

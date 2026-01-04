@@ -2,15 +2,12 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\Client;
 use App\Models\Patient;
-use App\Models\Product;
-use App\Models\FormOption;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
 use Illuminate\Support\Facades\Hash;
+use Tests\TestCase;
 
 class OptimizedFeaturesTest extends TestCase
 {
@@ -37,11 +34,11 @@ class OptimizedFeaturesTest extends TestCase
             'last_name' => 'Doe',
             'phone' => '081234567890',
             'email' => 'john@example.com',
-            
+
             // Client Details
             'gender' => 'Laki-laki',
             'dob' => '1990-01-01',
-            
+
             // Addresses
             'addresses' => [
                 [
@@ -49,9 +46,9 @@ class OptimizedFeaturesTest extends TestCase
                     'city' => 'Jakarta',
                     'province' => 'DKI Jakarta',
                     'country' => 'Indonesia',
-                ]
+                ],
             ],
-            
+
             // Patient Section (Prefixed)
             'patient_name' => 'Mochi',
             'patient_species' => 'Kucing',
@@ -131,7 +128,7 @@ class OptimizedFeaturesTest extends TestCase
         ]);
 
         $response->assertRedirect(route('products.index'));
-        
+
         $this->assertDatabaseHas('products', [
             'name' => 'Vaksin Rabies',
             'sku' => 'VAK-RAB-001',
@@ -149,7 +146,7 @@ class OptimizedFeaturesTest extends TestCase
         ]);
 
         $response->assertRedirect(route('profile.edit'));
-        
+
         $this->assertDatabaseHas('users', [
             'id' => $this->user->id,
             'name' => 'Dr. Updated',

@@ -104,7 +104,7 @@ class StorageLocationController extends Controller
         if ($hasStock) {
             return redirect()->back()->with('error', 'Cannot delete location with active stock. Please transfer or remove items first.');
         }
-        
+
         // Delete empty inventories associated with this location
         $storageLocation->inventories()->delete();
         $storageLocation->delete();

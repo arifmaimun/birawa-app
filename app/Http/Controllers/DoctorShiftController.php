@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\DoctorShift;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class DoctorShiftController extends Controller
@@ -22,7 +22,7 @@ class DoctorShiftController extends Controller
             END")
             ->orderBy('start_time')
             ->get();
-            
+
         return view('shifts.index', compact('shifts'));
     }
 

@@ -7,7 +7,6 @@ use App\Models\Invoice;
 use App\Models\Patient;
 use App\Models\Product;
 use App\Models\Visit;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller

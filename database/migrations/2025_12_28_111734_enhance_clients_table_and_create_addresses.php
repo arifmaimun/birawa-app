@@ -14,12 +14,12 @@ return new class extends Migration
         Schema::table('clients', function (Blueprint $table) {
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
-            
+
             // Business Mode
             $table->boolean('is_business')->default(false);
             $table->string('business_name')->nullable();
             $table->string('contact_person')->nullable(); // For business mode
-            
+
             // Background Info
             $table->string('id_type')->nullable(); // KTP, Passport, etc.
             $table->string('id_number')->nullable();
@@ -56,10 +56,10 @@ return new class extends Migration
 
         Schema::table('clients', function (Blueprint $table) {
             $table->dropColumn([
-                'first_name', 'last_name', 
+                'first_name', 'last_name',
                 'is_business', 'business_name', 'contact_person',
                 'id_type', 'id_number', 'gender', 'occupation',
-                'dob', 'ethnicity', 'religion', 'marital_status'
+                'dob', 'ethnicity', 'religion', 'marital_status',
             ]);
         });
     }

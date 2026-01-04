@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ConsentTemplate;
 use App\Models\MedicalConsent;
 use App\Models\MedicalRecord;
-use App\Models\ConsentTemplate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -17,7 +17,7 @@ class MedicalConsentController extends Controller
         if ($medicalRecord->doctor_id !== Auth::id()) {
             abort(403);
         }
-        
+
         $templates = ConsentTemplate::where('doctor_id', Auth::id())->get();
 
         return view('medical_consents.create', compact('medicalRecord', 'templates'));
@@ -55,13 +55,13 @@ class MedicalConsentController extends Controller
         if (preg_match('/^data:image\/(\w+);base64,/', $base64String, $type)) {
             $base64String = substr($base64String, strpos($base64String, ',') + 1);
             $type = strtolower($type[1]); // png, jpg, etc
-            
-            if (!in_array($type, ['jpg', 'jpeg', 'png'])) {
+
+            if (! in_array($type, ['jpg', 'jpeg', 'png'])) {
                 throw new \Exception('Invalid image type');
             }
-            
+
             $base64String = base64_decode($base64String);
-            
+
             if ($base64String === false) {
                 throw new \Exception('Base64 decode failed');
             }
@@ -69,17 +69,17 @@ class MedicalConsentController extends Controller
             throw new \Exception('Did not match data URI with image data');
         }
 
-        $fileName = 'signatures/' . $prefix . '_' . Str::uuid() . '.' . $type;
+        $fileName = 'signatures/'.$prefix.'_'.Str::uuid().'.'.$type;
         Storage::disk('public')->put($fileName, $base64String);
-        
+
         return $fileName;
     }
-    
+
     public function show(MedicalConsent $medicalConsent)
     {
         // Check access via medical record
         $record = $medicalConsent->medicalRecord;
-        if ($record->doctor_id !== Auth::id() && !$record->hasAccessGranted(Auth::id())) {
+        if ($record->doctor_id !== Auth::id() && ! $record->hasAccessGranted(Auth::id())) {
             abort(403);
         }
 

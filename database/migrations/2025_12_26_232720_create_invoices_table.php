@@ -20,9 +20,9 @@ return new class extends Migration
             $table->decimal('total_amount', 10, 2);
             $table->enum('payment_status', ['unpaid', 'paid', 'partial'])->default('unpaid');
             $table->timestamps();
-            
-            // Note: visit_id was unique in original, but for nullable it might be better to remove unique constraint 
-            // or use a partial index if we want 1 invoice per visit. 
+
+            // Note: visit_id was unique in original, but for nullable it might be better to remove unique constraint
+            // or use a partial index if we want 1 invoice per visit.
             // For simplicity, we allow multiple invoices per visit or null.
         });
     }

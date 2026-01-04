@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Manual\Management;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Role;
 
@@ -15,15 +15,15 @@ class UserController extends Controller
     public function index(Request $request)
     {
         // Simple authorization check (adjust as needed)
-        if (Auth::user()->role !== 'superadmin' && !Auth::user()->hasRole('superadmin')) {
-             abort(403, 'Unauthorized');
+        if (Auth::user()->role !== 'superadmin' && ! Auth::user()->hasRole('superadmin')) {
+            abort(403, 'Unauthorized');
         }
 
         $query = User::query();
 
         if ($search = $request->input('search')) {
             $query->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                ->orWhere('email', 'like', "%{$search}%");
         }
 
         $users = $query->latest()->paginate(10);
@@ -33,18 +33,19 @@ class UserController extends Controller
 
     public function create()
     {
-        if (Auth::user()->role !== 'superadmin' && !Auth::user()->hasRole('superadmin')) {
-             abort(403, 'Unauthorized');
+        if (Auth::user()->role !== 'superadmin' && ! Auth::user()->hasRole('superadmin')) {
+            abort(403, 'Unauthorized');
         }
 
         $roles = Role::orderBy('name')->get();
+
         return view('manual.management.users.create', compact('roles'));
     }
 
     public function store(Request $request)
     {
-        if (Auth::user()->role !== 'superadmin' && !Auth::user()->hasRole('superadmin')) {
-             abort(403, 'Unauthorized');
+        if (Auth::user()->role !== 'superadmin' && ! Auth::user()->hasRole('superadmin')) {
+            abort(403, 'Unauthorized');
         }
 
         $request->validate([
@@ -74,18 +75,19 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
-        if (Auth::user()->role !== 'superadmin' && !Auth::user()->hasRole('superadmin')) {
-             abort(403, 'Unauthorized');
+        if (Auth::user()->role !== 'superadmin' && ! Auth::user()->hasRole('superadmin')) {
+            abort(403, 'Unauthorized');
         }
 
         $roles = Role::orderBy('name')->get();
+
         return view('manual.management.users.edit', compact('user', 'roles'));
     }
 
     public function update(Request $request, User $user)
     {
-        if (Auth::user()->role !== 'superadmin' && !Auth::user()->hasRole('superadmin')) {
-             abort(403, 'Unauthorized');
+        if (Auth::user()->role !== 'superadmin' && ! Auth::user()->hasRole('superadmin')) {
+            abort(403, 'Unauthorized');
         }
 
         $rules = [
@@ -121,8 +123,8 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
-        if (Auth::user()->role !== 'superadmin' && !Auth::user()->hasRole('superadmin')) {
-             abort(403, 'Unauthorized');
+        if (Auth::user()->role !== 'superadmin' && ! Auth::user()->hasRole('superadmin')) {
+            abort(403, 'Unauthorized');
         }
 
         if ($user->id === Auth::id()) {

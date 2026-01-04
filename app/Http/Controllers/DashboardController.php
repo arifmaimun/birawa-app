@@ -6,7 +6,6 @@ use App\Models\DoctorInventory;
 use App\Models\Patient;
 use App\Models\User;
 use App\Models\Visit;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
@@ -21,15 +20,15 @@ class DashboardController extends Controller
         // But for now, let's keep it global or scope it if we can.
         // Looking at Patient model: belongsTo Owner. Owner belongsTo User?
         // Check Owner model.
-        
-        // Let's stick to global for stats similar to previous dashboard, 
+
+        // Let's stick to global for stats similar to previous dashboard,
         // but for specific doctor features, we use Auth::id().
 
         $activeVets = User::count();
 
         // Doctor Specific Stats
         $myInventoryCount = DoctorInventory::where('user_id', $user->id)->count();
-        
+
         // Low Stock Alerts
         $lowStockItems = DoctorInventory::where('user_id', $user->id)
             ->whereColumn('stock_qty', '<=', 'alert_threshold')
@@ -38,7 +37,7 @@ class DashboardController extends Controller
         // Upcoming Visits (Today)
         $todayVisits = Visit::where('user_id', $user->id)
             ->whereDate('scheduled_at', now())
-            ->whereHas('visitStatus', function($q) {
+            ->whereHas('visitStatus', function ($q) {
                 $q->where('slug', '!=', 'cancelled');
             })
             ->with(['patient', 'patient.client', 'visitStatus'])
@@ -46,7 +45,7 @@ class DashboardController extends Controller
             ->get();
 
         $upcomingVisits = Visit::where('user_id', $user->id)
-            ->whereHas('visitStatus', function($q) {
+            ->whereHas('visitStatus', function ($q) {
                 $q->where('slug', 'scheduled');
             })
             ->whereDate('scheduled_at', '>', now())
@@ -56,7 +55,7 @@ class DashboardController extends Controller
             ->get();
 
         $pendingInvoicesCount = \App\Models\Invoice::where('payment_status', 'unpaid')
-            ->whereHas('visit', function($q) use ($user) {
+            ->whereHas('visit', function ($q) use ($user) {
                 $q->where('user_id', $user->id);
             })
             ->count();
@@ -65,10 +64,10 @@ class DashboardController extends Controller
         $recentPatients = Patient::with('client')->latest()->take(5)->get();
 
         return view('dashboard', compact(
-            'totalPatients', 
-            'activeVets', 
-            'myInventoryCount', 
-            'lowStockItems', 
+            'totalPatients',
+            'activeVets',
+            'myInventoryCount',
+            'lowStockItems',
             'todayVisits',
             'upcomingVisits',
             'recentPatients',

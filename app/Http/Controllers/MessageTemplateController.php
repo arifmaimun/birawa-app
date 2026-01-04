@@ -16,7 +16,7 @@ class MessageTemplateController extends Controller
         $templates = MessageTemplate::where('doctor_id', Auth::id())
             ->orderBy('created_at', 'desc')
             ->paginate(10);
-            
+
         return view('message-templates.index', compact('templates'));
     }
 
@@ -40,11 +40,11 @@ class MessageTemplateController extends Controller
             'trigger_event' => 'nullable|string|in:on_departure,on_arrival',
         ]);
 
-        // If trigger_event is set, ensure uniqueness for this doctor? 
+        // If trigger_event is set, ensure uniqueness for this doctor?
         // Or just overwrite/allow multiple. Let's warn if one already exists?
-        // For simplicity, if they set a trigger_event, we just save it. 
+        // For simplicity, if they set a trigger_event, we just save it.
         // The usage logic will pick the first one or we can add validation rule.
-        
+
         if ($request->trigger_event) {
             // Optional: Check if a template for this event already exists and warn or error?
             // For now, let's allow it, but maybe UI should show which one is active.
@@ -78,7 +78,7 @@ class MessageTemplateController extends Controller
         if ($messageTemplate->doctor_id !== Auth::id()) {
             abort(403);
         }
-        
+
         return view('message-templates.edit', compact('messageTemplate'));
     }
 

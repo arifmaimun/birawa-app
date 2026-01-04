@@ -3,7 +3,6 @@
 namespace Tests\Unit;
 
 use App\Services\TimezoneService;
-use Carbon\Carbon;
 use Tests\TestCase;
 
 class TimezoneServiceTest extends TestCase
@@ -13,7 +12,7 @@ class TimezoneServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new TimezoneService();
+        $this->service = new TimezoneService;
     }
 
     public function test_get_timezones_returns_array()
@@ -36,9 +35,9 @@ class TimezoneServiceTest extends TestCase
     {
         $localTimezone = 'Asia/Jakarta'; // UTC+7
         $localTime = '2023-10-10 10:00:00';
-        
+
         $utcTime = $this->service->convertFromLocalToUtc($localTime, $localTimezone);
-        
+
         $this->assertEquals('2023-10-10 03:00:00', $utcTime->format('Y-m-d H:i:s'));
         $this->assertEquals('UTC', $utcTime->timezoneName);
     }
@@ -47,9 +46,9 @@ class TimezoneServiceTest extends TestCase
     {
         $localTimezone = 'Asia/Jakarta'; // UTC+7
         $utcTime = '2023-10-10 03:00:00';
-        
+
         $localTime = $this->service->convertFromUtcToLocal($utcTime, $localTimezone);
-        
+
         $this->assertEquals('2023-10-10 10:00:00', $localTime->format('Y-m-d H:i:s'));
         $this->assertEquals('Asia/Jakarta', $localTime->timezoneName);
     }

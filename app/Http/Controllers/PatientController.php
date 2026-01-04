@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Patient;
 use App\Models\Client;
+use App\Models\Patient;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class PatientController extends Controller
 {
@@ -23,6 +22,7 @@ class PatientController extends Controller
     public function create()
     {
         $clients = Client::orderBy('name')->get();
+
         return view('patients.create', compact('clients'));
     }
 
@@ -47,15 +47,17 @@ class PatientController extends Controller
     {
         if ($request->wantsJson() || $request->is('api/*')) {
             $patient->load(['client', 'medical_records.diagnoses']);
+
             return response()->json($patient);
         }
+
         return view('patients.show', compact('patient'));
     }
 
     public function edit(Request $request, Patient $patient)
     {
         $clients = Client::orderBy('name')->get();
-        
+
         if ($request->ajax()) {
             return view('patients.partials.edit-form', compact('patient', 'clients'))->render();
         }
@@ -83,6 +85,7 @@ class PatientController extends Controller
     public function destroy(Patient $patient)
     {
         $patient->delete();
+
         return redirect()->route('patients.index')->with('success', 'Patient deleted successfully.');
     }
 }

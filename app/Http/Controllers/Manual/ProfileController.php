@@ -25,7 +25,7 @@ class ProfileController extends Controller
         $doctorProfile = $user->doctorProfile;
 
         // If no doctor profile exists, instantiate an empty one for the form (not persisted)
-        if (!$doctorProfile) {
+        if (! $doctorProfile) {
             $doctorProfile = new DoctorProfile([
                 'user_id' => $user->id,
                 'timezone' => config('app.timezone'),
@@ -51,7 +51,7 @@ class ProfileController extends Controller
             'address' => 'nullable|string|max:500',
             // Password only if provided
             'password' => 'nullable|string|min:8|confirmed',
-            
+
             // Doctor Profile
             'specialty' => 'nullable|string|max:100',
             'timezone' => 'required|string',

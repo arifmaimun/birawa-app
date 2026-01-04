@@ -16,14 +16,14 @@ class Invoice extends Model
         'subtotal',
         'discount_amount',
         'promo_id',
-        'total_amount', 
+        'total_amount',
         'deposit_amount',
         'remaining_balance',
         'payment_status', // unpaid, partial, paid
         'due_date',
         'access_token',
         'stock_committed',
-        'status'
+        'status',
     ];
 
     protected $casts = [
@@ -67,7 +67,7 @@ class Invoice extends Model
         } else {
             $this->payment_status = 'unpaid';
         }
-        
+
         $this->save();
     }
 }

@@ -39,20 +39,20 @@ class DatabaseSeeder extends Seeder
         // Create 5 Users with Client profiles
         $users = User::factory(5)->create(['role' => 'client']);
         $clients = collect();
-        
-        foreach($users as $user) {
-             $clients->push(\App\Models\Client::create([
-                 'user_id' => $user->id,
-                 'name' => $user->name,
-                 'phone' => $user->phone,
-                 'address' => $user->address ?? 'Address',
-             ]));
+
+        foreach ($users as $user) {
+            $clients->push(\App\Models\Client::create([
+                'user_id' => $user->id,
+                'name' => $user->name,
+                'phone' => $user->phone,
+                'address' => $user->address ?? 'Address',
+            ]));
         }
 
         // Create 10 Patients assigned to random clients
-        foreach($clients as $client) {
+        foreach ($clients as $client) {
             \App\Models\Patient::factory(2)->create([
-                'client_id' => $client->id
+                'client_id' => $client->id,
             ]);
         }
     }

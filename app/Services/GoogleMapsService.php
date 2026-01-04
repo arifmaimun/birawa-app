@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 class GoogleMapsService
 {
     protected string $apiKey;
+
     protected string $baseUrl = 'https://maps.googleapis.com/maps/api/distancematrix/json';
 
     public function __construct()
@@ -18,16 +19,13 @@ class GoogleMapsService
     /**
      * Calculate distance and duration between two coordinates.
      *
-     * @param float $originLat
-     * @param float $originLng
-     * @param float $destLat
-     * @param float $destLng
      * @return array|null Returns ['distance_km' => float, 'duration_minutes' => int] or null on failure
      */
     public function getDistanceAndDuration(float $originLat, float $originLng, float $destLat, float $destLng): ?array
     {
         if (empty($this->apiKey)) {
             Log::warning('Google Maps API Key is missing.');
+
             return null;
         }
 
@@ -48,7 +46,7 @@ class GoogleMapsService
                     if ($element['status'] === 'OK') {
                         // distance.value is in meters
                         $distanceKm = isset($element['distance']['value']) ? round($element['distance']['value'] / 1000, 2) : 0;
-                        
+
                         // duration.value is in seconds
                         $durationMinutes = isset($element['duration']['value']) ? round($element['duration']['value'] / 60) : 0;
 
@@ -60,9 +58,9 @@ class GoogleMapsService
                 }
             }
 
-            Log::error('Google Maps API Error: ' . $response->body());
+            Log::error('Google Maps API Error: '.$response->body());
         } catch (\Exception $e) {
-            Log::error('Google Maps Service Exception: ' . $e->getMessage());
+            Log::error('Google Maps Service Exception: '.$e->getMessage());
         }
 
         return null;

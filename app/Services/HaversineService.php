@@ -25,7 +25,7 @@ class HaversineService implements RoutingServiceInterface
         return [
             'distance_km' => round($distance, 2),
             'duration_minutes' => round($estimatedTime),
-            'source' => 'haversine_fallback'
+            'source' => 'haversine_fallback',
         ];
     }
 }

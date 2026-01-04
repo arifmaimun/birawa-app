@@ -18,7 +18,7 @@ class VisitController extends Controller
             ->where('user_id', Auth::id());
 
         if ($search = $request->input('search')) {
-            $query->whereHas('patient', function($q) use ($search) {
+            $query->whereHas('patient', function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%");
             });
         }
@@ -41,7 +41,7 @@ class VisitController extends Controller
     {
         $patients = Patient::orderBy('name')->get();
         $statuses = VisitStatus::orderBy('order')->get();
-        
+
         return view('manual.clinical.visits.create', compact('patients', 'statuses'));
     }
 

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('inventory_transfer_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('inventory_transfer_id')->constrained()->cascadeOnDelete();
-            $table->string('item_sku'); 
+            $table->string('item_sku');
             $table->string('item_name');
             $table->decimal('quantity_requested', 10, 2);
             $table->decimal('quantity_approved', 10, 2)->nullable();

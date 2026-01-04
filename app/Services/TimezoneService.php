@@ -5,16 +5,14 @@ namespace App\Services;
 use Carbon\Carbon;
 use DateTimeZone;
 use Exception;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class TimezoneService
 {
     /**
      * Get list of all valid IANA timezones.
      * Cached for performance.
-     *
-     * @return array
      */
     public function getTimezones(): array
     {
@@ -25,20 +23,16 @@ class TimezoneService
 
     /**
      * Get timezones formatted for Filament Select options.
-     *
-     * @return array
      */
     public function getTimezonesForSelect(): array
     {
         $timezones = $this->getTimezones();
+
         return array_combine($timezones, $timezones);
     }
 
     /**
      * Validate if a timezone string is valid.
-     *
-     * @param string|null $timezone
-     * @return bool
      */
     public function isValidTimezone(?string $timezone): bool
     {
@@ -52,25 +46,23 @@ class TimezoneService
     /**
      * Convert local time to UTC.
      *
-     * @param string|Carbon $time
-     * @param string $localTimezone
-     * @return Carbon|null
+     * @param  string|Carbon  $time
      */
     public function convertFromLocalToUtc($time, string $localTimezone): ?Carbon
     {
         try {
-            if (!$this->isValidTimezone($localTimezone)) {
+            if (! $this->isValidTimezone($localTimezone)) {
                 throw new Exception("Invalid timezone: {$localTimezone}");
             }
 
-            if (!$time instanceof Carbon) {
+            if (! $time instanceof Carbon) {
                 $time = Carbon::parse($time, $localTimezone);
             } else {
                 $time->setTimezone($localTimezone);
             }
 
             $utcTime = $time->copy()->setTimezone('UTC');
-            
+
             Log::info('Timezone conversion (Local -> UTC)', [
                 'local_time' => $time->toDateTimeString(),
                 'local_timezone' => $localTimezone,
@@ -82,8 +74,9 @@ class TimezoneService
             Log::error('Timezone conversion failed (Local -> UTC)', [
                 'time' => $time,
                 'timezone' => $localTimezone,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return null;
         }
     }
@@ -91,18 +84,16 @@ class TimezoneService
     /**
      * Convert UTC time to local.
      *
-     * @param string|Carbon $utcTime
-     * @param string $localTimezone
-     * @return Carbon|null
+     * @param  string|Carbon  $utcTime
      */
     public function convertFromUtcToLocal($utcTime, string $localTimezone): ?Carbon
     {
         try {
-            if (!$this->isValidTimezone($localTimezone)) {
+            if (! $this->isValidTimezone($localTimezone)) {
                 throw new Exception("Invalid timezone: {$localTimezone}");
             }
 
-            if (!$utcTime instanceof Carbon) {
+            if (! $utcTime instanceof Carbon) {
                 $utcTime = Carbon::parse($utcTime, 'UTC');
             } else {
                 $utcTime->setTimezone('UTC');
@@ -122,8 +113,9 @@ class TimezoneService
             Log::error('Timezone conversion failed (UTC -> Local)', [
                 'time' => $utcTime,
                 'timezone' => $localTimezone,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ]);
+
             return null;
         }
     }

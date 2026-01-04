@@ -3,12 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\DoctorInventory;
-use App\Models\Owner;
 use App\Models\Patient;
 use App\Models\User;
-use App\Models\Visit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class DashboardTest extends TestCase
@@ -34,7 +31,7 @@ class DashboardTest extends TestCase
             'species' => 'Cat',
             'gender' => 'female',
         ]);
-        
+
         $inventory = DoctorInventory::create([
             'user_id' => $user->id,
             'item_name' => 'Low Stock Med',

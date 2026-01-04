@@ -19,21 +19,21 @@ class InventoryTransactionController extends Controller
             $q->where('user_id', Auth::id());
             if ($search) {
                 $q->where('item_name', 'like', "%{$search}%")
-                  ->orWhere('sku', 'like', "%{$search}%");
+                    ->orWhere('sku', 'like', "%{$search}%");
             }
         })
-        ->when($startDate, function ($q) use ($startDate) {
-            return $q->whereDate('created_at', '>=', $startDate);
-        })
-        ->when($endDate, function ($q) use ($endDate) {
-            return $q->whereDate('created_at', '<=', $endDate);
-        })
-        ->when($type, function ($q) use ($type) {
-            return $q->where('type', $type);
-        })
-        ->with('inventory')
-        ->orderByDesc('created_at')
-        ->paginate(20);
+            ->when($startDate, function ($q) use ($startDate) {
+                return $q->whereDate('created_at', '>=', $startDate);
+            })
+            ->when($endDate, function ($q) use ($endDate) {
+                return $q->whereDate('created_at', '<=', $endDate);
+            })
+            ->when($type, function ($q) use ($type) {
+                return $q->where('type', $type);
+            })
+            ->with('inventory')
+            ->orderByDesc('created_at')
+            ->paginate(20);
 
         return view('inventory.transactions.index', compact('transactions'));
     }

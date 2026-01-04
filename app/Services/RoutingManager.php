@@ -2,8 +2,6 @@
 
 namespace App\Services;
 
-use App\Contracts\RoutingServiceInterface;
-
 class RoutingManager
 {
     protected array $services = [];
@@ -20,7 +18,7 @@ class RoutingManager
     {
         // Try Primary
         $result = $this->primaryService->getRoute($originLat, $originLng, $destLat, $destLng);
-        
+
         if ($result) {
             return $result;
         }

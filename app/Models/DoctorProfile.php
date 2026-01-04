@@ -20,7 +20,7 @@ class DoctorProfile extends Model
     {
         return $this->belongsTo(User::class);
     }
-    
+
     /**
      * Get the doctor's timezone or default to application timezone.
      */

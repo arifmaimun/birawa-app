@@ -41,22 +41,22 @@ class ConsolidateInventoryProducts extends Command
                 $product = null;
 
                 // 1. Try match by SKU
-                if (!empty($inventory->sku)) {
+                if (! empty($inventory->sku)) {
                     $product = Product::where('sku', $inventory->sku)->first();
                 }
 
                 // 2. Try match by Name (if no product found yet)
-                if (!$product) {
+                if (! $product) {
                     $product = Product::where('name', $inventory->item_name)->first();
                 }
 
                 // 3. Create if not found
-                if (!$product) {
+                if (! $product) {
                     $sku = $inventory->sku;
                     if (empty($sku)) {
                         // Generate a unique SKU if missing
                         do {
-                            $sku = 'PRD-' . strtoupper(Str::slug($inventory->item_name)) . '-' . Str::random(4);
+                            $sku = 'PRD-'.strtoupper(Str::slug($inventory->item_name)).'-'.Str::random(4);
                         } while (Product::where('sku', $sku)->exists());
                     }
 
@@ -81,6 +81,6 @@ class ConsolidateInventoryProducts extends Command
 
         $bar->finish();
         $this->newLine();
-        $this->info("Consolidation complete.");
+        $this->info('Consolidation complete.');
     }
 }

@@ -14,7 +14,7 @@ class ExpenseController extends Controller
             ->orderByDesc('transaction_date')
             ->orderByDesc('created_at')
             ->paginate(15);
-            
+
         return view('expenses.index', compact('expenses'));
     }
 
@@ -50,6 +50,7 @@ class ExpenseController extends Controller
         if ($expense->user_id !== Auth::id()) {
             abort(403);
         }
+
         return view('expenses.show', compact('expense'));
     }
 
@@ -58,14 +59,14 @@ class ExpenseController extends Controller
         if ($expense->user_id !== Auth::id()) {
             abort(403);
         }
-        
+
         // Prevent deletion if linked to inventory transaction?
         // Ideally yes, but for MVP let's allow it or just warn.
         // Actually, if it's linked to InventoryTransaction, we should probably cascade delete or block.
         // The foreign key `related_expense_id` is on InventoryTransaction, nullable.
         // So deleting expense won't break SQL integrity if we didn't set cascade there.
         // But conceptually it's messy.
-        
+
         $expense->delete();
 
         return redirect()->route('expenses.index')->with('success', 'Expense deleted.');

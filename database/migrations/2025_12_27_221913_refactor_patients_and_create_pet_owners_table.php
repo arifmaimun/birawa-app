@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::table('patients', function (Blueprint $table) {
             // Drop foreign key and column owner_id
             $table->dropForeign(['owner_id']);
-            $table->dropColumn('owner_id'); 
+            $table->dropColumn('owner_id');
         });
         */
 

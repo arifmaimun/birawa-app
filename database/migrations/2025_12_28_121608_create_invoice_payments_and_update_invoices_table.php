@@ -36,7 +36,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('invoice_payments');
-        
+
         Schema::table('invoices', function (Blueprint $table) {
             $table->dropColumn(['deposit_amount', 'remaining_balance', 'due_date']);
         });

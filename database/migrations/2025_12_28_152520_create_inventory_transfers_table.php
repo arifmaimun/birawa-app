@@ -15,18 +15,18 @@ return new class extends Migration
             $table->id();
             $table->string('transfer_number')->unique(); // e.g., TRF-20251228-001
             $table->foreignId('requester_id')->constrained('users');
-            
+
             // Flexible Source/Target
             $table->string('source_type')->default('central'); // 'central', 'doctor'
             $table->unsignedBigInteger('source_id')->nullable(); // null for central, user_id for doctor
-            
+
             $table->string('target_type')->default('doctor'); // 'central', 'doctor'
             $table->unsignedBigInteger('target_id')->nullable(); // user_id
-            
+
             $table->string('status')->default('pending'); // pending, approved, rejected, completed
             $table->foreignId('approved_by')->nullable()->constrained('users');
             $table->timestamp('approved_at')->nullable();
-            
+
             $table->text('notes')->nullable();
             $table->timestamps();
         });

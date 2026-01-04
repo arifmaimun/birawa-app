@@ -14,6 +14,7 @@ class VisitStatusController extends Controller
     public function index()
     {
         $statuses = VisitStatus::orderBy('order')->get();
+
         return view('visit-statuses.index', compact('statuses'));
     }
 
@@ -63,7 +64,7 @@ class VisitStatusController extends Controller
     public function update(Request $request, VisitStatus $visitStatus)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:visit_statuses,name,' . $visitStatus->id,
+            'name' => 'required|string|max:255|unique:visit_statuses,name,'.$visitStatus->id,
             'color' => 'required|string|max:20',
             'description' => 'nullable|string',
             'order' => 'integer',

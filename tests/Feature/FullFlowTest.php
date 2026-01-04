@@ -2,11 +2,11 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
-use App\Models\Visit;
-use App\Models\Patient;
 use App\Models\Client;
 use App\Models\Friendship;
+use App\Models\Patient;
+use App\Models\User;
+use App\Models\Visit;
 use App\Models\VisitStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -21,7 +21,7 @@ class FullFlowTest extends TestCase
     {
         // Setup Roles
         $role = Role::create(['name' => 'superadmin']);
-        
+
         $admin = User::factory()->create(['role' => 'superadmin']);
         $admin->assignRole('superadmin');
 
@@ -35,9 +35,9 @@ class FullFlowTest extends TestCase
 
         $response->assertRedirect(route('admin.users.index'));
         $this->assertDatabaseHas('users', ['email' => 'doc@example.com', 'role' => 'veterinarian']);
-        
+
         $user = User::where('email', 'doc@example.com')->first();
-        
+
         // Admin updates password
         $response = $this->actingAs($admin)->put(route('admin.users.update', $user), [
             'name' => 'New Doctor Updated',
@@ -46,7 +46,7 @@ class FullFlowTest extends TestCase
             'password' => 'newpassword',
             'password_confirmation' => 'newpassword',
         ]);
-        
+
         $response->assertRedirect(route('admin.users.index'));
         $this->assertTrue(Hash::check('newpassword', $user->fresh()->password));
     }
@@ -77,7 +77,7 @@ class FullFlowTest extends TestCase
 
         // 2. Create a new visit via Controller to trigger prediction logic check (though logic is in controller helper)
         // We will test the helper logic by hitting the show endpoint or just using the model/controller logic
-        
+
         $response = $this->actingAs($doctor)->getJson(route('visits.index'));
         $response->assertStatus(200);
 
@@ -92,7 +92,7 @@ class FullFlowTest extends TestCase
 
         $response = $this->actingAs($doctor)->getJson(route('visits.show', $visit2));
         $response->assertStatus(200);
-        
+
         // Assert prediction is present and close to 25
         $response->assertJsonFragment(['predicted_travel_minutes' => 25]);
     }
@@ -104,19 +104,19 @@ class FullFlowTest extends TestCase
 
         // 1. Doc1 sends request to Doc2
         $response = $this->actingAs($doc1)->postJson(route('friends.request'), [
-            'friend_id' => $doc2->id
+            'friend_id' => $doc2->id,
         ]);
         $response->assertStatus(201);
-        
+
         $this->assertDatabaseHas('friendships', [
             'user_id' => $doc1->id,
             'friend_id' => $doc2->id,
-            'status' => 'pending'
+            'status' => 'pending',
         ]);
 
         // 2. Doc2 accepts
         $friendship = Friendship::where('user_id', $doc1->id)->where('friend_id', $doc2->id)->first();
-        
+
         $response = $this->actingAs($doc2)->patchJson(route('friends.accept', $friendship));
         $response->assertStatus(200);
 
@@ -124,13 +124,13 @@ class FullFlowTest extends TestCase
         $this->assertDatabaseHas('friendships', [
             'user_id' => $doc1->id,
             'friend_id' => $doc2->id,
-            'status' => 'accepted'
+            'status' => 'accepted',
         ]);
-        
+
         $this->assertDatabaseHas('friendships', [
             'user_id' => $doc2->id,
             'friend_id' => $doc1->id,
-            'status' => 'accepted'
+            'status' => 'accepted',
         ]);
     }
 }

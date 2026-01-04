@@ -20,7 +20,7 @@ class InternalTransferController extends Controller
         ]);
 
         $sourceItem = DoctorInventory::findOrFail($request->inventory_id);
-        
+
         if ($sourceItem->user_id !== Auth::id()) {
             abort(403);
         }
@@ -72,8 +72,8 @@ class InternalTransferController extends Controller
             // Increment Target
             $targetItem->increment('stock_qty', $request->quantity);
 
-             // Create Transaction for Target
-             InventoryTransaction::create([
+            // Create Transaction for Target
+            InventoryTransaction::create([
                 'doctor_inventory_id' => $targetItem->id,
                 'type' => 'IN',
                 'quantity_change' => $request->quantity,

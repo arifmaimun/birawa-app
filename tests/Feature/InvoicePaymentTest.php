@@ -2,12 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Models\Client;
 use App\Models\Invoice;
-use App\Models\InvoicePayment;
+use App\Models\Patient;
 use App\Models\User;
 use App\Models\Visit;
-use App\Models\Patient;
-use App\Models\Client;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -24,28 +23,28 @@ class InvoicePaymentTest extends TestCase
         $patient = Patient::factory()->create(['client_id' => $client->id]);
         $visit = Visit::factory()->create([
             'user_id' => $user->id,
-            'patient_id' => $patient->id
+            'patient_id' => $patient->id,
         ]);
-        
+
         $invoice = Invoice::create([
             'visit_id' => $visit->id,
             'invoice_number' => 'INV-TEST',
             'total_amount' => 100000,
             'remaining_balance' => 100000,
-            'payment_status' => 'unpaid'
+            'payment_status' => 'unpaid',
         ]);
 
         $response = $this->post(route('invoices.payments.store', $invoice), [
             'amount' => 50000,
             'method' => 'cash',
-            'notes' => 'Partial payment'
+            'notes' => 'Partial payment',
         ]);
 
         $response->assertRedirect();
         $this->assertDatabaseHas('invoice_payments', [
             'invoice_id' => $invoice->id,
             'amount' => 50000,
-            'method' => 'cash'
+            'method' => 'cash',
         ]);
 
         $invoice->refresh();
@@ -62,20 +61,20 @@ class InvoicePaymentTest extends TestCase
         $patient = Patient::factory()->create(['client_id' => $client->id]);
         $visit = Visit::factory()->create([
             'user_id' => $user->id,
-            'patient_id' => $patient->id
+            'patient_id' => $patient->id,
         ]);
-        
+
         $invoice = Invoice::create([
             'visit_id' => $visit->id,
             'invoice_number' => 'INV-TEST',
             'total_amount' => 100000,
             'remaining_balance' => 100000,
-            'payment_status' => 'unpaid'
+            'payment_status' => 'unpaid',
         ]);
 
         $this->post(route('invoices.payments.store', $invoice), [
             'amount' => 100000,
-            'method' => 'transfer'
+            'method' => 'transfer',
         ]);
 
         $invoice->refresh();
@@ -92,19 +91,19 @@ class InvoicePaymentTest extends TestCase
         $patient = Patient::factory()->create(['client_id' => $client->id]);
         $visit = Visit::factory()->create([
             'user_id' => $user->id,
-            'patient_id' => $patient->id
+            'patient_id' => $patient->id,
         ]);
-        
+
         $invoice = Invoice::create([
             'visit_id' => $visit->id,
             'invoice_number' => 'INV-TEST',
             'total_amount' => 100000,
             'remaining_balance' => 100000,
-            'payment_status' => 'unpaid'
+            'payment_status' => 'unpaid',
         ]);
 
         $this->put(route('invoices.update', $invoice), [
-            'deposit_amount' => 20000
+            'deposit_amount' => 20000,
         ]);
 
         $invoice->refresh();

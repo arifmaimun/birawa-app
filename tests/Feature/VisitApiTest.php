@@ -2,10 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\Client;
+use App\Models\Patient;
 use App\Models\User;
 use App\Models\Visit;
-use App\Models\Patient;
-use App\Models\Client;
 use App\Models\VisitStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -23,7 +23,7 @@ class VisitApiTest extends TestCase
             ['slug' => 'scheduled'],
             ['name' => 'Scheduled', 'color' => '#blue']
         );
-        
+
         $visit = Visit::create([
             'user_id' => $user->id,
             'patient_id' => $patient->id,
@@ -49,7 +49,7 @@ class VisitApiTest extends TestCase
         $user = User::factory()->create(['role' => 'veterinarian']);
         $client = Client::factory()->create();
         $patient = Patient::factory()->create(['client_id' => $client->id]);
-        
+
         // Visit without status
         $visit = Visit::create([
             'user_id' => $user->id,
@@ -92,7 +92,7 @@ class VisitApiTest extends TestCase
                 'subjective' => 'Subjective notes',
                 'plan_diagnostic' => 'Diagnostic plan',
             ]);
-            
+
         $this->assertDatabaseHas('medical_records', [
             'visit_id' => $visit->id,
             'plan_diagnostic' => 'Diagnostic plan', // Not encrypted

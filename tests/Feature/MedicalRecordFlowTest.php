@@ -32,7 +32,7 @@ class MedicalRecordFlowTest extends TestCase
             'dob' => '2020-01-01',
             'gender' => 'Female',
         ]);
-        
+
         $visit = Visit::create([
             'patient_id' => $patient->id,
             'user_id' => $doctor->id,
@@ -61,13 +61,13 @@ class MedicalRecordFlowTest extends TestCase
                 [
                     'id' => $inventory->id,
                     'qty' => 5,
-                ]
+                ],
             ],
         ]);
 
         // 5. Assertions
         $response->assertRedirect();
-        
+
         // Check Record Created
         $record = \App\Models\MedicalRecord::where('visit_id', $visit->id)->first();
         $this->assertNotNull($record);
@@ -104,7 +104,7 @@ class MedicalRecordFlowTest extends TestCase
     {
         // Setup Doctor A (Owner)
         $doctorA = User::factory()->create(['role' => 'veterinarian']);
-        
+
         // Setup Doctor B (Requester)
         $doctorB = User::factory()->create(['role' => 'veterinarian']);
 
@@ -128,7 +128,7 @@ class MedicalRecordFlowTest extends TestCase
         ]);
 
         // 1. Doctor B tries to view (Should see locked view)
-        // Note: The controller returns a view 'medical_records.locked' instead of 403, 
+        // Note: The controller returns a view 'medical_records.locked' instead of 403,
         // so we check if we get successful response but with specific text or view
         $this->actingAs($doctorB);
         $response = $this->get(route('medical-records.show', $record));
@@ -137,7 +137,7 @@ class MedicalRecordFlowTest extends TestCase
 
         // 2. Doctor B requests access
         $this->post(route('medical-records.request-access', $record));
-        
+
         $this->assertDatabaseHas('access_requests', [
             'requester_doctor_id' => $doctorB->id,
             'target_medical_record_id' => $record->id,
@@ -148,7 +148,7 @@ class MedicalRecordFlowTest extends TestCase
         $this->actingAs($doctorA);
         $accessRequest = \App\Models\AccessRequest::first();
         $this->patch(route('access-requests.approve', $accessRequest));
-        
+
         $this->assertDatabaseHas('access_requests', [
             'id' => $accessRequest->id,
             'status' => 'approved',

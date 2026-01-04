@@ -18,11 +18,11 @@ class MedicalRecordController extends Controller
             ->where('doctor_id', Auth::id());
 
         if ($search = $request->input('search')) {
-            $query->whereHas('patient', function($q) use ($search) {
+            $query->whereHas('patient', function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhereHas('client', function($sq) use ($search) {
-                      $sq->where('name', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('client', function ($sq) use ($search) {
+                        $sq->where('name', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -35,12 +35,12 @@ class MedicalRecordController extends Controller
     {
         $patientId = $request->input('patient_id');
         $visitId = $request->input('visit_id');
-        
+
         $patient = null;
         if ($patientId) {
             $patient = Patient::findOrFail($patientId);
         }
-        
+
         $visit = null;
         if ($visitId) {
             $visit = Visit::findOrFail($visitId);
@@ -48,7 +48,7 @@ class MedicalRecordController extends Controller
             if ($patient && $visit->patient_id !== $patient->id) {
                 abort(400, 'Patient mismatch');
             }
-            if (!$patient) {
+            if (! $patient) {
                 $patient = $visit->patient;
             }
         }
@@ -77,15 +77,15 @@ class MedicalRecordController extends Controller
 
         $visitId = $request->visit_id;
 
-        if (!$visitId) {
+        if (! $visitId) {
             // Auto-create a Visit for this record if not provided
             $visit = Visit::create([
                 'patient_id' => $request->patient_id,
                 'user_id' => Auth::id(), // Doctor
                 'scheduled_at' => now(),
-                // Find a default status, or use ID 1 (Scheduled) or similar. 
+                // Find a default status, or use ID 1 (Scheduled) or similar.
                 // Better to query 'completed' or 'in-progress' if possible, but fallback to 1.
-                'visit_status_id' => 1, 
+                'visit_status_id' => 1,
                 'complaint' => 'Manual Entry (Direct Medical Record)',
                 // Default location
                 'latitude' => 0,

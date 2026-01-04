@@ -19,6 +19,7 @@ class ViewRenderTest extends TestCase
             'name' => $user->name,
             'phone' => '08123456789',
         ]);
+
         return Patient::factory()->create(['client_id' => $client->id]);
     }
 

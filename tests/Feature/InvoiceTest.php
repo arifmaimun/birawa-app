@@ -10,7 +10,6 @@ use App\Models\Patient;
 use App\Models\User;
 use App\Models\Visit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class InvoiceTest extends TestCase
@@ -32,7 +31,7 @@ class InvoiceTest extends TestCase
         ]);
 
         $patient = Patient::factory()->create([
-            'client_id' => $client->id
+            'client_id' => $client->id,
         ]);
 
         // 2. Create Visit with Transport Fee
@@ -42,7 +41,7 @@ class InvoiceTest extends TestCase
             'patient_id' => $patient->id,
             'transport_fee' => 50000,
             'distance_km' => 5.5,
-            'visit_status_id' => $completedStatus ? $completedStatus->id : \App\Models\VisitStatus::factory()->create(['slug' => 'completed'])->id
+            'visit_status_id' => $completedStatus ? $completedStatus->id : \App\Models\VisitStatus::factory()->create(['slug' => 'completed'])->id,
         ]);
 
         // 3. Create Inventory Item
@@ -78,16 +77,16 @@ class InvoiceTest extends TestCase
         $response = $this->post(route('invoices.createFromVisit', $visit));
 
         $response->assertRedirect();
-        
+
         // 6. Verify Invoice
         $this->assertDatabaseHas('invoices', [
             'visit_id' => $visit->id,
             'total_amount' => 50000 + (10 * 2000), // 50000 + 20000 = 70000
-            'payment_status' => 'unpaid'
+            'payment_status' => 'unpaid',
         ]);
 
         $invoice = Invoice::where('visit_id', $visit->id)->first();
-        
+
         // Verify Invoice Items
         $this->assertDatabaseHas('invoice_items', [
             'invoice_id' => $invoice->id,
@@ -102,6 +101,4 @@ class InvoiceTest extends TestCase
             'unit_price' => 2000,
         ]);
     }
-
-
 }

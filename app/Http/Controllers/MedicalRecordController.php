@@ -2,23 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\DTOs\MedicalRecordDTO;
+use App\Http\Requests\StoreMedicalRecordRequest;
+use App\Models\AccessRequest;
+use App\Models\Diagnosis;
+use App\Models\DoctorServiceCatalog;
 use App\Models\MedicalRecord;
 use App\Models\Visit;
-use App\Models\Diagnosis;
 use App\Models\VitalSignSetting;
-use App\Models\DoctorServiceCatalog;
-use App\Models\AccessRequest;
+use App\Services\MedicalRecordService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Services\MedicalRecordService;
-use App\Http\Requests\StoreMedicalRecordRequest;
-use App\DTOs\MedicalRecordDTO;
 
 class MedicalRecordController extends Controller
 {
-    public function __construct(protected MedicalRecordService $medicalRecordService)
-    {
-    }
+    public function __construct(protected MedicalRecordService $medicalRecordService) {}
 
     public function create(Visit $visit)
     {
@@ -32,7 +30,7 @@ class MedicalRecordController extends Controller
         $inventories = $user->inventories()->with('storageLocation')->orderBy('item_name')->get();
         $services = DoctorServiceCatalog::where('user_id', $user->id)->orderBy('service_name')->get();
         $diagnoses = Diagnosis::forUser($user->id)->orderBy('category')->orderBy('name')->get();
-        
+
         // Fetch Medical History
         $medicalHistory = MedicalRecord::where('patient_id', $visit->patient_id)
             ->where('id', '!=', $visit->id) // Exclude current if somehow it existed, though we are creating new
@@ -65,7 +63,7 @@ class MedicalRecordController extends Controller
         $user = Auth::user();
 
         // Audit Log: Read Access
-        \Illuminate\Support\Facades\Log::info("User {$user->id} viewed Medical Record {$medicalRecord->id} at " . now());
+        \Illuminate\Support\Facades\Log::info("User {$user->id} viewed Medical Record {$medicalRecord->id} at ".now());
 
         // 1. If user is the creator (doctor), grant access
         if ($medicalRecord->doctor_id === $user->id) {
@@ -95,12 +93,13 @@ class MedicalRecordController extends Controller
 
         if ($existing && $existing->status === 'approved') {
             if ($request->wantsJson()) {
-                 return response()->json(['message' => 'Access already granted'], 200);
+                return response()->json(['message' => 'Access already granted'], 200);
             }
+
             return redirect()->route('medical-records.show', $medicalRecord->id);
         }
 
-        if (!$existing) {
+        if (! $existing) {
             AccessRequest::create([
                 'requester_doctor_id' => Auth::id(),
                 'target_medical_record_id' => $medicalRecord->id,
@@ -116,15 +115,15 @@ class MedicalRecordController extends Controller
 
         return back()->with('success', 'Access request sent.');
     }
-    
+
     public function approveAccess(AccessRequest $accessRequest)
     {
         if ($accessRequest->owner_doctor_id !== Auth::id()) {
             abort(403);
         }
-        
+
         $accessRequest->update(['status' => 'approved']);
-        
+
         return back()->with('success', 'Access granted.');
     }
 }

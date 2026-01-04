@@ -18,9 +18,9 @@ class DoctorInventoryController extends Controller
             ->where('user_id', Auth::id());
 
         if ($search = $request->input('search')) {
-            $query->whereHas('product', function($q) use ($search) {
+            $query->whereHas('product', function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('sku', 'like', "%{$search}%");
+                    ->orWhere('sku', 'like', "%{$search}%");
             });
         }
 
@@ -33,7 +33,7 @@ class DoctorInventoryController extends Controller
     {
         $products = Product::where('type', 'goods')->orderBy('name')->get();
         $locations = StorageLocation::where('user_id', Auth::id())->orderBy('name')->get();
-        
+
         return view('manual.inventory.stock.create', compact('products', 'locations'));
     }
 
@@ -82,7 +82,7 @@ class DoctorInventoryController extends Controller
         }
 
         $locations = StorageLocation::where('user_id', Auth::id())->orderBy('name')->get();
-        
+
         return view('manual.inventory.stock.edit', compact('inventory', 'locations'));
     }
 

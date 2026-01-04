@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Expense;
 use App\Models\Invoice;
 use App\Models\InvoicePayment;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
 
 class FinanceController extends Controller
 {
@@ -19,15 +19,15 @@ class FinanceController extends Controller
         // Income Calculation
         // 1. From recorded payments
         $paymentsIncome = InvoicePayment::whereHas('invoice.visit', function ($q) {
-                $q->where('user_id', Auth::id());
-            })
+            $q->where('user_id', Auth::id());
+        })
             ->whereBetween('paid_at', [$startDate, $endDate])
             ->sum('amount');
 
         // 2. From deposits (assuming deposit date = invoice creation date)
         $depositsIncome = Invoice::whereHas('visit', function ($q) {
-                $q->where('user_id', Auth::id());
-            })
+            $q->where('user_id', Auth::id());
+        })
             ->where('deposit_amount', '>', 0)
             ->whereBetween('created_at', [$startDate, $endDate])
             ->sum('deposit_amount');
@@ -61,12 +61,12 @@ class FinanceController extends Controller
             ->get();
 
         return view('finance.index', compact(
-            'income', 
-            'opex', 
-            'capex', 
-            'totalExpenses', 
-            'netProfit', 
-            'startDate', 
+            'income',
+            'opex',
+            'capex',
+            'totalExpenses',
+            'netProfit',
+            'startDate',
             'endDate',
             'recentExpenses',
             'recentPayments'

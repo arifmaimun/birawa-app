@@ -14,13 +14,13 @@ class RoutingServiceTest extends TestCase
     /** @test */
     public function haversine_service_calculates_correctly()
     {
-        $service = new HaversineService();
+        $service = new HaversineService;
         // Distance between Jakarta (Monas) and Bogor (Kebun Raya) approx 44-50km straight line
         // Monas: -6.175392, 106.827153
         // Bogor: -6.597147, 106.799510
-        
+
         $result = $service->getRoute(-6.175392, 106.827153, -6.597147, 106.799510);
-        
+
         $this->assertArrayHasKey('distance_km', $result);
         $this->assertArrayHasKey('duration_minutes', $result);
         $this->assertEquals('haversine_fallback', $result['source']);
@@ -32,10 +32,10 @@ class RoutingServiceTest extends TestCase
     public function osrm_service_returns_null_on_failure()
     {
         Http::fake([
-            '*' => Http::response(null, 500)
+            '*' => Http::response(null, 500),
         ]);
 
-        $service = new OsrmService();
+        $service = new OsrmService;
         $result = $service->getRoute(0, 0, 1, 1);
 
         $this->assertNull($result);
@@ -45,17 +45,17 @@ class RoutingServiceTest extends TestCase
     public function osrm_service_triggers_circuit_breaker()
     {
         Http::fake([
-            '*' => Http::response(null, 500)
+            '*' => Http::response(null, 500),
         ]);
 
-        $service = new OsrmService();
-        
+        $service = new OsrmService;
+
         // First fail
         $service->getRoute(0, 0, 1, 1);
-        
+
         // Check cache
         $this->assertTrue(Cache::has('osrm_circuit_open'));
-        
+
         // Next call should be skipped (logged as warning)
         $result = $service->getRoute(0, 0, 1, 1);
         $this->assertNull($result);
@@ -73,7 +73,7 @@ class RoutingServiceTest extends TestCase
         $haversine->shouldReceive('getRoute')->andReturn([
             'distance_km' => 10,
             'duration_minutes' => 20,
-            'source' => 'haversine_fallback'
+            'source' => 'haversine_fallback',
         ]);
 
         $manager = new RoutingManager($osrm, $haversine);

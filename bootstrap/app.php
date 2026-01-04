@@ -23,7 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->report(function (Throwable $e) {
             if (\Illuminate\Support\Facades\Auth::check()) {
-                \Illuminate\Support\Facades\Log::error('Exception for User ID: ' . \Illuminate\Support\Facades\Auth::id() . ' | URL: ' . request()->fullUrl(), [
+                \Illuminate\Support\Facades\Log::error('Exception for User ID: '.\Illuminate\Support\Facades\Auth::id().' | URL: '.request()->fullUrl(), [
                     'exception' => $e->getMessage(),
                     'trace' => $e->getTraceAsString(),
                 ]);

@@ -14,10 +14,10 @@ class AuditLogController extends Controller
 
         if ($search = $request->input('search')) {
             $query->where('action', 'like', "%{$search}%")
-                  ->orWhere('model_type', 'like', "%{$search}%")
-                  ->orWhereHas('user', function($q) use ($search) {
-                      $q->where('name', 'like', "%{$search}%");
-                  });
+                ->orWhere('model_type', 'like', "%{$search}%")
+                ->orWhereHas('user', function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%");
+                });
         }
 
         if ($action = $request->input('action_filter')) {
@@ -32,6 +32,7 @@ class AuditLogController extends Controller
     public function show(AuditLog $auditLog)
     {
         $auditLog->load('user');
+
         return view('manual.settings.audit-logs.show', compact('auditLog'));
     }
 }

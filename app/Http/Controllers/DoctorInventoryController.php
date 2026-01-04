@@ -8,8 +8,8 @@ use App\Models\InventoryTransaction;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class DoctorInventoryController extends Controller
@@ -21,7 +21,7 @@ class DoctorInventoryController extends Controller
 
         // Get user's locations
         $locations = \App\Models\StorageLocation::where('user_id', Auth::id())->get();
-        
+
         // If no locations exist (shouldn't happen due to migration), create default
         if ($locations->isEmpty()) {
             $defaultLocation = \App\Models\StorageLocation::create([
@@ -38,43 +38,43 @@ class DoctorInventoryController extends Controller
         if ($locationId) {
             $activeLocation = $locations->firstWhere('id', $locationId);
         }
-        
-        if (!$activeLocation) {
+
+        if (! $activeLocation) {
             $activeLocation = $locations->firstWhere('is_default', true) ?? $locations->first();
         }
 
         $items = DoctorInventory::where('user_id', Auth::id())
             ->where('storage_location_id', $activeLocation->id)
             ->when($search, function ($query) use ($search) {
-                $query->where(function($q) use ($search) {
+                $query->where(function ($q) use ($search) {
                     $q->where('item_name', 'like', "%{$search}%")
-                      ->orWhere('sku', 'like', "%{$search}%");
+                        ->orWhere('sku', 'like', "%{$search}%");
                 });
             })
             ->orderBy('item_name')
             ->paginate(10);
-            
+
         return view('inventory.index', compact('items', 'search', 'locations', 'activeLocation'));
     }
 
     public function searchItems(Request $request)
     {
         $search = $request->input('q');
-        
+
         $items = DoctorInventory::where('user_id', Auth::id())
             ->where('item_name', 'like', "%{$search}%")
             ->orderBy('item_name')
             ->limit(10)
             ->get();
-            
+
         return response()->json($items);
     }
 
     public function expiryReport(Request $request)
     {
-        $batches = \App\Models\DoctorInventoryBatch::whereHas('inventory', function($q) {
-                $q->where('user_id', Auth::id());
-            })
+        $batches = \App\Models\DoctorInventoryBatch::whereHas('inventory', function ($q) {
+            $q->where('user_id', Auth::id());
+        })
             ->where('quantity', '>', 0)
             ->orderBy('expiry_date', 'asc')
             ->paginate(20);
@@ -85,27 +85,28 @@ class DoctorInventoryController extends Controller
     public function create()
     {
         $products = Product::orderBy('name')->get(); // For selection
+
         return view('inventory.create', compact('products'));
     }
 
     public function store(Request $request)
     {
         $locationId = $request->storage_location_id;
-        
+
         // Find default location if not specified
-        if (!$locationId) {
-             $defaultLocation = \App\Models\StorageLocation::where('user_id', Auth::id())
+        if (! $locationId) {
+            $defaultLocation = \App\Models\StorageLocation::where('user_id', Auth::id())
                 ->where('is_default', true)
                 ->first();
-             if (!$defaultLocation) {
-                 $defaultLocation = \App\Models\StorageLocation::create([
+            if (! $defaultLocation) {
+                $defaultLocation = \App\Models\StorageLocation::create([
                     'user_id' => Auth::id(),
                     'name' => 'Main Warehouse',
                     'type' => 'warehouse',
                     'is_default' => true,
-                 ]);
-             }
-             $locationId = $defaultLocation->id;
+                ]);
+            }
+            $locationId = $defaultLocation->id;
         }
 
         $request->validate([
@@ -120,7 +121,7 @@ class DoctorInventoryController extends Controller
                 'nullable',
                 Rule::unique('doctor_inventories')->where(function ($query) use ($locationId) {
                     return $query->where('user_id', Auth::id())
-                                 ->where('storage_location_id', $locationId);
+                        ->where('storage_location_id', $locationId);
                 }),
             ],
         ]);
@@ -139,7 +140,7 @@ class DoctorInventoryController extends Controller
                 ->where('storage_location_id', $locationId)
                 ->where('product_id', $productId)
                 ->first();
-            
+
             if ($existing) {
                 return redirect()->route('inventory.index', ['location_id' => $locationId])
                     ->with('error', 'Item already exists in this location.');
@@ -149,9 +150,9 @@ class DoctorInventoryController extends Controller
             if (empty($sku)) {
                 // Auto-generate SKU
                 $cat = strtoupper(substr($request->category ?? 'GEN', 0, 3));
-                $sku = $cat . '-' . now()->format('ymd') . '-' . Str::random(4);
+                $sku = $cat.'-'.now()->format('ymd').'-'.Str::random(4);
             }
-            
+
             // Check if product exists by SKU
             $existingProduct = \App\Models\Product::where('sku', $sku)->first();
 
@@ -198,6 +199,7 @@ class DoctorInventoryController extends Controller
         if ($doctorInventory->user_id !== Auth::id()) {
             abort(403);
         }
+
         return view('inventory.edit', compact('doctorInventory'));
     }
 
@@ -212,10 +214,10 @@ class DoctorInventoryController extends Controller
         $request->validate([
             'item_name' => 'required|string|max:255',
             'category' => 'nullable|string|max:100',
-            'sku' => ['nullable', 'string', 'max:100', 
-                 Rule::unique('doctor_inventories')->ignore($doctorInventory->id)->where(function ($query) use ($locationId) {
-                     return $query->where('storage_location_id', $locationId);
-                 })
+            'sku' => ['nullable', 'string', 'max:100',
+                Rule::unique('doctor_inventories')->ignore($doctorInventory->id)->where(function ($query) use ($locationId) {
+                    return $query->where('storage_location_id', $locationId);
+                }),
             ],
             'base_unit' => 'required|string',
             'purchase_unit' => 'required|string',
@@ -243,6 +245,7 @@ class DoctorInventoryController extends Controller
         if ($doctorInventory->user_id !== Auth::id()) {
             abort(403);
         }
+
         return view('inventory.restock', compact('doctorInventory'));
     }
 
@@ -262,7 +265,7 @@ class DoctorInventoryController extends Controller
         DB::transaction(function () use ($request, $doctorInventory) {
             $qtyPurchase = $request->quantity_purchase_unit;
             $costPerUnit = $request->cost_per_purchase_unit;
-            
+
             $qtyBase = $qtyPurchase * $doctorInventory->conversion_ratio;
             $totalCost = $qtyPurchase * $costPerUnit;
 
@@ -271,7 +274,7 @@ class DoctorInventoryController extends Controller
             $oldTotalValue = $oldStock * $doctorInventory->average_cost_price;
             $newTotalValue = $oldTotalValue + $totalCost;
             $newTotalStock = $oldStock + $qtyBase;
-            
+
             $newAvgCost = $newTotalStock > 0 ? $newTotalValue / $newTotalStock : 0;
 
             // Create Expense
@@ -316,6 +319,7 @@ class DoctorInventoryController extends Controller
         if ($doctorInventory->user_id !== Auth::id()) {
             abort(403);
         }
+
         return view('inventory.adjust', compact('doctorInventory'));
     }
 
@@ -345,13 +349,13 @@ class DoctorInventoryController extends Controller
                 'doctor_inventory_id' => $doctorInventory->id,
                 'type' => 'ADJUSTMENT',
                 'quantity_change' => $diff,
-                'notes' => "Adjustment: {$request->reason}. " . $request->notes,
+                'notes' => "Adjustment: {$request->reason}. ".$request->notes,
             ]);
 
             // If stock decreased (Loss), create Expense (Loss)
             if ($diff < 0) {
                 $lossAmount = abs($diff) * $doctorInventory->average_cost_price;
-                
+
                 $expense = Expense::create([
                     'user_id' => Auth::id(),
                     'type' => 'OPEX', // Loss is an operational expense
@@ -360,7 +364,7 @@ class DoctorInventoryController extends Controller
                     'notes' => "Loss adjustment for {$doctorInventory->item_name} ({$diff} {$doctorInventory->base_unit}). Reason: {$request->reason}",
                     'transaction_date' => now(),
                 ]);
-                
+
                 $transaction->update(['related_expense_id' => $expense->id]);
             }
 

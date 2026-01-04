@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Visit;
+use App\Models\MessageTemplate;
 use App\Models\Patient;
 use App\Models\User;
+use App\Models\Visit;
 use App\Models\VisitStatus;
-use App\Models\MessageTemplate;
+use App\Services\RouteOptimizationService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
-use App\Services\RouteOptimizationService;
 
 class VisitController extends Controller
 {
@@ -27,6 +27,7 @@ class VisitController extends Controller
     public function index(Request $request)
     {
         $statuses = VisitStatus::all();
+
         return view('visits.calendar', compact('statuses'));
     }
 
@@ -46,16 +47,16 @@ class VisitController extends Controller
 
         // Allow searching all patients, not just those with history
         $patients = Patient::with('client')
-            ->when($search, function($q) use ($search) {
+            ->when($search, function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhereHas('client', function($c) use ($search) {
-                      $c->where('name', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('client', function ($c) use ($search) {
+                        $c->where('name', 'like', "%{$search}%");
+                    });
             })
-            ->when($selectedPatientId, function($q) use ($selectedPatientId) {
-                 // Ensure selected patient is prioritized or included if we were paginating
-                 // With limit, this ensures if we select one, it's definitely in the list
-                 $q->orWhere('id', $selectedPatientId);
+            ->when($selectedPatientId, function ($q) use ($selectedPatientId) {
+                // Ensure selected patient is prioritized or included if we were paginating
+                // With limit, this ensures if we select one, it's definitely in the list
+                $q->orWhere('id', $selectedPatientId);
             })
             ->orderBy('name')
             ->limit(500) // Increase limit to reasonable amount for dropdown
@@ -70,9 +71,9 @@ class VisitController extends Controller
     public function store(Request $request)
     {
         // 1. Merge date/time if provided separately
-        if ($request->has(['scheduled_date', 'scheduled_time']) && !$request->has('scheduled_at')) {
+        if ($request->has(['scheduled_date', 'scheduled_time']) && ! $request->has('scheduled_at')) {
             $request->merge([
-                'scheduled_at' => $request->scheduled_date . ' ' . $request->scheduled_time
+                'scheduled_at' => $request->scheduled_date.' '.$request->scheduled_time,
             ]);
         }
 
@@ -95,32 +96,32 @@ class VisitController extends Controller
         if ($doctorProfile && $request->filled('latitude') && $request->filled('longitude') && $doctorProfile->latitude && $doctorProfile->longitude) {
             $origin = [
                 'latitude' => $doctorProfile->latitude,
-                'longitude' => $doctorProfile->longitude
+                'longitude' => $doctorProfile->longitude,
             ];
             $destination = [
                 'latitude' => $request->latitude,
-                'longitude' => $request->longitude
+                'longitude' => $request->longitude,
             ];
 
             $routeData = $this->routeService->getDistanceDuration($origin, $destination);
             $distance = $routeData['distance'];
-            
+
             $data['distance_km'] = $distance;
 
             // Check Service Radius
             if ($doctorProfile->service_radius_km > 0 && $distance > $doctorProfile->service_radius_km) {
-                return back()->withErrors(['address' => 'Location is outside of service radius (' . number_format($distance, 1) . ' km).']);
+                return back()->withErrors(['address' => 'Location is outside of service radius ('.number_format($distance, 1).' km).']);
             }
-            
+
             // Auto-calculate transport fee
             // Formula: Base Fee + (Distance * Rate per KM)
             $transportFee = $doctorProfile->base_transport_fee + ($distance * $doctorProfile->transport_fee_per_km);
             $data['transport_fee'] = round($transportFee, -2); // Round to nearest 100
         }
 
-        // Get prediction if not already set manually? 
+        // Get prediction if not already set manually?
         // For now, we don't set 'actual_travel_minutes' on creation, but we could return prediction in response if API
-        
+
         Visit::create($data);
 
         return redirect()->route('visits.index')
@@ -132,24 +133,24 @@ class VisitController extends Controller
      */
     protected function getPredictedTravelTime($patientId, $currentDistanceKm = null)
     {
-        // Strategy: 
+        // Strategy:
         // 1. Find completed visits for this patient with actual_travel_minutes recorded
         // 2. Average them
         // 3. If no history for patient, look for visits with similar distance (+/- 10%)
-        
+
         // 1. Patient history
         $avgPatientTime = Visit::where('patient_id', $patientId)
             ->whereNotNull('actual_travel_minutes')
             ->where('actual_travel_minutes', '>', 0)
             ->avg('actual_travel_minutes');
-            
+
         if ($avgPatientTime) {
             return round($avgPatientTime);
         }
 
         // 2. Distance-based approximation if we have distance
         if ($currentDistanceKm) {
-             $avgDistanceTime = Visit::whereNotNull('actual_travel_minutes')
+            $avgDistanceTime = Visit::whereNotNull('actual_travel_minutes')
                 ->where('actual_travel_minutes', '>', 0)
                 ->whereBetween('distance_km', [$currentDistanceKm * 0.9, $currentDistanceKm * 1.1])
                 ->avg('actual_travel_minutes');
@@ -182,25 +183,25 @@ class VisitController extends Controller
         ]);
 
         $status = VisitStatus::where('slug', $request->status)->firstOrFail();
-        
+
         $data = ['visit_status_id' => $status->id];
-        
+
         // Handle side effects based on status change
         if ($request->status === 'otw' || $request->status === 'on-the-way') {
-            if (!$visit->departure_time) {
+            if (! $visit->departure_time) {
                 $data['departure_time'] = now();
             }
         } elseif ($request->status === 'arrived') {
-            if (!$visit->arrival_time) {
+            if (! $visit->arrival_time) {
                 $data['arrival_time'] = now();
                 // Calculate duration if not provided manually and departure time exists
-                if (!$request->has('actual_travel_minutes') && $visit->departure_time) {
+                if (! $request->has('actual_travel_minutes') && $visit->departure_time) {
                     $start = Carbon::parse($visit->departure_time);
                     $data['actual_travel_minutes'] = $start->diffInMinutes($data['arrival_time']);
                 }
             }
         } elseif ($request->status === 'completed') {
-             if (!$visit->arrival_time) {
+            if (! $visit->arrival_time) {
                 $data['arrival_time'] = now(); // Ensure arrival time is set if jumped straight to completed
             }
         }
@@ -217,10 +218,11 @@ class VisitController extends Controller
         if ($request->wantsJson()) {
             $visit->load(['patient.client', 'user', 'invoice', 'medicalRecords', 'visitStatus']);
             $visit->status = $visit->visitStatus?->slug;
+
             return response()->json($visit);
         }
 
-        return back()->with('success', 'Visit status updated to ' . ucfirst($request->status));
+        return back()->with('success', 'Visit status updated to '.ucfirst($request->status));
     }
 
     /**
@@ -234,15 +236,15 @@ class VisitController extends Controller
 
         if ($request->wantsJson() || $request->is('api/*')) {
             $visit->load(['patient.client', 'user', 'invoice', 'medicalRecords.doctor', 'visitStatus']);
-            
+
             // Map status slug to simple status string if needed by frontend
             $visit->status = $visit->visitStatus?->slug ?? 'scheduled';
-            
+
             // Add predicted travel time
-            if (!$visit->actual_travel_minutes && $visit->status !== 'completed' && $visit->status !== 'cancelled') {
+            if (! $visit->actual_travel_minutes && $visit->status !== 'completed' && $visit->status !== 'cancelled') {
                 $visit->predicted_travel_minutes = $this->getPredictedTravelTime($visit->patient_id, $visit->distance_km);
             }
-            
+
             return response()->json($visit);
         }
 
@@ -257,20 +259,20 @@ class VisitController extends Controller
         if ($visit->user_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
-        
+
         $user = Auth::user();
         $patients = Patient::with('client')
-            ->where(function($q) use ($user) {
-                $q->whereHas('visits', function($v) use ($user) {
+            ->where(function ($q) use ($user) {
+                $q->whereHas('visits', function ($v) use ($user) {
                     $v->where('user_id', $user->id);
                 })
-                ->orWhereHas('medical_records', function($m) use ($user) {
-                    $m->where('doctor_id', $user->id);
-                });
+                    ->orWhereHas('medical_records', function ($m) use ($user) {
+                        $m->where('doctor_id', $user->id);
+                    });
             })
             ->orderBy('name')
             ->get();
-            
+
         return view('visits.edit', compact('visit', 'patients'));
     }
 
@@ -324,15 +326,15 @@ class VisitController extends Controller
                 ->whereBetween('scheduled_at', [$start, $end]);
 
             // Apply Status Filter
-            if (!empty($status)) {
+            if (! empty($status)) {
                 $query->whereHas('visitStatus', function ($q) use ($status) {
                     $q->whereIn('slug', is_array($status) ? $status : explode(',', $status));
                 });
             }
 
             // Apply Search Filter
-            if (!empty($search)) {
-                $query->where(function($q) use ($search) {
+            if (! empty($search)) {
+                $query->where(function ($q) use ($search) {
                     $q->whereHas('patient', function ($p) use ($search) {
                         $p->where('name', 'like', "%{$search}%");
                     })->orWhereHas('patient.client', function ($c) use ($search) {
@@ -345,7 +347,7 @@ class VisitController extends Controller
 
             $events = $visits->map(function ($visit) {
                 $color = $visit->visitStatus->color ?? '#6B7280';
-                
+
                 $patientName = $visit->patient->name ?? 'Unknown';
                 $clientName = $visit->patient->client->name ?? 'No Client';
 
@@ -363,13 +365,14 @@ class VisitController extends Controller
                         'latitude' => $visit->latitude,
                         'longitude' => $visit->longitude,
                         'address' => $visit->patient->client->address ?? '',
-                    ]
+                    ],
                 ];
             });
 
             return response()->json($events);
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Calendar Events Error: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Calendar Events Error: '.$e->getMessage());
+
             return response()->json(['error' => 'Failed to fetch events'], 500);
         }
     }
@@ -398,9 +401,9 @@ class VisitController extends Controller
         $result = $this->routeService->optimizeRoute($visits, $startLocation);
 
         $route = $result['route']->values();
-        
+
         // Eager load relations
-        $route->each(function($visit) {
+        $route->each(function ($visit) {
             $visit->load('patient.client', 'visitStatus');
         });
 
@@ -421,7 +424,7 @@ class VisitController extends Controller
 
         $departureTime = Carbon::now();
         $visit->departure_time = $departureTime;
-        
+
         if ($request->estimated_minutes) {
             $visit->estimated_travel_minutes = $request->estimated_minutes;
         } elseif ($request->estimated_hours) {
@@ -431,7 +434,7 @@ class VisitController extends Controller
         if ($request->has('distance_km')) {
             $visit->distance_km = $request->distance_km;
         }
-        
+
         // Update status to 'otw' if possible
         $otwStatus = VisitStatus::where('slug', 'otw')->orWhere('slug', 'on-the-way')->first();
         if ($otwStatus) {
@@ -449,13 +452,13 @@ class VisitController extends Controller
         if ($template && $visit->patient->client && $visit->patient->client->phone) {
             $message = $this->formatMessage($template->content_pattern, $visit);
             $phone = $this->formatPhoneNumber($visit->patient->client->phone);
-            $whatsappUrl = "https://wa.me/{$phone}?text=" . urlencode($message);
+            $whatsappUrl = "https://wa.me/{$phone}?text=".urlencode($message);
         }
 
         return response()->json([
             'success' => true,
             'message' => 'Perjalanan dimulai.',
-            'whatsapp_url' => $whatsappUrl
+            'whatsapp_url' => $whatsappUrl,
         ]);
     }
 
@@ -467,12 +470,12 @@ class VisitController extends Controller
 
         $arrivalTime = Carbon::now();
         $visit->arrival_time = $arrivalTime;
-        
+
         if ($visit->departure_time) {
             $start = Carbon::parse($visit->departure_time);
             $visit->actual_travel_minutes = $start->diffInMinutes($arrivalTime);
         }
-        
+
         // Update status to 'arrived'
         $arrivedStatus = VisitStatus::where('slug', 'arrived')->first();
         if ($arrivedStatus) {
@@ -491,14 +494,14 @@ class VisitController extends Controller
         if ($template && $visit->patient->client && $visit->patient->client->phone) {
             $message = $this->formatMessage($template->content_pattern, $visit);
             $phone = $this->formatPhoneNumber($visit->patient->client->phone);
-            $whatsappUrl = "https://wa.me/{$phone}?text=" . urlencode($message);
+            $whatsappUrl = "https://wa.me/{$phone}?text=".urlencode($message);
         }
 
         return response()->json([
             'success' => true,
             'message' => 'Sampai di lokasi.',
             'whatsapp_url' => $whatsappUrl,
-            'duration_report' => $visit->actual_travel_minutes ? "Total perjalanan: {$visit->actual_travel_minutes} menit." : null
+            'duration_report' => $visit->actual_travel_minutes ? "Total perjalanan: {$visit->actual_travel_minutes} menit." : null,
         ]);
     }
 
@@ -510,7 +513,7 @@ class VisitController extends Controller
             '{patient_name}' => $visit->patient->name ?? 'Hewan',
             '{address}' => $visit->patient->client->address ?? '',
         ];
-        
+
         if (strpos($pattern, '{eta}') !== false) {
             if ($visit->departure_time && $visit->estimated_travel_minutes) {
                 $eta = Carbon::parse($visit->departure_time)->addMinutes($visit->estimated_travel_minutes)->format('H:i');
@@ -522,14 +525,15 @@ class VisitController extends Controller
 
         return str_replace(array_keys($replacements), array_values($replacements), $pattern);
     }
-    
+
     private function formatPhoneNumber($phone)
     {
         // Simple formatter: replace 08 with 628, remove non-digits
         $phone = preg_replace('/[^0-9]/', '', $phone);
         if (str_starts_with($phone, '08')) {
-            $phone = '62' . substr($phone, 1);
+            $phone = '62'.substr($phone, 1);
         }
+
         return $phone;
     }
 }

@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use App\Models\AuditLog;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -19,9 +19,9 @@ class UserController extends Controller
 
         if ($request->has('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
@@ -37,6 +37,7 @@ class UserController extends Controller
         if ($roles->isEmpty()) {
             // We might want to seed or just rely on the enum column if Spatie isn't fully set up
         }
+
         return view('admin.users.create', compact('roles'));
     }
 
@@ -77,6 +78,7 @@ class UserController extends Controller
     public function edit(User $user)
     {
         $roles = Role::all();
+
         return view('admin.users.edit', compact('user', 'roles'));
     }
 
@@ -123,7 +125,7 @@ class UserController extends Controller
     public function destroy(Request $request, User $user)
     {
         $oldValues = $user->toArray();
-        
+
         $user->delete();
 
         AuditLog::create([

@@ -2,27 +2,24 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Models\User;
 use App\Models\Client;
-use App\Models\Patient;
-use App\Models\Visit;
-use App\Models\VisitStatus;
-use App\Models\MedicalRecord;
-use App\Models\Invoice;
-use App\Models\Product;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
-use Carbon\Carbon;
-
 use App\Models\DoctorInventory;
 use App\Models\DoctorServiceCatalog;
 use App\Models\Expense;
+use App\Models\Invoice;
 use App\Models\InvoiceItem;
+use App\Models\MedicalRecord;
+use App\Models\Patient;
+use App\Models\Product;
 use App\Models\StorageLocation;
+use App\Models\User;
+use App\Models\Visit;
+use App\Models\VisitStatus;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class RunComprehensiveTest extends Command
 {
@@ -41,8 +38,11 @@ class RunComprehensiveTest extends Command
     protected $description = 'Run comprehensive automated testing suite with data insertion, verification, and reporting.';
 
     protected $batchId;
+
     protected $results = [];
+
     protected $createdIds = [];
+
     protected $startTime;
 
     /**
@@ -52,7 +52,7 @@ class RunComprehensiveTest extends Command
     {
         $this->startTime = microtime(true);
         $this->batchId = now()->format('Ymd_His');
-        
+
         $this->info("Starting Comprehensive Test Suite (Batch ID: {$this->batchId})...");
 
         if ($this->option('cleanup')) {
@@ -63,7 +63,7 @@ class RunComprehensiveTest extends Command
             DB::beginTransaction();
 
             // 1. Preparation & Data Insertion
-            $this->step('Preparing Test Data', function() {
+            $this->step('Preparing Test Data', function () {
                 $this->createUsers();
                 $this->createClients();
                 $this->createPatients();
@@ -78,7 +78,7 @@ class RunComprehensiveTest extends Command
             });
 
             // 2. Verification
-            $this->step('Verifying Functions', function() {
+            $this->step('Verifying Functions', function () {
                 $this->verifyCRUD();
                 $this->verifyValidations();
                 $this->verifyRelationships();
@@ -86,20 +86,20 @@ class RunComprehensiveTest extends Command
             });
 
             DB::commit();
-            
+
             // Save created IDs for cleanup
             $this->saveTestRunData();
 
-            $this->info("Test Suite Completed Successfully.");
+            $this->info('Test Suite Completed Successfully.');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            $this->error("Test Failed: " . $e->getMessage());
+            $this->error('Test Failed: '.$e->getMessage());
             $this->logResult('Critical Error', 'System', 'Failed', 0, $e->getMessage());
         }
 
         // 3. Reporting
-        if (!$this->option('no-report')) {
+        if (! $this->option('no-report')) {
             $this->generateReport();
         }
     }
@@ -121,18 +121,18 @@ class RunComprehensiveTest extends Command
 
     protected function createUsers()
     {
-        $this->info("- Creating Users...");
-        
+        $this->info('- Creating Users...');
+
         // Normal Case
         $user = User::create([
-            'name' => 'Test Doctor ' . $this->batchId,
+            'name' => 'Test Doctor '.$this->batchId,
             'email' => "doctor_{$this->batchId}@example.com",
             'password' => Hash::make('password'),
             'role' => 'veterinarian',
             'phone' => '08123456789',
         ]);
         $this->trackId(User::class, $user->id);
-        
+
         // Boundary Case (Max Length Name)
         $longNameUser = User::create([
             'name' => Str::random(250),
@@ -147,13 +147,13 @@ class RunComprehensiveTest extends Command
 
     protected function createClients()
     {
-        $this->info("- Creating Clients...");
+        $this->info('- Creating Clients...');
         $user = User::where('email', "doctor_{$this->batchId}@example.com")->first();
 
         // Normal Client
         $client = Client::create([
             'user_id' => $user->id,
-            'name' => 'Test Client ' . $this->batchId,
+            'name' => 'Test Client '.$this->batchId,
             'phone' => '08123456789',
             'address' => 'Test Address 123',
             'first_name' => 'Test',
@@ -167,13 +167,13 @@ class RunComprehensiveTest extends Command
 
     protected function createPatients()
     {
-        $this->info("- Creating Patients...");
-        $client = Client::where('name', 'Test Client ' . $this->batchId)->first();
+        $this->info('- Creating Patients...');
+        $client = Client::where('name', 'Test Client '.$this->batchId)->first();
 
         // Normal Patient
         $patient = Patient::create([
             'client_id' => $client->id,
-            'name' => 'Fluffy ' . $this->batchId,
+            'name' => 'Fluffy '.$this->batchId,
             'species' => 'Cat',
             'breed' => 'Persian',
             'gender' => 'Male',
@@ -187,11 +187,11 @@ class RunComprehensiveTest extends Command
 
     protected function createProducts()
     {
-        $this->info("- Creating Products...");
-        
+        $this->info('- Creating Products...');
+
         $product = Product::create([
-            'name' => 'Test Product ' . $this->batchId,
-            'sku' => 'SKU-' . $this->batchId,
+            'name' => 'Test Product '.$this->batchId,
+            'sku' => 'SKU-'.$this->batchId,
             'category' => 'Medicine',
             'type' => 'goods', // Corrected to lowercase
             'cost' => 50000,
@@ -205,12 +205,12 @@ class RunComprehensiveTest extends Command
 
     protected function createStorageLocations()
     {
-        $this->info("- Creating Storage Locations...");
+        $this->info('- Creating Storage Locations...');
         $user = User::where('email', "doctor_{$this->batchId}@example.com")->first();
 
         $location = StorageLocation::create([
             'user_id' => $user->id,
-            'name' => 'Main Cabinet ' . $this->batchId,
+            'name' => 'Main Cabinet '.$this->batchId,
             'type' => 'warehouse',
             'is_default' => true,
         ]);
@@ -221,12 +221,12 @@ class RunComprehensiveTest extends Command
 
     protected function createDoctorServices()
     {
-        $this->info("- Creating Doctor Services...");
+        $this->info('- Creating Doctor Services...');
         $user = User::where('email', "doctor_{$this->batchId}@example.com")->first();
 
         $service = DoctorServiceCatalog::create([
             'user_id' => $user->id,
-            'service_name' => 'General Checkup ' . $this->batchId,
+            'service_name' => 'General Checkup '.$this->batchId,
             'description' => 'Standard health check',
             'price' => 150000,
             'duration_minutes' => 30,
@@ -238,13 +238,14 @@ class RunComprehensiveTest extends Command
 
     protected function createDoctorInventory()
     {
-        $this->info("- Creating Doctor Inventory...");
+        $this->info('- Creating Doctor Inventory...');
         $user = User::where('email', "doctor_{$this->batchId}@example.com")->first();
-        $product = Product::where('sku', 'SKU-' . $this->batchId)->first();
-        $location = StorageLocation::where('name', 'Main Cabinet ' . $this->batchId)->first();
+        $product = Product::where('sku', 'SKU-'.$this->batchId)->first();
+        $location = StorageLocation::where('name', 'Main Cabinet '.$this->batchId)->first();
 
-        if (!$product || !$location) {
-            $this->logResult('Create Inventory', 'Inventory', 'Skipped', 0, "Product or Location missing");
+        if (! $product || ! $location) {
+            $this->logResult('Create Inventory', 'Inventory', 'Skipped', 0, 'Product or Location missing');
+
             return;
         }
 
@@ -272,7 +273,7 @@ class RunComprehensiveTest extends Command
 
     protected function createExpenses()
     {
-        $this->info("- Creating Expenses...");
+        $this->info('- Creating Expenses...');
         $user = User::where('email', "doctor_{$this->batchId}@example.com")->first();
 
         $expense = Expense::create([
@@ -281,7 +282,7 @@ class RunComprehensiveTest extends Command
             'amount' => 250000,
             'category' => 'Operational',
             'transaction_date' => now(),
-            'notes' => 'Office Supplies ' . $this->batchId,
+            'notes' => 'Office Supplies '.$this->batchId,
         ]);
         $this->trackId(Expense::class, $expense->id);
 
@@ -290,10 +291,10 @@ class RunComprehensiveTest extends Command
 
     protected function createVisits()
     {
-        $this->info("- Creating Visits...");
-        $patient = Patient::where('name', 'Fluffy ' . $this->batchId)->first();
+        $this->info('- Creating Visits...');
+        $patient = Patient::where('name', 'Fluffy '.$this->batchId)->first();
         $user = User::where('email', "doctor_{$this->batchId}@example.com")->first();
-        
+
         // Ensure VisitStatus exists
         $status = VisitStatus::firstOrCreate(['name' => 'Scheduled'], ['label' => 'Scheduled', 'color' => 'gray']);
 
@@ -313,16 +314,17 @@ class RunComprehensiveTest extends Command
 
     protected function createMedicalRecords()
     {
-        $this->info("- Creating Medical Records...");
-        $visit = Visit::with(['user', 'patient'])->whereHas('user', function($q) {
+        $this->info('- Creating Medical Records...');
+        $visit = Visit::with(['user', 'patient'])->whereHas('user', function ($q) {
             $q->where('email', 'like', "%{$this->batchId}%");
         })->first();
 
-        if (!$visit) {
-            $this->logResult('Create Medical Records', 'MedicalRecord', 'Skipped', 0, "No Visit found");
+        if (! $visit) {
+            $this->logResult('Create Medical Records', 'MedicalRecord', 'Skipped', 0, 'No Visit found');
+
             return;
         }
-        
+
         $record = MedicalRecord::create([
             'visit_id' => $visit->id,
             'doctor_id' => $visit->user_id,
@@ -341,15 +343,16 @@ class RunComprehensiveTest extends Command
 
     protected function createInvoices()
     {
-        $this->info("- Creating Invoices...");
-        $visit = Visit::whereHas('user', function($q) {
+        $this->info('- Creating Invoices...');
+        $visit = Visit::whereHas('user', function ($q) {
             $q->where('email', 'like', "%{$this->batchId}%");
         })->first();
-        
-        $product = Product::where('sku', 'SKU-' . $this->batchId)->first();
 
-        if (!$visit) {
-            $this->logResult('Create Invoices', 'Invoice', 'Skipped', 0, "No Visit found");
+        $product = Product::where('sku', 'SKU-'.$this->batchId)->first();
+
+        if (! $visit) {
+            $this->logResult('Create Invoices', 'Invoice', 'Skipped', 0, 'No Visit found');
+
             return;
         }
 
@@ -363,7 +366,7 @@ class RunComprehensiveTest extends Command
 
         $invoice = Invoice::create([
             'visit_id' => $visit->id,
-            'invoice_number' => 'INV-' . $this->batchId,
+            'invoice_number' => 'INV-'.$this->batchId,
             'total_amount' => $total,
             'deposit_amount' => 0,
             'remaining_balance' => $total,
@@ -389,44 +392,56 @@ class RunComprehensiveTest extends Command
 
     protected function verifyFinancials()
     {
-        $this->info("- Verifying Financials...");
-        
+        $this->info('- Verifying Financials...');
+
         // Check Invoice Calculation
-        $invoice = Invoice::where('invoice_number', 'INV-' . $this->batchId)->with('invoiceItems')->first();
-        if (!$invoice) throw new \Exception("Invoice Verification Failed: Not Found");
-        
-        $itemsTotal = $invoice->invoiceItems->sum(function($item) {
+        $invoice = Invoice::where('invoice_number', 'INV-'.$this->batchId)->with('invoiceItems')->first();
+        if (! $invoice) {
+            throw new \Exception('Invoice Verification Failed: Not Found');
+        }
+
+        $itemsTotal = $invoice->invoiceItems->sum(function ($item) {
             return $item->unit_price * $item->quantity;
         });
-        
+
         // Add visit fees if logic dictates (assuming here for simplicity we just check if total matches what we set or is consistent)
         // For now, let's just check if items exist
-        if ($invoice->invoiceItems->count() === 0) throw new \Exception("Invoice Items Missing");
+        if ($invoice->invoiceItems->count() === 0) {
+            throw new \Exception('Invoice Items Missing');
+        }
 
         // Check Expense
-        $expense = Expense::where('notes', 'Office Supplies ' . $this->batchId)->first();
-        if (!$expense) throw new \Exception("Expense Verification Failed");
+        $expense = Expense::where('notes', 'Office Supplies '.$this->batchId)->first();
+        if (! $expense) {
+            throw new \Exception('Expense Verification Failed');
+        }
 
         $this->logResult('Verify Financials', 'Finance', 'Passed', 0.1);
     }
 
     protected function verifyCRUD()
     {
-        $this->info("- Verifying CRUD...");
-        
+        $this->info('- Verifying CRUD...');
+
         // Read
-        $client = Client::where('name', 'Test Client ' . $this->batchId)->first();
-        if (!$client) throw new \Exception("Client Read Failed");
+        $client = Client::where('name', 'Test Client '.$this->batchId)->first();
+        if (! $client) {
+            throw new \Exception('Client Read Failed');
+        }
 
         // Update
         $client->update(['phone' => '08999999999']);
-        if ($client->fresh()->phone !== '08999999999') throw new \Exception("Client Update Failed");
+        if ($client->fresh()->phone !== '08999999999') {
+            throw new \Exception('Client Update Failed');
+        }
 
         // Delete verification will be done in cleanup, but let's test soft delete if applicable
         // Client uses SoftDeletes
         $client->delete();
-        if (!Client::withTrashed()->find($client->id)->trashed()) throw new \Exception("Client Soft Delete Failed");
-        
+        if (! Client::withTrashed()->find($client->id)->trashed()) {
+            throw new \Exception('Client Soft Delete Failed');
+        }
+
         $client->restore(); // Restore for further tests
 
         $this->logResult('Verify CRUD', 'System', 'Passed', 0.2);
@@ -434,24 +449,28 @@ class RunComprehensiveTest extends Command
 
     protected function verifyValidations()
     {
-        $this->info("- Verifying Validations...");
-        
+        $this->info('- Verifying Validations...');
+
         // Example: Try to create user without email (should fail if not nullable)
         try {
             User::create(['name' => 'Invalid User']);
-            $this->logResult('Validation: Missing Email', 'User', 'Failed', 0, "Should have failed");
+            $this->logResult('Validation: Missing Email', 'User', 'Failed', 0, 'Should have failed');
         } catch (\Exception $e) {
-            $this->logResult('Validation: Missing Email', 'User', 'Passed', 0, "Caught expected error");
+            $this->logResult('Validation: Missing Email', 'User', 'Passed', 0, 'Caught expected error');
         }
     }
 
     protected function verifyRelationships()
     {
-        $this->info("- Verifying Relationships...");
-        
-        $patient = Patient::where('name', 'Fluffy ' . $this->batchId)->first();
-        if (!$patient->client) throw new \Exception("Patient->Client Relationship Failed");
-        if ($patient->visits->count() === 0) throw new \Exception("Patient->Visits Relationship Failed");
+        $this->info('- Verifying Relationships...');
+
+        $patient = Patient::where('name', 'Fluffy '.$this->batchId)->first();
+        if (! $patient->client) {
+            throw new \Exception('Patient->Client Relationship Failed');
+        }
+        if ($patient->visits->count() === 0) {
+            throw new \Exception('Patient->Visits Relationship Failed');
+        }
 
         $this->logResult('Verify Relationships', 'System', 'Passed', 0.1);
     }
@@ -464,10 +483,10 @@ class RunComprehensiveTest extends Command
     protected function saveTestRunData()
     {
         $path = storage_path('app/test_runs');
-        if (!File::exists($path)) {
+        if (! File::exists($path)) {
             File::makeDirectory($path, 0755, true);
         }
-        
+
         $data = [
             'batch_id' => $this->batchId,
             'timestamp' => now()->toIso8601String(),
@@ -479,11 +498,13 @@ class RunComprehensiveTest extends Command
 
     protected function cleanupOldData()
     {
-        $this->info("Cleaning up old test data...");
+        $this->info('Cleaning up old test data...');
         // This would typically read from the JSON files and delete
         // Implementation for "cleanup" option
         $path = storage_path('app/test_runs');
-        if (!File::exists($path)) return;
+        if (! File::exists($path)) {
+            return;
+        }
 
         $files = File::files($path);
         foreach ($files as $file) {
@@ -495,8 +516,10 @@ class RunComprehensiveTest extends Command
 
     public function deleteFromData($data)
     {
-        if (!isset($data['created_ids'])) return;
-        
+        if (! isset($data['created_ids'])) {
+            return;
+        }
+
         foreach ($data['created_ids'] as $modelClass => $ids) {
             if (class_exists($modelClass)) {
                 $modelClass::whereIn('id', $ids)->forceDelete(); // Force delete to clean DB
@@ -510,23 +533,23 @@ class RunComprehensiveTest extends Command
             'scenario' => $scenario,
             'module' => $module,
             'status' => $status,
-            'duration' => round($duration * 1000, 2) . 'ms',
+            'duration' => round($duration * 1000, 2).'ms',
             'error' => $error,
-            'timestamp' => now()->toTimeString()
+            'timestamp' => now()->toTimeString(),
         ];
     }
 
     protected function generateReport()
     {
-        $this->info("Generating HTML Report...");
-        
+        $this->info('Generating HTML Report...');
+
         $html = $this->buildHtmlReport();
 
         $path = storage_path('app/public/test-reports');
-        if (!File::exists($path)) {
+        if (! File::exists($path)) {
             File::makeDirectory($path, 0755, true);
         }
-        
+
         File::put("$path/report_{$this->batchId}.html", $html);
         $this->info("Report generated: $path/report_{$this->batchId}.html");
     }
@@ -536,12 +559,12 @@ class RunComprehensiveTest extends Command
         $total = count($this->results);
         $passed = collect($this->results)->where('status', 'Passed')->count();
         $failed = collect($this->results)->where('status', 'Failed')->count();
-        
+
         return [
             'total' => $total,
             'passed' => $passed,
             'failed' => $failed,
-            'rate' => $total > 0 ? round(($passed / $total) * 100, 2) : 0
+            'rate' => $total > 0 ? round(($passed / $total) * 100, 2) : 0,
         ];
     }
 
@@ -578,7 +601,7 @@ class RunComprehensiveTest extends Command
             <h1>Automated Test Report</h1>
             <div class='summary'>
                 <h3>Batch ID: {$this->batchId}</h3>
-                <p>Date: " . now()->toDayDateTimeString() . "</p>
+                <p>Date: ".now()->toDayDateTimeString()."</p>
                 <p>Total: {$summary['total']} | Passed: {$summary['passed']} | Failed: {$summary['failed']} | Success Rate: {$summary['rate']}%</p>
             </div>
             <table>

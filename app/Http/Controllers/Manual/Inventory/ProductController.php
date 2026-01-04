@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Manual\Inventory;
 
 use App\Http\Controllers\Controller;
-use App\Models\Product;
 use App\Models\DoctorInventory;
 use App\Models\InvoiceItem;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -17,7 +17,7 @@ class ProductController extends Controller
 
         if ($search = $request->input('search')) {
             $query->where('name', 'like', "%{$search}%")
-                  ->orWhere('sku', 'like', "%{$search}%");
+                ->orWhere('sku', 'like', "%{$search}%");
         }
 
         if ($type = $request->input('type')) {
@@ -32,6 +32,7 @@ class ProductController extends Controller
     public function create()
     {
         $categories = Product::distinct()->pluck('category')->filter();
+
         return view('manual.inventory.products.create', compact('categories'));
     }
 
@@ -68,6 +69,7 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $categories = Product::distinct()->pluck('category')->filter();
+
         return view('manual.inventory.products.edit', compact('product', 'categories'));
     }
 
@@ -99,7 +101,7 @@ class ProductController extends Controller
         }
 
         if (DoctorInventory::where('product_id', $product->id)->exists()) {
-             return back()->with('error', 'Cannot delete product existing in doctor inventory.');
+            return back()->with('error', 'Cannot delete product existing in doctor inventory.');
         }
 
         $product->delete();
@@ -113,10 +115,12 @@ class ProductController extends Controller
         // Generate prefix: 3 letters of category (or PRD/SVC)
         $prefix = $category ? strtoupper(substr($category, 0, 3)) : ($type == 'goods' ? 'PRD' : 'SVC');
         $prefix = preg_replace('/[^A-Z]/', '', $prefix); // Keep only letters
-        if (strlen($prefix) < 3) $prefix = str_pad($prefix, 3, 'X');
+        if (strlen($prefix) < 3) {
+            $prefix = str_pad($prefix, 3, 'X');
+        }
 
         // Find last product with this prefix to determine sequence
-        $lastProduct = Product::where('sku', 'like', $prefix . '-%')
+        $lastProduct = Product::where('sku', 'like', $prefix.'-%')
             ->orderBy('id', 'desc')
             ->first();
 
@@ -129,6 +133,6 @@ class ProductController extends Controller
             }
         }
 
-        return $prefix . '-' . str_pad($sequence, 4, '0', STR_PAD_LEFT);
+        return $prefix.'-'.str_pad($sequence, 4, '0', STR_PAD_LEFT);
     }
 }

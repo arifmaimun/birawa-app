@@ -2,14 +2,14 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\User;
-use App\Models\Product;
 use App\Models\DoctorInventory;
 use App\Models\Patient;
+use App\Models\Product;
+use App\Models\User;
 use App\Models\Visit;
 use App\Models\VisitStatus;
 use Carbon\Carbon;
+use Illuminate\Database\Seeder;
 
 class DemoSeeder extends Seeder
 {
@@ -17,13 +17,14 @@ class DemoSeeder extends Seeder
     {
         // 1. Get the Veterinarian (Dr. Mitra)
         $doctor = User::where('email', 'mitra@example.com')->first();
-        if (!$doctor) {
+        if (! $doctor) {
             $this->command->error("Doctor 'mitra@example.com' not found. Run DatabaseSeeder first.");
+
             return;
         }
 
         // 2. Setup Doctor Profile (Required for Routing)
-        if (!$doctor->doctorProfile) {
+        if (! $doctor->doctorProfile) {
             \App\Models\DoctorProfile::create([
                 'user_id' => $doctor->id,
                 'specialty' => 'General Vet',
@@ -39,7 +40,7 @@ class DemoSeeder extends Seeder
 
         // 3. Populate Inventory (DoctorInventory) from Products
         $products = Product::all();
-        foreach($products as $product) {
+        foreach ($products as $product) {
             DoctorInventory::firstOrCreate(
                 [
                     'user_id' => $doctor->id,
@@ -70,7 +71,7 @@ class DemoSeeder extends Seeder
             ['name' => 'Cancelled', 'slug' => 'cancelled', 'color' => '#ef4444'],
         ];
 
-        foreach($statuses as $status) {
+        foreach ($statuses as $status) {
             VisitStatus::firstOrCreate(['slug' => $status['slug']], $status);
         }
 
@@ -87,9 +88,9 @@ class DemoSeeder extends Seeder
             [-6.18, 106.85], // Cempaka Putih
         ];
 
-        foreach($patients as $index => $patient) {
+        foreach ($patients as $index => $patient) {
             $loc = $locations[$index % count($locations)];
-            
+
             Visit::create([
                 'user_id' => $doctor->id,
                 'patient_id' => $patient->id,

@@ -2,15 +2,15 @@
 
 namespace Tests\Feature;
 
+use App\Models\Client;
+use App\Models\MessageTemplate;
+use App\Models\Patient;
 use App\Models\User;
 use App\Models\Visit;
-use App\Models\Client;
-use App\Models\Patient;
 use App\Models\VisitStatus;
-use App\Models\MessageTemplate;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Carbon\Carbon;
 
 class BookingSystemTest extends TestCase
 {
@@ -41,16 +41,16 @@ class BookingSystemTest extends TestCase
         $doctor = User::factory()->create(['role' => 'veterinarian']);
         $client = Client::factory()->create(['phone' => '08123456789']);
         $patient = Patient::factory()->create(['client_id' => $client->id]);
-        
+
         // Get or create status
         $scheduledStatus = VisitStatus::where('slug', 'scheduled')->first() ?? VisitStatus::factory()->create(['slug' => 'scheduled']);
-        
+
         $visit = Visit::factory()->create([
             'user_id' => $doctor->id,
             'patient_id' => $patient->id,
             'visit_status_id' => $scheduledStatus->id,
         ]);
-        
+
         // Ensure OTW status exists
         $otwStatus = VisitStatus::where('slug', 'otw')->first() ?? VisitStatus::factory()->create(['slug' => 'otw']);
 
@@ -70,10 +70,10 @@ class BookingSystemTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJson(['success' => true]);
-            
+
         $this->assertNotNull($response->json('whatsapp_url'));
-        $this->assertStringContainsString('OTW to ' . $client->name, urldecode($response->json('whatsapp_url')));
-        
+        $this->assertStringContainsString('OTW to '.$client->name, urldecode($response->json('whatsapp_url')));
+
         $visit->refresh();
         $this->assertNotNull($visit->departure_time);
         $this->assertEquals(60, $visit->estimated_travel_minutes);
@@ -86,9 +86,9 @@ class BookingSystemTest extends TestCase
         $doctor = User::factory()->create(['role' => 'veterinarian']);
         $client = Client::factory()->create(['phone' => '08123456789']);
         $patient = Patient::factory()->create(['client_id' => $client->id]);
-        
+
         $otwStatus = VisitStatus::where('slug', 'otw')->first() ?? VisitStatus::factory()->create(['slug' => 'otw']);
-        
+
         $visit = Visit::factory()->create([
             'user_id' => $doctor->id,
             'patient_id' => $patient->id,
@@ -96,7 +96,7 @@ class BookingSystemTest extends TestCase
             'departure_time' => Carbon::now()->subMinutes(30),
             'estimated_travel_minutes' => 30,
         ]);
-        
+
         // Ensure Arrived status exists
         $arrivedStatus = VisitStatus::where('slug', 'arrived')->first() ?? VisitStatus::factory()->create(['slug' => 'arrived']);
 
@@ -114,10 +114,10 @@ class BookingSystemTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJson(['success' => true]);
-            
+
         $this->assertNotNull($response->json('whatsapp_url'));
         $this->assertStringContainsString('Arrived at', urldecode($response->json('whatsapp_url')));
-        
+
         $visit->refresh();
         $this->assertNotNull($visit->arrival_time);
         $this->assertNotNull($visit->actual_travel_minutes);

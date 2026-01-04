@@ -15,7 +15,7 @@ class VitalSignSettingController extends Controller
 
         if ($search = $request->input('search')) {
             $query->where('name', 'like', "%{$search}%")
-                  ->orWhere('unit', 'like', "%{$search}%");
+                ->orWhere('unit', 'like', "%{$search}%");
         }
 
         $settings = $query->latest()->paginate(10);
@@ -59,7 +59,7 @@ class VitalSignSettingController extends Controller
             'type' => 'required|in:number,text',
             'is_active' => 'boolean',
         ]);
-        
+
         $validated['is_active'] = $request->has('is_active');
 
         $vitalSignSetting->update($validated);

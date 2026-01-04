@@ -32,7 +32,7 @@ return new class extends Migration
             ];
         }
 
-        if (!empty($records)) {
+        if (! empty($records)) {
             \Illuminate\Support\Facades\DB::table('client_patient')->insert($records);
         }
 
@@ -48,8 +48,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('client_patient');
-        
-        // We cannot strictly revert client_id to not null without data loss checks, 
+
+        // We cannot strictly revert client_id to not null without data loss checks,
         // but generally we assume we'd reverse the process if needed.
     }
 };

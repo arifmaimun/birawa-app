@@ -8,6 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class VisitStatus extends Model
 {
     use HasFactory;
-    
+
     protected $fillable = ['name', 'slug', 'color', 'description'];
 }

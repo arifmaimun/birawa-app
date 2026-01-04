@@ -2,26 +2,27 @@
 
 namespace Tests\Feature;
 
+use App\Models\Client;
+use App\Models\Patient;
 use App\Models\User;
 use App\Models\Visit;
 use App\Models\VisitStatus;
-use App\Models\Patient;
-use App\Models\Client;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
-use Carbon\Carbon;
 
 class CalendarFilterTest extends TestCase
 {
     use RefreshDatabase;
 
     protected $user;
+
     protected $statuses;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->user = User::factory()->create([
             'role' => 'veterinarian',
         ]);
@@ -72,7 +73,7 @@ class CalendarFilterTest extends TestCase
             ->getJson(route('visits.calendar-events', [
                 'start' => Carbon::now()->subDays(10)->toIso8601String(),
                 'end' => Carbon::now()->addDays(10)->toIso8601String(),
-                'status' => ['scheduled'] // Filter only scheduled
+                'status' => ['scheduled'], // Filter only scheduled
             ]));
 
         $response->assertStatus(200)
@@ -108,11 +109,11 @@ class CalendarFilterTest extends TestCase
             ->getJson(route('visits.calendar-events', [
                 'start' => Carbon::now()->subDays(10)->toIso8601String(),
                 'end' => Carbon::now()->addDays(10)->toIso8601String(),
-                'search' => 'Fluffy'
+                'search' => 'Fluffy',
             ]));
 
         $response->assertStatus(200)
             ->assertJsonCount(1)
-            ->assertJsonFragment(['title' => "Fluffy (John Doe)"]);
+            ->assertJsonFragment(['title' => 'Fluffy (John Doe)']);
     }
 }

@@ -17,14 +17,14 @@ return new class extends Migration
             $table->integer('estimated_travel_minutes')->nullable();
             $table->integer('actual_travel_minutes')->nullable();
         });
-        
+
         // Update message_templates type enum to include travel notifications
         // Note: Changing enum in SQLite/MySQL can be tricky, so we might just use 'other' or add a new column if needed.
         // For now, we'll assume the existing 'type' can handle custom types or we stick to 'other'.
         // But better to add a 'slug' or 'trigger' column for system events.
-        
+
         Schema::table('message_templates', function (Blueprint $table) {
-             $table->string('trigger_event')->nullable()->after('type'); // e.g., 'on_departure', 'on_arrival'
+            $table->string('trigger_event')->nullable()->after('type'); // e.g., 'on_departure', 'on_arrival'
         });
     }
 
@@ -39,10 +39,10 @@ return new class extends Migration
 
         Schema::table('visits', function (Blueprint $table) {
             $table->dropColumn([
-                'departure_time', 
-                'arrival_time', 
-                'estimated_travel_minutes', 
-                'actual_travel_minutes'
+                'departure_time',
+                'arrival_time',
+                'estimated_travel_minutes',
+                'actual_travel_minutes',
             ]);
         });
     }

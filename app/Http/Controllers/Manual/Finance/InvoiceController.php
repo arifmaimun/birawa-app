@@ -21,12 +21,12 @@ class InvoiceController extends Controller
 
         if ($search = $request->input('search')) {
             $query->where('invoice_number', 'like', "%{$search}%")
-                  ->orWhereHas('patient', function($q) use ($search) {
-                      $q->where('name', 'like', "%{$search}%")
-                        ->orWhereHas('client', function($sq) use ($search) {
+                ->orWhereHas('patient', function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhereHas('client', function ($sq) use ($search) {
                             $sq->where('name', 'like', "%{$search}%");
                         });
-                  });
+                });
         }
 
         $invoices = $query->latest()->paginate(10);
@@ -38,7 +38,7 @@ class InvoiceController extends Controller
     {
         $patients = Patient::with('client')->orderBy('name')->get();
         $products = Product::orderBy('name')->get();
-        
+
         $visit = null;
         if ($request->has('visit_id')) {
             $visit = \App\Models\Visit::find($request->visit_id);
@@ -62,14 +62,14 @@ class InvoiceController extends Controller
         try {
             DB::beginTransaction();
 
-            $invoiceNumber = 'INV-' . date('Ymd') . '-' . strtoupper(uniqid()); // Simple generator
+            $invoiceNumber = 'INV-'.date('Ymd').'-'.strtoupper(uniqid()); // Simple generator
             // Better generator: INV-YYYYMMDD-XXXX
             $lastInvoice = Invoice::latest()->first();
             $sequence = 1;
             if ($lastInvoice && preg_match('/INV-\d{8}-(\d+)/', $lastInvoice->invoice_number, $matches)) {
                 $sequence = intval($matches[1]) + 1;
             }
-            $invoiceNumber = 'INV-' . date('Ymd') . '-' . str_pad($sequence, 4, '0', STR_PAD_LEFT);
+            $invoiceNumber = 'INV-'.date('Ymd').'-'.str_pad($sequence, 4, '0', STR_PAD_LEFT);
 
             $subtotal = 0;
             foreach ($request->items as $item) {
@@ -108,13 +108,15 @@ class InvoiceController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Error creating invoice: ' . $e->getMessage())->withInput();
+
+            return back()->with('error', 'Error creating invoice: '.$e->getMessage())->withInput();
         }
     }
 
     public function show(Invoice $invoice)
     {
         $invoice->load(['items.product', 'patient.client']);
+
         return view('manual.finance.invoices.show', compact('invoice'));
     }
 
@@ -125,7 +127,7 @@ class InvoiceController extends Controller
         }
 
         if ($invoice->payment_status === 'paid') {
-             return back()->with('error', 'Cannot delete a paid invoice.');
+            return back()->with('error', 'Cannot delete a paid invoice.');
         }
 
         // Delete items first (though cascade might handle it, better to be explicit or safe)

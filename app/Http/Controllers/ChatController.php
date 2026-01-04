@@ -13,7 +13,7 @@ class ChatController extends Controller
     {
         $user = Auth::user();
         $friends = $user->friends; // Uses the getFriendsAttribute accessor
-        
+
         // Get recent chats
         // We want users who we have exchanged messages with, ordered by most recent message
         $recentChatUserIds = Message::where('sender_id', $user->id)
@@ -25,7 +25,7 @@ class ChatController extends Controller
             })
             ->unique()
             ->values();
-            
+
         $recentChats = User::whereIn('id', $recentChatUserIds)->get()
             ->sortBy(function ($u) use ($recentChatUserIds) {
                 return array_search($u->id, $recentChatUserIds->toArray());
@@ -33,25 +33,25 @@ class ChatController extends Controller
 
         $activeChatUser = null;
         $messages = collect();
-        
+
         if ($request->has('user_id')) {
             $activeChatUser = User::findOrFail($request->user_id);
-            
+
             // Mark messages as read
             Message::where('sender_id', $activeChatUser->id)
                 ->where('receiver_id', $user->id)
                 ->whereNull('read_at')
                 ->update(['read_at' => now()]);
-                
-            $messages = Message::where(function($q) use ($user, $activeChatUser) {
+
+            $messages = Message::where(function ($q) use ($user, $activeChatUser) {
                 $q->where('sender_id', $user->id)
-                  ->where('receiver_id', $activeChatUser->id);
-            })->orWhere(function($q) use ($user, $activeChatUser) {
+                    ->where('receiver_id', $activeChatUser->id);
+            })->orWhere(function ($q) use ($user, $activeChatUser) {
                 $q->where('sender_id', $activeChatUser->id)
-                  ->where('receiver_id', $user->id);
+                    ->where('receiver_id', $user->id);
             })
-            ->orderBy('created_at', 'asc')
-            ->get();
+                ->orderBy('created_at', 'asc')
+                ->get();
         }
 
         return view('chat.index', compact('friends', 'recentChats', 'activeChatUser', 'messages'));
@@ -67,7 +67,7 @@ class ChatController extends Controller
         $user = Auth::user();
 
         if ($user->id == $request->receiver_id) {
-             return response()->json(['message' => 'Cannot send message to yourself'], 422);
+            return response()->json(['message' => 'Cannot send message to yourself'], 422);
         }
 
         $message = Message::create([
@@ -82,22 +82,22 @@ class ChatController extends Controller
     public function getMessages(User $user)
     {
         $currentUser = Auth::user();
-        
+
         // Mark messages as read
         Message::where('sender_id', $user->id)
             ->where('receiver_id', $currentUser->id)
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
 
-        $messages = Message::where(function($q) use ($currentUser, $user) {
+        $messages = Message::where(function ($q) use ($currentUser, $user) {
             $q->where('sender_id', $currentUser->id)
-              ->where('receiver_id', $user->id);
-        })->orWhere(function($q) use ($currentUser, $user) {
+                ->where('receiver_id', $user->id);
+        })->orWhere(function ($q) use ($currentUser, $user) {
             $q->where('sender_id', $user->id)
-              ->where('receiver_id', $currentUser->id);
+                ->where('receiver_id', $currentUser->id);
         })
-        ->orderBy('created_at', 'asc')
-        ->get();
+            ->orderBy('created_at', 'asc')
+            ->get();
 
         return response()->json($messages);
     }

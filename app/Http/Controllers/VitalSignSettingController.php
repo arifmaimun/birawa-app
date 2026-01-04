@@ -14,6 +14,7 @@ class VitalSignSettingController extends Controller
     public function index()
     {
         $settings = VitalSignSetting::where('user_id', Auth::id())->get();
+
         return view('vital-sign-settings.index', compact('settings'));
     }
 
@@ -56,6 +57,7 @@ class VitalSignSettingController extends Controller
         if ($vitalSignSetting->user_id !== Auth::id()) {
             abort(403);
         }
+
         return view('vital-sign-settings.edit', compact('vitalSignSetting'));
     }
 

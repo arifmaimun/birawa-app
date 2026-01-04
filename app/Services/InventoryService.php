@@ -12,10 +12,7 @@ class InventoryService
     /**
      * Reserve stock for a potential sale/usage.
      * Moves stock from 'Available' to 'Reserved'.
-     * 
-     * @param int $inventoryId
-     * @param float $quantity
-     * @param string $unitType
+     *
      * @return void
      */
     public function reserveStock(int $inventoryId, float $quantity, string $unitType = 'unit')
@@ -50,10 +47,7 @@ class InventoryService
     /**
      * Commit reserved stock (finalize sale).
      * Deducts from 'Reserved' and 'Stock Qty'.
-     * 
-     * @param int $inventoryId
-     * @param float $quantity
-     * @param string $unitType
+     *
      * @return void
      */
     public function commitStock(int $inventoryId, float $quantity, string $unitType = 'unit')
@@ -67,16 +61,16 @@ class InventoryService
             $quantityInUnits = $this->convertToUnits($inventory, $quantity, $unitType);
 
             // Decrease reserved and actual stock
-            // We assume this was reserved previously. 
+            // We assume this was reserved previously.
             // Ideally we should check if reserved_qty >= quantityInUnits, but sometimes immediate sale happens.
-            
+
             if ($inventory->reserved_qty >= $quantityInUnits) {
                 $inventory->decrement('reserved_qty', $quantityInUnits);
             } else {
                 // If not enough reserved (maybe direct sale without reservation), just deduct stock
                 // But we should verify stock exists
                 if ($inventory->stock_qty < $quantityInUnits) {
-                     throw new \Exception("Insufficient stock for {$inventory->item_name}.");
+                    throw new \Exception("Insufficient stock for {$inventory->item_name}.");
                 }
             }
 
@@ -106,15 +100,17 @@ class InventoryService
      */
     public function releaseStock(int $inventoryId, float $quantity, string $unitType = 'unit')
     {
-         DB::transaction(function () use ($inventoryId, $quantity, $unitType) {
+        DB::transaction(function () use ($inventoryId, $quantity, $unitType) {
             $inventory = DoctorInventory::find($inventoryId);
-            if (!$inventory) return;
+            if (! $inventory) {
+                return;
+            }
 
             $quantityInUnits = $this->convertToUnits($inventory, $quantity, $unitType);
 
             if ($inventory->reserved_qty >= $quantityInUnits) {
                 $inventory->decrement('reserved_qty', $quantityInUnits);
-                
+
                 InventoryTransaction::create([
                     'doctor_inventory_id' => $inventory->id,
                     'type' => 'CANCEL_RESERVATION',
@@ -134,7 +130,7 @@ class InventoryService
         // For backward compatibility or immediate usage (e.g. broken item), we can just commit directly.
         // But if we want to follow the "Reservation" flow strictly, maybe we should reserve then commit.
         // Let's just treat it as immediate commit.
-        
+
         $this->commitStock($inventoryId, $quantity, $unitType);
     }
 

@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DoctorProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
-use App\Models\DoctorProfile;
 
 class ProfileController extends Controller
 {
@@ -16,7 +16,7 @@ class ProfileController extends Controller
         $user = Auth::user();
         $profile = $user->doctorProfile;
 
-        if (!$profile) {
+        if (! $profile) {
             $profile = DoctorProfile::create(['user_id' => $user->id]);
         }
 
@@ -35,13 +35,13 @@ class ProfileController extends Controller
         if ($request->hasFile('avatar')) {
             $file = $request->file('avatar');
             // Generate filename
-            $filename = $user->id . '-' . time() . '.webp'; 
-            $path = 'avatars/' . $filename;
-            
+            $filename = $user->id.'-'.time().'.webp';
+            $path = 'avatars/'.$filename;
+
             try {
                 // Store the file directly (it's already processed by client)
                 $file->storeAs('avatars', $filename, 'public');
-                
+
                 // Delete old avatar
                 if ($user->avatar) {
                     Storage::disk('public')->delete($user->avatar);
@@ -53,13 +53,14 @@ class ProfileController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => 'Avatar updated successfully',
-                    'url' => Storage::url($path)
+                    'url' => Storage::url($path),
                 ]);
             } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::error('Avatar upload failed: ' . $e->getMessage());
+                \Illuminate\Support\Facades\Log::error('Avatar upload failed: '.$e->getMessage());
+
                 return response()->json([
                     'success' => false,
-                    'message' => 'Gagal menyimpan avatar. Silakan coba lagi.'
+                    'message' => 'Gagal menyimpan avatar. Silakan coba lagi.',
                 ], 500);
             }
         }
@@ -73,13 +74,13 @@ class ProfileController extends Controller
         $user = Auth::user();
         $profile = $user->doctorProfile;
 
-        if (!$profile) {
+        if (! $profile) {
             $profile = DoctorProfile::create(['user_id' => $user->id]);
         }
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'email' => 'required|email|max:255|unique:users,email,'.$user->id,
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:500',
             'avatar' => 'nullable|image|max:10240', // 10MB to allow upload for processing
@@ -126,27 +127,27 @@ class ProfileController extends Controller
                         $newWidth = $maxDim * $ratio;
                     }
 
-                    $newImage = imagecreatetruecolor((int)$newWidth, (int)$newHeight);
+                    $newImage = imagecreatetruecolor((int) $newWidth, (int) $newHeight);
 
                     // Preserve transparency
                     if ($extension === 'png' || $extension === 'webp') {
                         imagealphablending($newImage, false);
                         imagesavealpha($newImage, true);
                         $transparent = imagecolorallocatealpha($newImage, 255, 255, 255, 127);
-                        imagefilledrectangle($newImage, 0, 0, (int)$newWidth, (int)$newHeight, $transparent);
+                        imagefilledrectangle($newImage, 0, 0, (int) $newWidth, (int) $newHeight, $transparent);
                     }
 
-                    imagecopyresampled($newImage, $image, 0, 0, 0, 0, (int)$newWidth, (int)$newHeight, $width, $height);
+                    imagecopyresampled($newImage, $image, 0, 0, 0, 0, (int) $newWidth, (int) $newHeight, $width, $height);
                     imagedestroy($image);
                     $image = $newImage;
                 }
 
                 // Generate Filename
-                $filename = 'avatars/' . uniqid() . '.webp';
-                $fullPath = storage_path('app/public/' . $filename);
+                $filename = 'avatars/'.uniqid().'.webp';
+                $fullPath = storage_path('app/public/'.$filename);
 
                 // Ensure directory exists
-                if (!file_exists(dirname($fullPath))) {
+                if (! file_exists(dirname($fullPath))) {
                     mkdir(dirname($fullPath), 0755, true);
                 }
 
@@ -158,7 +159,7 @@ class ProfileController extends Controller
                 if ($user->avatar) {
                     Storage::disk('public')->delete($user->avatar);
                 }
-                
+
                 $user->avatar = $filename;
             } else {
                 // Fallback if GD fails or format unsupported

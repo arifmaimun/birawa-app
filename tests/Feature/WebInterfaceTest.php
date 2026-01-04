@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
 use App\Models\Client;
 use App\Models\Patient;
+use App\Models\User;
 use App\Models\Visit;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -18,7 +18,7 @@ class WebInterfaceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create a regular user (doctor/staff)
         $this->user = User::factory()->create([
             'role' => 'veterinarian',
@@ -89,7 +89,7 @@ class WebInterfaceTest extends TestCase
         $patient = Patient::factory()->create(['client_id' => $client->id]);
         $visit = Visit::factory()->create([
             'user_id' => $this->user->id,
-            'patient_id' => $patient->id
+            'patient_id' => $patient->id,
         ]);
 
         $response = $this->actingAs($this->user)->get(route('visits.show', $visit));

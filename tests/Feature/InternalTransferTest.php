@@ -59,7 +59,7 @@ class InternalTransferTest extends TestCase
             'sku' => 'PANA123',
             'stock_qty' => 20,
         ]);
-        
+
         // Check transactions
         $this->assertDatabaseCount('inventory_transactions', 2);
     }

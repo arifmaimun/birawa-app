@@ -48,7 +48,7 @@ class VisitStatusController extends Controller
     public function update(Request $request, VisitStatus $visitStatus)
     {
         $validated = $request->validate([
-            'name' => 'required|string|unique:visit_statuses,name,' . $visitStatus->id,
+            'name' => 'required|string|unique:visit_statuses,name,'.$visitStatus->id,
             'color' => 'nullable|string',
             'description' => 'nullable|string',
         ]);

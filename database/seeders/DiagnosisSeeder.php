@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Diagnosis;
+use Illuminate\Database\Seeder;
 
 class DiagnosisSeeder extends Seeder
 {
@@ -14,13 +14,13 @@ class DiagnosisSeeder extends Seeder
             ['code' => 'D001', 'name' => 'Dermatitis', 'category' => 'Skin'],
             ['code' => 'D002', 'name' => 'Fungal Infection', 'category' => 'Skin'],
             ['code' => 'D003', 'name' => 'Scabies', 'category' => 'Skin'],
-            
+
             // Digestive
             ['code' => 'G001', 'name' => 'Gastroenteritis', 'category' => 'Digestive'],
             ['code' => 'G002', 'name' => 'Diarrhea', 'category' => 'Digestive'],
             ['code' => 'G003', 'name' => 'Vomiting', 'category' => 'Digestive'],
             ['code' => 'G004', 'name' => 'Parvovirus', 'category' => 'Digestive'],
-            
+
             // Respiratory
             ['code' => 'R001', 'name' => 'Upper Respiratory Infection', 'category' => 'Respiratory'],
             ['code' => 'R002', 'name' => 'Pneumonia', 'category' => 'Respiratory'],

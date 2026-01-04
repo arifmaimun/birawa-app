@@ -1,14 +1,13 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientController;
-use App\Http\Controllers\PatientController;
-use App\Http\Controllers\VisitController;
-use App\Http\Controllers\ProductController;
-
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\OnboardingController;
-use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PatientController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\VisitController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return redirect()->route('dashboard');
@@ -35,10 +34,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profile/avatar', [App\Http\Controllers\ProfileController::class, 'updateAvatar'])->name('profile.avatar.update');
     Route::put('/password', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('password.update');
     Route::delete('/profile', [App\Http\Controllers\ProfileController::class, 'destroy'])->name('profile.destroy');
-    
+
     // Application Settings Hub
     Route::view('/settings', 'settings.index')->name('settings.index');
-    
+
     // Shift Management
     Route::resource('shifts', App\Http\Controllers\DoctorShiftController::class)->only(['index', 'store', 'update', 'destroy']);
 
@@ -51,7 +50,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::resource('clients', ClientController::class);
     Route::resource('patients', PatientController::class);
-    
+
     Route::get('visits/calendar-events', [VisitController::class, 'calendarEvents'])->name('visits.calendar-events');
     Route::get('visits/calendar', [VisitController::class, 'calendar'])->name('visits.calendar');
     Route::get('visits/recommend-route', [VisitController::class, 'recommendRoute'])->name('visits.recommend-route');
@@ -64,7 +63,6 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('visit-statuses', App\Http\Controllers\VisitStatusController::class);
     Route::resource('vital-sign-settings', App\Http\Controllers\VitalSignSettingController::class);
 
-    
     Route::get('products/check-sku', [ProductController::class, 'checkSku'])->name('products.check-sku');
     Route::resource('products', ProductController::class);
 
@@ -117,7 +115,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Expenses
     Route::resource('expenses', \App\Http\Controllers\ExpenseController::class);
-    
+
     // Finance Dashboard
     Route::get('/finance', [\App\Http\Controllers\FinanceController::class, 'index'])->name('finance.index');
 
@@ -134,7 +132,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/friends/request', [App\Http\Controllers\FriendshipController::class, 'sendRequest'])->name('friends.request');
     Route::post('/friends/{friendship}/accept', [App\Http\Controllers\FriendshipController::class, 'acceptRequest'])->name('friends.accept');
     Route::delete('/friends/{friendship}', [App\Http\Controllers\FriendshipController::class, 'destroy'])->name('friends.destroy');
-    
+
     // Chat UI
     Route::get('/chat', [App\Http\Controllers\ChatController::class, 'index'])->name('chat.index');
     Route::post('/chat', [App\Http\Controllers\ChatController::class, 'store'])->name('chat.store');

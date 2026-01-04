@@ -22,9 +22,9 @@ class VisitSchedulingTest extends TestCase
 
         $client = Client::factory()->create();
         $patient = Patient::factory()->create(['client_id' => $client->id]);
-        
+
         // Ensure status exists
-        $status = VisitStatus::where('slug', 'scheduled')->first() 
+        $status = VisitStatus::where('slug', 'scheduled')->first()
             ?? VisitStatus::factory()->create(['slug' => 'scheduled', 'name' => 'Scheduled']);
 
         $data = [
@@ -38,7 +38,7 @@ class VisitSchedulingTest extends TestCase
 
         $response->assertRedirect(route('visits.index'));
         $response->assertSessionHas('success');
-        
+
         $this->assertDatabaseHas('visits', [
             'patient_id' => $patient->id,
             'scheduled_at' => '2025-01-01 10:00:00',
@@ -78,14 +78,14 @@ class VisitSchedulingTest extends TestCase
         $response->assertRedirect();
         $this->assertDatabaseHas('visits', [
             'patient_id' => $patient->id,
-            'visit_status_id' => null
+            'visit_status_id' => null,
         ]);
     }
 
     public function test_calculates_distance_and_fee_correctly()
     {
         $doctor = User::factory()->create(['role' => 'veterinarian']);
-        
+
         // Setup Doctor Profile (Jakarta Center)
         DoctorProfile::create([
             'user_id' => $doctor->id,
@@ -101,28 +101,28 @@ class VisitSchedulingTest extends TestCase
             $mock->shouldReceive('getDistanceDuration')
                 ->andReturn([
                     'distance' => 5.0, // Exactly 5km
-                    'duration' => 15
+                    'duration' => 15,
                 ]);
         });
 
         $this->actingAs($doctor);
         $client = Client::factory()->create();
         $patient = Patient::factory()->create(['client_id' => $client->id]);
-        
-        $status = VisitStatus::where('slug', 'scheduled')->first() 
+
+        $status = VisitStatus::where('slug', 'scheduled')->first()
             ?? VisitStatus::factory()->create(['slug' => 'scheduled']);
 
         // Case: ~5km away
         $data = [
             'patient_id' => $patient->id,
             'scheduled_at' => '2025-01-01 10:00:00',
-            'latitude' => -6.245000, 
+            'latitude' => -6.245000,
             'longitude' => 106.816666,
         ];
 
         $response = $this->post(route('visits.store'), $data);
         $response->assertSessionHasNoErrors();
-        
+
         $visit = Visit::latest()->first();
         $this->assertNotNull($visit->distance_km);
         $this->assertEquals(75000, $visit->transport_fee); // 50k + (5 * 5k)
@@ -131,7 +131,7 @@ class VisitSchedulingTest extends TestCase
     public function test_rejects_location_outside_service_radius()
     {
         $doctor = User::factory()->create(['role' => 'veterinarian']);
-        
+
         DoctorProfile::create([
             'user_id' => $doctor->id,
             'latitude' => -6.200000,
@@ -144,7 +144,7 @@ class VisitSchedulingTest extends TestCase
             $mock->shouldReceive('getDistanceDuration')
                 ->andReturn([
                     'distance' => 20.0, // 20km
-                    'duration' => 60
+                    'duration' => 60,
                 ]);
         });
 
@@ -156,7 +156,7 @@ class VisitSchedulingTest extends TestCase
         $data = [
             'patient_id' => $patient->id,
             'scheduled_at' => '2025-01-01 10:00:00',
-            'latitude' => -6.400000, 
+            'latitude' => -6.400000,
             'longitude' => 106.816666,
         ];
 

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Referral;
 use App\Models\Patient;
+use App\Models\Referral;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -19,21 +19,22 @@ class ReferralController extends Controller
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('target_clinic_name', 'like', "%{$search}%")
-                      ->orWhere('notes', 'like', "%{$search}%")
-                      ->orWhereHas('patient', function ($q2) use ($search) {
-                          $q2->where('name', 'like', "%{$search}%");
-                      });
+                        ->orWhere('notes', 'like', "%{$search}%")
+                        ->orWhereHas('patient', function ($q2) use ($search) {
+                            $q2->where('name', 'like', "%{$search}%");
+                        });
                 });
             })
             ->latest()
             ->paginate(10);
-            
+
         return view('referrals.index', compact('referrals', 'search'));
     }
 
     public function create()
     {
         $patients = Patient::has('client')->orderBy('name')->get();
+
         return view('referrals.create', compact('patients'));
     }
 
@@ -64,7 +65,7 @@ class ReferralController extends Controller
 
         // LOGIC: If valid_until is past AND user is NOT logged in -> Redirect to login
         // If user IS logged in, they can view it.
-        if ($referral->valid_until->isPast() && !Auth::check()) {
+        if ($referral->valid_until->isPast() && ! Auth::check()) {
             return redirect()->route('login')->with('error', 'This referral link has expired. Please log in to view.');
         }
 
