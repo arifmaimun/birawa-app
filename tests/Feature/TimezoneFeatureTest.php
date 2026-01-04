@@ -28,7 +28,7 @@ class TimezoneFeatureTest extends TestCase
         $this->actingAs($user);
 
         // Make a request to a route that uses the middleware.
-        $response = $this->get('/birawa-hub');
+        $response = $this->get('/dashboard');
         
         $response->assertStatus(200);
         
@@ -53,7 +53,7 @@ class TimezoneFeatureTest extends TestCase
         ]);
 
         $this->actingAs($user);
-        $this->get('/birawa-hub');
+        $this->get('/dashboard');
 
         $this->assertEquals($defaultTimezone, Config::get('app.timezone'));
         $this->assertEquals($defaultTimezone, Config::get('app.display_timezone', $defaultTimezone));
@@ -66,7 +66,7 @@ class TimezoneFeatureTest extends TestCase
         $user = User::factory()->create();
         
         // Initial state
-        $this->assertNull($user->getFilamentAvatarUrl());
+        $this->assertNull($user->avatar_url);
         
         // Upload avatar
         $file = UploadedFile::fake()->image('avatar.jpg');
@@ -75,7 +75,7 @@ class TimezoneFeatureTest extends TestCase
         $user->update(['avatar' => $path]);
         
         // Check URL has timestamp
-        $url = $user->getFilamentAvatarUrl();
+        $url = $user->avatar_url;
         $this->assertNotNull($url);
         $this->assertStringContainsString('?t=' . $user->updated_at->timestamp, $url);
         
@@ -84,7 +84,7 @@ class TimezoneFeatureTest extends TestCase
         $user->touch(); // Update updated_at
         $user->refresh();
         
-        $newUrl = $user->getFilamentAvatarUrl();
+        $newUrl = $user->avatar_url;
         $this->assertNotEquals($url, $newUrl);
         $this->assertStringContainsString('?t=' . $user->updated_at->timestamp, $newUrl);
     }

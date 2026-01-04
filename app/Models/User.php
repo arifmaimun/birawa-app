@@ -98,15 +98,16 @@ class User extends Authenticatable
     {
         $friendsOfMine = $this->friendships()->where('status', 'accepted')->get()->pluck('friend');
         $friendOf = $this->hasMany(Friendship::class, 'friend_id')->where('status', 'accepted')->get()->pluck('user');
-        
+
         return $friendsOfMine->merge($friendOf);
     }
 
     public function getAvatarUrlAttribute()
     {
-        return $this->avatar 
-            ? Storage::url($this->avatar) 
-            : null;
+        if ($this->avatar) {
+            return Storage::url($this->avatar) . '?t=' . $this->updated_at->timestamp;
+        }
+        return null;
     }
 
     // Chat Relationships
@@ -119,6 +120,7 @@ class User extends Authenticatable
     {
         return $this->hasMany(Message::class, 'receiver_id');
     }
+
     public function pets()
     {
         return $this->belongsToMany(Patient::class, 'pet_owners');

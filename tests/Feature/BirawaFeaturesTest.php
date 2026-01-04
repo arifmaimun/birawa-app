@@ -17,7 +17,7 @@ use App\Services\InventoryService;
 use App\Services\MedicalRecordService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Livewire;
+// use Livewire\Livewire;
 use Tests\TestCase;
 
 class BirawaFeaturesTest extends TestCase

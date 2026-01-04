@@ -99,6 +99,16 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('stock-opnames', \App\Http\Controllers\StockOpnameController::class);
     Route::post('stock-opnames/{stockOpname}/complete', [\App\Http\Controllers\StockOpnameController::class, 'complete'])->name('stock-opnames.complete');
 
+    // Social Features (Friendships & Chat)
+    Route::get('/friends', [App\Http\Controllers\FriendshipController::class, 'index'])->name('friends.index');
+    Route::get('/friends/search', [App\Http\Controllers\FriendshipController::class, 'search'])->name('friends.search');
+    Route::post('/friends/request', [App\Http\Controllers\FriendshipController::class, 'sendRequest'])->name('friends.request');
+    Route::patch('/friends/{friendship}/accept', [App\Http\Controllers\FriendshipController::class, 'acceptRequest'])->name('friends.accept');
+
+    Route::get('/chat', [App\Http\Controllers\ChatController::class, 'index'])->name('chat.index');
+    Route::post('/chat', [App\Http\Controllers\ChatController::class, 'store'])->name('chat.store');
+    Route::get('/chat/messages/{user}', [App\Http\Controllers\ChatController::class, 'getMessages'])->name('chat.messages');
+
     Route::get('stock-opnames/{stockOpname}/export', [\App\Http\Controllers\StockOpnameController::class, 'export'])->name('stock-opnames.export');
     Route::post('stock-opnames/{stockOpname}/items/{item}', [\App\Http\Controllers\StockOpnameController::class, 'updateItem'])->name('stock-opnames.items.update');
 

@@ -103,7 +103,7 @@ class FullFlowTest extends TestCase
         $doc2 = User::factory()->create(['role' => 'veterinarian']);
 
         // 1. Doc1 sends request to Doc2
-        $response = $this->actingAs($doc1)->postJson(route('friendships.store'), [
+        $response = $this->actingAs($doc1)->postJson(route('friends.request'), [
             'friend_id' => $doc2->id
         ]);
         $response->assertStatus(201);
@@ -117,7 +117,7 @@ class FullFlowTest extends TestCase
         // 2. Doc2 accepts
         $friendship = Friendship::where('user_id', $doc1->id)->where('friend_id', $doc2->id)->first();
         
-        $response = $this->actingAs($doc2)->patchJson(route('friendships.accept', $friendship));
+        $response = $this->actingAs($doc2)->patchJson(route('friends.accept', $friendship));
         $response->assertStatus(200);
 
         // 3. Check bidirectional

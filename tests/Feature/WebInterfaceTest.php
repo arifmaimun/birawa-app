@@ -97,4 +97,21 @@ class WebInterfaceTest extends TestCase
         $response->assertStatus(200);
         $response->assertViewIs('visits.show');
     }
+
+    public function test_flash_messages_are_displayed()
+    {
+        $response = $this->actingAs($this->user)
+            ->withSession(['success' => 'Operation successful'])
+            ->get('/dashboard');
+
+        $response->assertStatus(200);
+        $response->assertSee('Operation successful');
+
+        $response = $this->actingAs($this->user)
+            ->withSession(['error' => 'Operation failed'])
+            ->get('/dashboard');
+
+        $response->assertStatus(200);
+        $response->assertSee('Operation failed');
+    }
 }

@@ -67,7 +67,7 @@ class SocialFeatureTest extends TestCase
             'message' => 'Hello Doctor!',
         ]);
 
-        $response->assertStatus(200);
+        $response->assertStatus(201);
         $this->assertDatabaseHas('messages', [
             'sender_id' => $user1->id,
             'receiver_id' => $user2->id,
